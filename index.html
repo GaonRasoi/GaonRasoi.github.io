@@ -1,0 +1,3648 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>गाँव रसोई | Gaon Rasoi - Village Food Delivery</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @keyframes slideUp {
+      from { transform: translateY(100%); opacity: 0.6; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .animate-slide-up { animation: slideUp 0.22s ease-out forwards; }
+    @media print {
+      body * { visibility: hidden !important; }
+      #receiptPrintArea, #receiptPrintArea * { visibility: visible !important; }
+      #receiptPrintArea { position: fixed; left: 0; top: 0; width: 100%; background: white; padding: 16px; }
+    }
+  </style>
+</head>
+<body class="bg-orange-50/40 text-slate-900 min-h-screen pb-28">
+
+  <!-- ===================================================================== -->
+  <!-- 1. TOP STICKY HEADER                                                  -->
+  <!-- ===================================================================== -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-orange-100 shadow-sm">
+    <div class="max-w-3xl mx-auto px-3.5 py-2.5 flex items-center justify-between gap-2">
+      <!-- Shop Logo (Tap 5 times in 3 seconds for Secret Admin Login) -->
+      <div class="flex items-center gap-2.5 min-w-0">
+        <button
+          id="shopLogoBtn"
+          type="button"
+          aria-label="Shop Logo"
+          class="w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 text-white flex items-center justify-center shadow-md shadow-orange-200 shrink-0 active:scale-95 transition select-none"
+        >
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 11h18M5 11a7 7 0 0 0 14 0M12 4v2M8 5l.5 1.5M16 5l-.5 1.5M7 19h10" />
+          </svg>
+        </button>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 id="headerShopName" class="text-base sm:text-lg font-extrabold text-slate-900 truncate">गाँव रसोई</h1>
+            <span id="headerStatusBadge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span id="headerStatusText">खुला है</span>
+            </span>
+          </div>
+          <p id="headerTagline" class="text-[11px] sm:text-xs text-slate-500 truncate">ताज़ा और गरमा-गरम खाना • 1–2 किमी डिलीवरी</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5 shrink-0">
+        <a id="headerCallBtn" href="#" class="hidden px-2.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">📞</a>
+        <button
+          id="langToggleBtn"
+          type="button"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-orange-800 text-xs sm:text-sm font-bold transition active:scale-95"
+        >
+          <span>🌐</span>
+          <span id="langToggleLabel">English</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- 2. MAIN CUSTOMER VIEW                                                 -->
+  <!-- ===================================================================== -->
+  <main class="max-w-3xl mx-auto px-3.5 pt-3 space-y-4">
+    <div id="serverBanner" class="hidden rounded-2xl p-3 text-xs sm:text-sm font-medium border"></div>
+
+    <div id="announcementBanner" class="hidden rounded-2xl bg-amber-50 border border-amber-200 px-3.5 py-2.5 text-amber-900 text-xs sm:text-sm font-bold flex items-center gap-2">
+      <span>📢</span>
+      <span id="announcementText"></span>
+    </div>
+
+    <div id="shopClosedBanner" class="hidden rounded-2xl bg-red-50 border border-red-200 p-3.5 text-red-800 text-sm font-semibold flex items-center gap-2.5">
+      <span class="text-xl">🛑</span>
+      <span id="shopClosedBannerText">दुकान अभी बंद है। कृपया खुलने के समय ऑर्डर करें।</span>
+    </div>
+
+    <!-- Hero Info Strip -->
+    <section class="rounded-2xl bg-gradient-to-br from-orange-600 via-orange-500 to-amber-500 text-white p-4 shadow-md shadow-orange-200/70">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <span id="heroBadge" class="inline-block bg-white/20 backdrop-blur px-2.5 py-0.5 rounded-full text-[11px] font-bold mb-1.5">
+            🛵 गाँव होम डिलीवरी (1–2 किमी)
+          </span>
+          <h2 id="heroTitle" class="text-lg sm:text-xl font-extrabold leading-snug">
+            घर बैठे गरमा-गरम नाश्ता मंगाएं!
+          </h2>
+          <p id="heroSubtitle" class="text-xs sm:text-sm text-orange-50 mt-1">
+            तेज़ डिलीवरी • केवल कैश ऑन डिलीवरी (COD)
+          </p>
+          <p id="heroHoursText" class="text-[11px] text-orange-100 mt-1 font-medium"></p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2 mt-3.5 pt-3 border-t border-white/20 text-center">
+        <div class="bg-white/10 rounded-xl py-1.5 px-2">
+          <div id="statDeliveryLabel" class="text-[10px] text-orange-100 font-medium">डिलीवरी चार्ज</div>
+          <div id="statDeliveryValue" class="text-sm font-extrabold">₹15</div>
+        </div>
+        <div class="bg-white/10 rounded-xl py-1.5 px-2">
+          <div id="statMinOrderLabel" class="text-[10px] text-orange-100 font-medium">न्यूनतम ऑर्डर</div>
+          <div id="statMinOrderValue" class="text-sm font-extrabold">₹50</div>
+        </div>
+        <div class="bg-white/10 rounded-xl py-1.5 px-2">
+          <div id="statPaymentLabel" class="text-[10px] text-orange-100 font-medium">भुगतान</div>
+          <div id="statPaymentValue" class="text-sm font-extrabold">COD</div>
+        </div>
+      </div>
+      <div id="freeDeliveryHintBanner" class="hidden mt-2.5 text-center bg-white/15 rounded-xl py-1.5 px-2 text-xs font-bold text-white"></div>
+    </section>
+
+    <!-- Track Recent Order Card -->
+    <section id="recentOrderCard" class="hidden rounded-2xl bg-white border border-emerald-200 p-3.5 shadow-sm">
+      <div class="flex items-center justify-between gap-2 flex-wrap">
+        <div>
+          <div class="flex items-center gap-2">
+            <span id="recentOrderTitle" class="text-xs font-bold text-slate-500 uppercase tracking-wide">आपका पिछला ऑर्डर</span>
+            <span id="recentOrderNum" class="text-xs font-extrabold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md"></span>
+          </div>
+          <p class="text-sm font-bold text-slate-800 mt-1">
+            <span id="recentOrderStatusLabel">स्थिति:</span>
+            <span id="recentOrderStatusBadge" class="ml-1 inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">Pending</span>
+          </p>
+          <p id="recentOrderRiderText" class="hidden text-xs text-slate-600 mt-0.5 font-semibold"></p>
+        </div>
+        <button id="refreshTrackBtn" type="button" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200 transition">
+          🔄 <span id="refreshTrackText">स्थिति देखें</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Menu Search, Category Filter Pills & Menu Grid -->
+    <section class="space-y-3">
+      <div class="flex items-center justify-between gap-2">
+        <h3 id="menuHeading" class="text-base sm:text-lg font-extrabold text-slate-900">आज का ताज़ा मेनू</h3>
+        <button id="refreshMenuBtn" type="button" class="text-xs font-bold text-orange-600 hover:text-orange-700 px-2.5 py-1 rounded-lg bg-orange-50 border border-orange-100">
+          ↻ <span id="refreshMenuText">रिफ्रेश</span>
+        </button>
+      </div>
+
+      <input id="customerMenuSearch" type="search" class="w-full rounded-xl bg-white border border-orange-100 px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" placeholder="🔍 समोसा, बर्गर, मोमोज़ खोजें..." />
+
+      <div id="categoryPills" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+
+      <div id="menuLoader" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="bg-white rounded-2xl p-3 border border-slate-100 animate-pulse flex gap-3">
+          <div class="w-24 h-24 rounded-xl bg-slate-200 shrink-0"></div>
+          <div class="flex-1 space-y-2 py-1">
+            <div class="h-4 bg-slate-200 rounded w-3/4"></div>
+            <div class="h-3 bg-slate-200 rounded w-full"></div>
+            <div class="h-6 bg-slate-200 rounded w-1/3 mt-3"></div>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl p-3 border border-slate-100 animate-pulse flex gap-3">
+          <div class="w-24 h-24 rounded-xl bg-slate-200 shrink-0"></div>
+          <div class="flex-1 space-y-2 py-1">
+            <div class="h-4 bg-slate-200 rounded w-3/4"></div>
+            <div class="h-3 bg-slate-200 rounded w-full"></div>
+            <div class="h-6 bg-slate-200 rounded w-1/3 mt-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="menuGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+    </section>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- 3. FLOATING BOTTOM CART BAR                                           -->
+  <!-- ===================================================================== -->
+  <div id="floatingCartBar" class="hidden fixed bottom-3 left-3 right-3 z-30 max-w-3xl mx-auto">
+    <button id="openCheckoutBtn" type="button" class="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-2xl px-4 py-3.5 shadow-xl shadow-slate-900/25 flex items-center justify-between gap-3 transition active:scale-[0.99]">
+      <div class="flex items-center gap-2.5 text-left">
+        <span class="w-9 h-9 rounded-xl bg-orange-500 text-white font-extrabold flex items-center justify-center text-sm" id="cartBadgeCount">0</span>
+        <div>
+          <div id="cartBarItemsText" class="text-xs text-slate-300 font-medium">0 आइटम चुने गए</div>
+          <div id="cartBarTotalText" class="text-base font-extrabold">₹0</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5 bg-orange-500 px-3.5 py-2 rounded-xl text-sm font-extrabold">
+        <span id="cartBarActionText">ऑर्डर देखें</span>
+        <span>→</span>
+      </div>
+    </button>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 4. CHECKOUT DRAWER / MODAL                                            -->
+  <!-- ===================================================================== -->
+  <div id="checkoutModal" class="hidden fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center">
+    <div class="bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl max-h-[92vh] flex flex-col shadow-2xl animate-slide-up overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0">
+        <h3 id="checkoutTitle" class="text-lg font-extrabold text-slate-900">आपका कार्ट और चेकआउट</h3>
+        <button id="closeCheckoutBtn" type="button" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center">✕</button>
+      </div>
+
+      <div class="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
+        <div id="checkoutItemsList" class="space-y-2.5"></div>
+
+        <!-- Coupon Code Input -->
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 space-y-2">
+          <div class="flex gap-2">
+            <input id="couponCodeInput" type="text" maxlength="20" class="flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm uppercase font-bold" placeholder="कूपन कोड (जैसे FIRST20)" />
+            <button id="applyCouponBtn" type="button" class="px-3.5 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold">लागू करें</button>
+            <button id="removeCouponBtn" type="button" class="hidden px-2.5 py-2 rounded-xl bg-red-100 text-red-700 text-xs font-bold">✕</button>
+          </div>
+          <p id="couponFeedbackMsg" class="hidden text-xs font-semibold"></p>
+        </div>
+
+        <!-- Bill Summary -->
+        <div class="bg-orange-50/70 border border-orange-100 rounded-2xl p-3.5 space-y-1.5 text-sm">
+          <div class="flex justify-between text-slate-600">
+            <span id="billSubtotalLabel">खाने का कुल मूल्य</span>
+            <span id="billSubtotalVal" class="font-bold text-slate-900">₹0</span>
+          </div>
+          <div id="billDiscountRow" class="hidden flex justify-between text-emerald-700">
+            <span id="billDiscountLabel">कूपन छूट</span>
+            <span id="billDiscountVal" class="font-bold">-₹0</span>
+          </div>
+          <div class="flex justify-between text-slate-600">
+            <span id="billDeliveryLabel">डिलीवरी चार्ज</span>
+            <span id="billDeliveryVal" class="font-bold text-slate-900">₹15</span>
+          </div>
+          <div class="border-t border-orange-200 pt-2 mt-1 flex justify-between text-base font-extrabold text-slate-900">
+            <span id="billTotalLabel">कुल देय राशि (COD)</span>
+            <span id="billTotalVal" class="text-orange-600">₹0</span>
+          </div>
+        </div>
+
+        <div id="minOrderWarning" class="hidden rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs sm:text-sm text-amber-800 font-semibold"></div>
+
+        <form id="checkoutForm" class="space-y-3.5" novalidate>
+          <div>
+            <label for="custName" id="lblCustName" class="block text-xs font-bold text-slate-700 mb-1">पूरा नाम *</label>
+            <input id="custName" type="text" required maxlength="80" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="जैसे: राहुल शर्मा" />
+          </div>
+
+          <div>
+            <label for="custPhone" id="lblCustPhone" class="block text-xs font-bold text-slate-700 mb-1">10 अंकों का मोबाइल नंबर *</label>
+            <input id="custPhone" type="tel" inputmode="numeric" required maxlength="14" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="जैसे: 9876543210" />
+            <p id="phoneErrorMsg" class="hidden text-xs text-red-600 font-semibold mt-1"></p>
+          </div>
+
+          <div>
+            <label for="custAddress" id="lblCustAddress" class="block text-xs font-bold text-slate-700 mb-1">गाँव का पता (मोहल्ला / गली / पास की पहचान) *</label>
+            <textarea id="custAddress" rows="2" required maxlength="250" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="उदाहरण: शिव मंदिर के पास, बड़ा मोहल्ला"></textarea>
+          </div>
+
+          <div>
+            <label for="custNote" id="lblCustNote" class="block text-xs font-bold text-slate-700 mb-1">खाना बनाने का विशेष निर्देश (वैकल्पिक)</label>
+            <input id="custNote" type="text" maxlength="160" class="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="जैसे: कम तीखा, एक्स्ट्रा हरी चटनी" />
+          </div>
+
+          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 space-y-2">
+            <button id="shareGpsBtn" type="button" class="w-full py-2.5 px-3 rounded-xl bg-white hover:bg-emerald-50 border border-emerald-300 text-emerald-700 font-bold text-sm flex items-center justify-center gap-2 transition active:scale-98">
+              <span id="shareGpsBtnText">📍 लाइव GPS लोकेशन साझा करें</span>
+            </button>
+            <p id="gpsStatusText" class="text-[11px] text-slate-500 text-center">वैकल्पिक: डिलीवरी बॉय को आपका घर आसानी से मिलने के लिए</p>
+            <div id="gpsConfirmedBox" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-xs text-emerald-800 flex items-center justify-between gap-2">
+              <div class="truncate">
+                <span class="font-bold" id="gpsSuccessLabel">✅ लोकेशन मिल गई:</span>
+                <a id="gpsPreviewLink" href="#" target="_blank" rel="noopener noreferrer" class="underline font-semibold ml-1">Google Maps</a>
+              </div>
+              <button id="clearGpsBtn" type="button" class="text-red-600 font-bold shrink-0 px-1.5">✕</button>
+            </div>
+          </div>
+
+          <div class="rounded-xl bg-emerald-50 border border-emerald-200 px-3.5 py-2.5 flex items-center gap-2 text-xs sm:text-sm font-bold text-emerald-800">
+            <span>💵</span>
+            <span id="codOnlyText">भुगतान का तरीका: केवल कैश ऑन डिलीवरी (COD / UPI at Door)</span>
+          </div>
+
+          <div id="checkoutErrorBox" class="hidden rounded-xl bg-red-50 border border-red-200 p-3 text-xs sm:text-sm text-red-700 font-semibold"></div>
+
+          <button id="placeOrderBtn" type="submit" class="w-full py-3.5 rounded-2xl bg-orange-600 hover:bg-orange-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-extrabold text-base shadow-lg shadow-orange-200 transition flex items-center justify-center gap-2">
+            <span id="placeOrderBtnText">ऑर्डर कन्फर्म करें (COD)</span>
+          </button>
+          <p id="coldStartHint" class="hidden text-center text-[11px] text-slate-500 animate-pulse"></p>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. ORDER SUCCESS MODAL -->
+  <div id="orderSuccessModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
+      <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mx-auto">✅</div>
+      <h3 id="successTitle" class="text-xl font-extrabold text-slate-900">ऑर्डर कन्फर्म हो गया!</h3>
+      <p id="successSubtitle" class="text-sm text-slate-600">आपका ताज़ा खाना जल्द ही तैयार होकर आपके घर पहुँचेगा।</p>
+      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 text-sm space-y-1">
+        <div class="text-xs text-slate-500 font-medium" id="successOrderNumLabel">ऑर्डर नंबर</div>
+        <div id="successOrderNumVal" class="text-lg font-extrabold text-orange-600">GR-0000</div>
+        <div id="successTotalVal" class="text-sm font-bold text-slate-800 pt-1">₹0 (COD)</div>
+      </div>
+      <button id="closeSuccessModalBtn" type="button" class="w-full py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm">
+        <span id="successDoneBtnText">ठीक है</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 6. SECRET ADMIN PASSWORD LOGIN MODAL -->
+  <div id="adminLoginModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <h3 id="adminLoginTitle" class="text-lg font-extrabold text-slate-900">🔐 एडमिन लॉगिन</h3>
+        <button id="closeAdminLoginBtn" type="button" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 font-bold">✕</button>
+      </div>
+      <p id="adminLoginDesc" class="text-xs text-slate-500">डैशबोर्ड खोलने के लिए एडमिन पासवर्ड दर्ज करें।</p>
+      <form id="adminLoginForm" class="space-y-3">
+        <input id="adminPasswordInput" type="password" required autocomplete="current-password" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900" placeholder="••••••••" />
+        <div id="adminLoginError" class="hidden text-xs text-red-600 font-semibold"></div>
+        <button id="adminLoginSubmitBtn" type="submit" class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm transition">
+          <span id="adminLoginSubmitText">लॉगिन करें</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 7. FULL-SCREEN SECRET ADMIN DASHBOARD (7 MANAGEMENT TABS)             -->
+  <!-- ===================================================================== -->
+  <div id="adminDashboard" class="hidden fixed inset-0 z-50 bg-slate-100 overflow-y-auto">
+    <div class="sticky top-0 z-20 bg-slate-900 text-white px-4 py-3 shadow-md">
+      <div class="max-w-6xl mx-auto flex items-center justify-between gap-2 flex-wrap">
+        <div class="flex items-center gap-2.5">
+          <span class="px-2 py-0.5 rounded-md bg-orange-500 text-xs font-extrabold">ADMIN</span>
+          <h2 id="adminHeaderTitle" class="font-extrabold text-base sm:text-lg">गाँव रसोई - एडमिन पैनल</h2>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button id="adminAutoRefreshBtn" type="button" class="px-2.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-xs font-bold border border-emerald-500">
+            🔔 <span id="autoRefreshLabel">ऑटो-अलर्ट: चालू</span>
+          </button>
+          <button id="adminLangBtn" type="button" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold border border-slate-700">🌐 EN/हिं</button>
+          <button id="adminRefreshBtn" type="button" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold border border-slate-700">↻ <span id="adminRefreshText">रिफ्रेश</span></button>
+          <button id="adminLogoutBtn" type="button" class="px-2.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-xs font-bold">🚪 <span id="adminLogoutText">लॉगआउट</span></button>
+          <button id="adminCloseBtn" type="button" class="px-2.5 py-1.5 rounded-lg bg-white text-slate-900 text-xs font-extrabold">✕ <span id="adminBackShopText">दुकान देखें</span></button>
+        </div>
+      </div>
+
+      <!-- 7 Admin Tabs -->
+      <div class="max-w-6xl mx-auto mt-3 flex gap-2 overflow-x-auto no-scrollbar pb-1">
+        <button data-admin-tab="orders" class="admin-tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-orange-500 text-white">📋 <span id="tabOrdersText">लाइव ऑर्डर</span></button>
+        <button data-admin-tab="menu" class="admin-tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-slate-800 text-slate-300">🍔 <span id="tabMenuText">मेनू और स्टॉक</span></button>
+        <button data-admin-tab="analytics" class="admin-tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-slate-800 text-slate-300">📈 <span id="tabAnalyticsText">लाभ और ख़र्च</span></button>
+        <button data-admin-tab="riders" class="admin-tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-slate-800 text-slate-300">🛵 <span id="tabRidersText">राइडर व कैश</span></button>
+        <button data-admin-tab="customers" class="admin-tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-slate-800 text-slate-300">👥 <span id="tabCustomersText">ग्राहक</span></button>
+        <button data-admin-tab="coupons" class="admin-tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-slate-800 text-slate-300">🎟️ <span id="tabCouponsText">कूपन / ऑफर</span></button>
+        <button data-admin-tab="settings" class="admin-tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-slate-800 text-slate-300">⚙️ <span id="tabSettingsText">सेटिंग्स</span></button>
+      </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto p-3.5 sm:p-5 space-y-4">
+
+      <!-- TAB 1: LIVE ORDERS + KOT + BILL + RIDER + CASH/UPI -->
+      <section id="adminTabOrders" class="space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <input id="adminOrderSearch" type="search" class="flex-1 min-w-[200px] rounded-xl bg-white border border-slate-200 px-3.5 py-2 text-sm" placeholder="🔍 ऑर्डर #, नाम, फोन या मोहल्ला खोजें..." />
+          <div class="flex gap-2">
+            <button id="openManualOrderBtn" type="button" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow">
+              📞 + <span id="addManualOrderText">फ़ोन ऑर्डर जोड़ें</span>
+            </button>
+            <button id="exportOrdersCsvBtn" type="button" class="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-bold">
+              📥 <span id="exportCsvText">CSV</span>
+            </button>
+          </div>
+        </div>
+        <div id="orderFilterPills" class="flex gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+        <div id="adminOrdersList" class="space-y-3"></div>
+      </section>
+
+      <!-- TAB 2: MENU, STOCK COUNT & MARGIN MANAGER -->
+      <section id="adminTabMenu" class="hidden space-y-4">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <h3 id="adminMenuHeading" class="font-extrabold text-slate-900 text-base">मेनू आइटम और लागत प्रबंधन</h3>
+          <div class="flex gap-2">
+            <input id="adminMenuSearch" type="search" class="rounded-xl bg-white border border-slate-200 px-3 py-1.5 text-xs sm:text-sm" placeholder="🔍 आइटम खोजें..." />
+            <button id="openAddItemBtn" type="button" class="px-3.5 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs sm:text-sm font-bold shadow">
+              + <span id="addItemBtnText">नया आइटम जोड़ें</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="menuItemFormCard" class="hidden bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 id="menuFormTitle" class="font-extrabold text-slate-900 text-sm">नया आइटम जोड़ें</h4>
+            <button id="cancelMenuFormBtn" type="button" class="text-xs font-bold text-slate-500 hover:text-slate-800">✕</button>
+          </div>
+          <form id="adminMenuForm" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input type="hidden" id="editItemId" />
+            <div>
+              <label id="lblItemNameHi" class="block text-xs font-bold text-slate-700 mb-1">नाम (हिंदी में) *</label>
+              <input id="itemNameHi" type="text" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="जैसे: समोसा" />
+            </div>
+            <div>
+              <label id="lblItemNameEn" class="block text-xs font-bold text-slate-700 mb-1">Name (English) *</label>
+              <input id="itemNameEn" type="text" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="e.g., Samosa" />
+            </div>
+            <div>
+              <label id="lblItemDescHi" class="block text-xs font-bold text-slate-700 mb-1">विवरण (हिंदी)</label>
+              <input id="itemDescHi" type="text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label id="lblItemDescEn" class="block text-xs font-bold text-slate-700 mb-1">Description (English)</label>
+              <input id="itemDescEn" type="text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label id="lblItemSelling" class="block text-xs font-bold text-slate-700 mb-1">बिक्री मूल्य (₹) *</label>
+              <input id="itemSellingPrice" type="number" min="0" step="1" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label id="lblItemCost" class="block text-xs font-bold text-slate-700 mb-1">बनाने की लागत (₹) *</label>
+              <input id="itemMakingCost" type="number" min="0" step="0.5" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label id="lblItemCategory" class="block text-xs font-bold text-slate-700 mb-1">कैटेगरी</label>
+              <select id="itemCategory" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm bg-white">
+                <option value="Snacks">Snacks</option>
+                <option value="Fast Food">Fast Food</option>
+                <option value="Chinese">Chinese</option>
+                <option value="Meals">Meals</option>
+                <option value="Beverages">Beverages</option>
+              </select>
+            </div>
+            <div>
+              <label id="lblItemStockCount" class="block text-xs font-bold text-slate-700 mb-1">दैनिक स्टॉक संख्या (खाली = असीमित)</label>
+              <input id="itemStockCount" type="number" min="0" placeholder="असीमित (या जैसे 30)" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+            </div>
+            <div class="sm:col-span-2">
+              <label id="lblItemImage" class="block text-xs font-bold text-slate-700 mb-1">Image URL</label>
+              <input id="itemImageUrl" type="url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="https://..." />
+            </div>
+            <div class="sm:col-span-2 flex flex-wrap items-center justify-between gap-3 pt-1">
+              <div class="flex flex-wrap items-center gap-4">
+                <label class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-700 cursor-pointer">
+                  <input id="itemInStock" type="checkbox" checked class="w-4 h-4 accent-emerald-600" />
+                  <span id="lblItemInStock">स्टॉक में (In Stock)</span>
+                </label>
+                <label class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-700 cursor-pointer">
+                  <input id="itemIsVeg" type="checkbox" checked class="w-4 h-4 accent-emerald-600" />
+                  <span id="lblItemIsVeg">🟢 शुद्ध शाकाहारी (Veg)</span>
+                </label>
+                <label class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-700 cursor-pointer">
+                  <input id="itemIsPopular" type="checkbox" class="w-4 h-4 accent-amber-500" />
+                  <span id="lblItemIsPopular">⭐ लोकप्रिय (Popular)</span>
+                </label>
+              </div>
+              <button type="submit" class="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold">
+                <span id="saveItemBtnText">सेव करें</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div id="adminMenuList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      </section>
+
+      <!-- TAB 3: PROFIT, CASH vs UPI & DAILY EXPENSES -->
+      <section id="adminTabAnalytics" class="hidden space-y-4">
+        <div id="analyticsContainer" class="space-y-4"></div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <h3 id="expenseSectionTitle" class="font-extrabold text-slate-900 text-base">💸 दैनिक दुकान ख़र्च (Daily Expenses)</h3>
+            <button id="exportExpensesCsvBtn" type="button" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold">📥 <span id="exportExpCsvText">ख़र्च CSV</span></button>
+          </div>
+          <form id="adminExpenseForm" class="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+            <input id="expTitle" type="text" required placeholder="ख़र्च का नाम (जैसे: गैस सिलेंडर)" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+            <select id="expCategory" class="rounded-xl border border-slate-300 px-3 py-2 text-sm bg-white">
+              <option value="Gas/Fuel">Gas / Fuel</option>
+              <option value="Ingredients">Ingredients / Sabzi</option>
+              <option value="Packaging">Packaging / Plates</option>
+              <option value="Delivery/Petrol">Delivery / Petrol</option>
+              <option value="Staff">Staff / Helper</option>
+              <option value="Other">Other</option>
+            </select>
+            <input id="expAmount" type="number" min="1" required placeholder="राशि (₹)" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+            <button type="submit" class="rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-bold py-2 px-4">
+              + <span id="addExpenseBtnText">ख़र्च जोड़ें</span>
+            </button>
+          </form>
+          <div id="expensesList" class="space-y-2 max-h-72 overflow-y-auto"></div>
+        </div>
+      </section>
+
+      <!-- TAB 4: RIDERS & COD CASH RECONCILIATION -->
+      <section id="adminTabRiders" class="hidden space-y-4">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
+          <h3 id="riderFormTitle" class="font-extrabold text-slate-900 text-base">🛵 डिलीवरी बॉय / राइडर जोड़ें</h3>
+          <form id="adminRiderForm" class="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+            <input id="riderName" type="text" required placeholder="राइडर का नाम (जैसे: राजू)" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+            <input id="riderPhone" type="tel" required maxlength="10" placeholder="10 अंकों का मोबाइल *" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+            <input id="riderVehicle" type="text" placeholder="बाइक / साइकिल" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+            <button type="submit" class="rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs sm:text-sm font-bold py-2 px-4">
+              + <span id="addRiderBtnText">राइडर जोड़ें</span>
+            </button>
+          </form>
+        </div>
+        <div id="adminRidersList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      </section>
+
+      <!-- TAB 5: CUSTOMERS CRM DIRECTORY -->
+      <section id="adminTabCustomers" class="hidden space-y-3">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <h3 id="customersHeading" class="font-extrabold text-slate-900 text-base">👥 ग्राहक खाता और इतिहास</h3>
+          <input id="adminCustomerSearch" type="search" class="rounded-xl bg-white border border-slate-200 px-3.5 py-2 text-sm min-w-[220px]" placeholder="🔍 नाम, फोन या मोहल्ला खोजें..." />
+        </div>
+        <div id="adminCustomersList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      </section>
+
+      <!-- TAB 6: COUPONS & PROMO OFFERS -->
+      <section id="adminTabCoupons" class="hidden space-y-4">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
+          <h3 id="couponFormTitle" class="font-extrabold text-slate-900 text-base">🎟️ नया कूपन कोड बनाएं</h3>
+          <form id="adminCouponForm" class="grid grid-cols-1 sm:grid-cols-5 gap-2.5">
+            <input id="couponCode" type="text" required maxlength="20" placeholder="Code (जैसे FIRST20)" class="rounded-xl border border-slate-300 px-3 py-2 text-sm uppercase font-bold" />
+            <select id="couponType" class="rounded-xl border border-slate-300 px-3 py-2 text-sm bg-white">
+              <option value="FLAT">Flat ₹ Off</option>
+              <option value="PERCENT">Percent % Off</option>
+              <option value="FREE_DELIVERY">Free Delivery</option>
+            </select>
+            <input id="couponValue" type="number" min="0" placeholder="छूट (₹ या %)" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+            <input id="couponMinOrder" type="number" min="0" placeholder="Min Order (₹)" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+            <button type="submit" class="rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs sm:text-sm font-bold py-2 px-4">
+              + <span id="addCouponBtnText">कूपन बनाएं</span>
+            </button>
+          </form>
+        </div>
+        <div id="adminCouponsList" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+      </section>
+
+      <!-- TAB 7: STORE SETTINGS & BLOCKED NUMBERS -->
+      <section id="adminTabSettings" class="hidden space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+            <h3 id="settingsFormTitle" class="font-extrabold text-slate-900 text-base">दुकान की सेटिंग्स</h3>
+            <form id="adminSettingsForm" class="space-y-3">
+              <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
+                <div>
+                  <div id="lblShopOpenToggle" class="text-sm font-bold text-slate-900">दुकान खुली है (Shop Open)</div>
+                  <div id="lblShopOpenSub" class="text-xs text-slate-500">बंद करने पर ग्राहक ऑर्डर नहीं कर पाएंगे</div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input id="settingIsOpen" type="checkbox" class="sr-only peer" />
+                  <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                </label>
+              </div>
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label id="lblShopNameHi" class="block text-xs font-bold text-slate-700 mb-1">दुकान का नाम (हिंदी)</label>
+                  <input id="settingShopNameHi" type="text" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label id="lblShopNameEn" class="block text-xs font-bold text-slate-700 mb-1">Shop Name (English)</label>
+                  <input id="settingShopNameEn" type="text" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label id="lblDeliveryCharge" class="block text-xs font-bold text-slate-700 mb-1">डिलीवरी चार्ज (₹)</label>
+                  <input id="settingDeliveryCharge" type="number" min="0" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label id="lblFreeDeliveryAbove" class="block text-xs font-bold text-slate-700 mb-1">फ़्री डिलीवरी (₹ से ऊपर, 0=बंद)</label>
+                  <input id="settingFreeDeliveryAbove" type="number" min="0" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label id="lblMinOrder" class="block text-xs font-bold text-slate-700 mb-1">न्यूनतम ऑर्डर (₹)</label>
+                  <input id="settingMinOrder" type="number" min="0" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label id="lblSupportPhone" class="block text-xs font-bold text-slate-700 mb-1">सहायता नंबर (Call)</label>
+                  <input id="settingSupportPhone" type="tel" maxlength="10" placeholder="9876543210" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                </div>
+              </div>
+              <div>
+                <label id="lblUpiId" class="block text-xs font-bold text-slate-700 mb-1">दुकान UPI ID (बिल/पेमेंट के लिए)</label>
+                <input id="settingUpiId" type="text" placeholder="जैसे: gaonrasoi@okicici" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+              </div>
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label id="lblHoursHi" class="block text-xs font-bold text-slate-700 mb-1">खुलने का समय (हिंदी)</label>
+                  <input id="settingHoursHi" type="text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label id="lblHoursEn" class="block text-xs font-bold text-slate-700 mb-1">Open Hours (English)</label>
+                  <input id="settingHoursEn" type="text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label id="lblAnnounceHi" class="block text-xs font-bold text-slate-700 mb-1">ऑफ़र सूचना (हिंदी)</label>
+                  <input id="settingAnnounceHi" type="text" placeholder="जैसे: आज मोमोज़ ताज़ा बन रहे हैं!" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label id="lblAnnounceEn" class="block text-xs font-bold text-slate-700 mb-1">Announcement (English)</label>
+                  <input id="settingAnnounceEn" type="text" placeholder="e.g. Free delivery above ₹199!" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                </div>
+              </div>
+              <button id="saveSettingsBtn" type="submit" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm">
+                <span id="saveSettingsBtnText">सेटिंग्स सेव करें</span>
+              </button>
+              <div id="settingsSavedMsg" class="hidden text-xs text-emerald-700 font-bold text-center"></div>
+            </form>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+            <h3 id="blockedTitle" class="font-extrabold text-slate-900 text-base">🚫 ब्लॉक किए गए नंबर</h3>
+            <form id="manualBlockForm" class="flex gap-2">
+              <input id="manualBlockPhone" type="tel" maxlength="10" placeholder="9876543210" class="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+              <button type="submit" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold">
+                <span id="blockBtnText">ब्लॉक करें</span>
+              </button>
+            </form>
+            <div id="blockedNumbersList" class="space-y-2 max-h-80 overflow-y-auto"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 8. ADMIN MANUAL PHONE ORDER MODAL                                     -->
+  <!-- ===================================================================== -->
+  <div id="manualOrderModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3">
+    <div class="bg-white rounded-3xl max-w-md w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
+        <h3 id="manualOrderTitle" class="font-extrabold text-slate-900 text-base">📞 नया फ़ोन / वॉक-इन ऑर्डर</h3>
+        <button id="closeManualOrderBtn" type="button" class="w-8 h-8 rounded-full bg-slate-100 font-bold text-slate-600">✕</button>
+      </div>
+      <form id="manualOrderForm" class="p-4 space-y-3 overflow-y-auto flex-1">
+        <div class="grid grid-cols-2 gap-2.5">
+          <input id="moName" type="text" required placeholder="ग्राहक का नाम *" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+          <input id="moPhone" type="tel" required maxlength="10" placeholder="मोबाइल (10 अंक) *" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+        </div>
+        <input id="moAddress" type="text" required placeholder="पता / मोहल्ला *" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+        <input id="moNote" type="text" placeholder="रसोई नोट (जैसे: कम मिर्च)" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+        <div class="grid grid-cols-2 gap-2.5">
+          <input id="moDelivery" type="number" min="0" placeholder="डिलीवरी चार्ज (₹)" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+          <select id="moStatus" class="rounded-xl border border-slate-300 px-3 py-2 text-sm bg-white">
+            <option value="Cooking">Cooking</option>
+            <option value="Pending">Pending</option>
+            <option value="Out for Delivery">Out for Delivery</option>
+            <option value="Delivered">Delivered</option>
+          </select>
+        </div>
+        <div id="moPickItemsLbl" class="text-xs font-bold text-slate-600 pt-1">आइटम चुनें:</div>
+        <div id="moItemsPicker" class="space-y-1.5 max-h-48 overflow-y-auto border border-slate-200 rounded-xl p-2 bg-slate-50"></div>
+        <button id="moSaveBtn" type="submit" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm">
+          ✅ ऑर्डर सेव करें
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 9. PRINTABLE BILL / KOT RECEIPT MODAL                                 -->
+  <!-- ===================================================================== -->
+  <div id="receiptModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl">
+      <div id="receiptPrintArea" class="p-5 font-mono text-xs text-slate-900 space-y-2"></div>
+      <div class="p-3 bg-slate-50 border-t border-slate-200 flex gap-2">
+        <button id="printReceiptBtn" type="button" class="flex-1 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs">🖨️ Print</button>
+        <button id="copyReceiptBtn" type="button" class="flex-1 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs">📋 Copy</button>
+        <button id="closeReceiptBtn" type="button" class="px-3 py-2 rounded-xl bg-slate-200 text-slate-800 font-bold text-xs">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 10. APPLICATION JAVASCRIPT                                            -->
+  <!-- ===================================================================== -->
+  <script>
+    // =========================================================================
+    // CONFIGURATION: Replace with your deployed Render Backend URL!
+    // =========================================================================
+    const RENDER_BACKEND_URL = "https://YOUR-RENDER-APP.onrender.com";
+
+    const API_BASE_URL =
+      window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+        ? "http://localhost:5000"
+        : RENDER_BACKEND_URL;
+
+    const FALLBACK_FOOD_IMG =
+      "data:image/svg+xml;utf8," +
+      encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+          <rect width="300" height="300" fill="#fff7ed"/>
+          <circle cx="150" cy="150" r="85" fill="#fed7aa"/>
+          <circle cx="150" cy="150" r="62" fill="#ffffff"/>
+          <text x="150" y="164" font-size="48" text-anchor="middle">🍽️</text>
+        </svg>`
+      );
+
+    const TRANSLATIONS = {
+      hi: {
+        langBtn: "English",
+        open: "खुला है",
+        closed: "बंद है",
+        tagline: "ताज़ा और गरमा-गरम खाना • 1–2 किमी डिलीवरी",
+        shopClosedBanner: "दुकान अभी बंद है। कृपया खुलने के समय पर ऑर्डर करें।",
+        heroBadge: "🛵 गाँव होम डिलीवरी (1–2 किमी)",
+        heroTitle: "घर बैठे गरमा-गरम नाश्ता मंगाएं!",
+        heroSubtitle: "तेज़ डिलीवरी • केवल कैश ऑन डिलीवरी (COD)",
+        deliveryCharge: "डिलीवरी चार्ज",
+        minOrder: "न्यूनतम ऑर्डर",
+        payment: "भुगतान",
+        freeDeliveryBanner: (amt) => `🎉 ₹${amt} या उससे ऊपर के ऑर्डर पर डिलीवरी बिल्कुल फ़्री!`,
+        freeDeliveryApplied: "फ़्री!",
+        recentOrderTitle: "आपका पिछला ऑर्डर",
+        statusLabel: "स्थिति:",
+        riderAssigned: (n, p) => `🛵 राइडर: ${n} (${p})`,
+        refreshTrack: "स्थिति देखें",
+        menuHeading: "आज का ताज़ा मेनू",
+        searchMenuPh: "🔍 समोसा, बर्गर, मोमोज़ खोजें...",
+        refresh: "रिफ्रेश",
+        allCategories: "सभी",
+        catSnacks: "नाश्ता",
+        catFastFood: "फास्ट फूड",
+        catChinese: "चाइनीज़",
+        catMeals: "भोजन",
+        catBeverages: "पेय",
+        outOfStock: "स्टॉक ख़त्म",
+        onlyLeft: (n) => `केवल ${n} बचे!`,
+        popularBadge: "⭐ लोकप्रिय",
+        addBtn: "+ जोड़ें",
+        itemsSelected: "आइटम चुने गए",
+        viewCart: "ऑर्डर देखें",
+        checkoutTitle: "आपका कार्ट और चेकआउट",
+        couponPh: "कूपन कोड (जैसे FIRST20)",
+        applyCoupon: "लागू करें",
+        couponAppliedMsg: (code, disc) => `✅ कूपन ${code} लागू! ₹${disc} की बचत हुई।`,
+        couponFreeDelMsg: (code) => `✅ कूपन ${code} लागू! डिलीवरी फ़्री हो गई।`,
+        couponMinFail: (code, min) => `⚠️ कूपन ${code} के लिए न्यूनतम ₹${min} का ऑर्डर ज़रूरी है।`,
+        subtotal: "खाने का कुल मूल्य",
+        discountLabel: "कूपन छूट",
+        totalCod: "कुल देय राशि (COD)",
+        minOrderWarn: (min, diff) => `न्यूनतम ऑर्डर ₹${min} होना ज़रूरी है। कृपया ₹${diff} का और सामान जोड़ें।`,
+        lblName: "पूरा नाम *",
+        phName: "जैसे: राहुल शर्मा",
+        lblPhone: "10 अंकों का मोबाइल नंबर *",
+        phPhone: "जैसे: 9876543210",
+        lblAddress: "गाँव का पता (मोहल्ला / गली / पास की पहचान) *",
+        phAddress: "उदाहरण: शिव मंदिर के पास, बड़ा मोहल्ला",
+        lblCustNote: "खाना बनाने का विशेष निर्देश (वैकल्पिक)",
+        phCustNote: "जैसे: कम तीखा, एक्स्ट्रा हरी चटनी",
+        errInvalidName: "कृपया सही नाम लिखें (कम से कम 2 अक्षर)।",
+        errInvalidPhone: "कृपया 6, 7, 8 या 9 से शुरू होने वाला 10 अंकों का सही भारतीय मोबाइल नंबर डालें।",
+        errInvalidAddress: "कृपया अपना पूरा मोहल्ला / गली / पास की पहचान लिखें।",
+        errShopClosed: "दुकान अभी बंद है, इसलिए ऑर्डर नहीं लिया जा सकता।",
+        errBlocked: "इस मोबाइल नंबर को ऑर्डर करने से ब्लॉक किया गया है।",
+        shareGps: "📍 लाइव GPS लोकेशन साझा करें",
+        gpsFetching: "📡 आपकी GPS लोकेशन खोजी जा रही है...",
+        gpsHint: "वैकल्पिक: डिलीवरी बॉय को आपका घर आसानी से मिलने के लिए",
+        gpsSuccess: "✅ लोकेशन मिल गई:",
+        gpsUnsupported: "आपके ब्राउज़र में GPS लोकेशन उपलब्ध नहीं है।",
+        gpsDenied: "GPS अनुमति नहीं मिली। कृपया ऊपर पूरा पता लिखें।",
+        codOnly: "भुगतान का तरीका: कैश ऑन डिलीवरी (Cash / UPI at Door)",
+        placeOrderBtn: "ऑर्डर कन्फर्म करें (COD)",
+        placingOrderBtn: "ऑर्डर कन्फर्म हो रहा है, कृपया प्रतीक्षा करें...",
+        coldStartNote: "मुफ़्त सर्वर शुरू होने में 15–30 सेकंड लग सकते हैं, कृपया पेज बंद न करें।",
+        serverWaking: "⏳ दुकान का सर्वर शुरू हो रहा है, कृपया कुछ सेकंड प्रतीक्षा करें...",
+        serverError: "⚠️ सर्वर से संपर्क नहीं हो पा रहा है। कृपया कुछ देर बाद रिफ्रेश करें।",
+        backendNotSet: "⚙️ सेटअप बाकी है: index.html में RENDER_BACKEND_URL डालें (अभी Demo Preview दिख रहा है)।",
+        successTitle: "ऑर्डर कन्फर्म हो गया!",
+        successSubtitle: "आपका ताज़ा खाना जल्द ही तैयार होकर आपके घर पहुँचेगा।",
+        orderNumber: "ऑर्डर नंबर",
+        done: "ठीक है",
+        // Admin UI
+        adminLoginTitle: "🔐 एडमिन लॉगिन",
+        adminLoginDesc: "डैशबोर्ड खोलने के लिए एडमिन पासवर्ड दर्ज करें।",
+        adminLoginBtn: "लॉगिन करें",
+        adminLoginChecking: "जाँच हो रही है...",
+        adminDemoHint: "⚠️ अभी Render Backend नहीं जुड़ा है। Demo देखने के लिए पासवर्ड में 'demo' डालें।",
+        adminDemoWrong: "Backend अभी जुड़ा नहीं है। Demo देखने के लिए 'demo' लिखें।",
+        adminHeaderTitle: "गाँव रसोई - एडमिन पैनल",
+        autoRefreshOn: "ऑटो-अलर्ट: चालू",
+        autoRefreshOff: "ऑटो-अलर्ट: बंद",
+        logout: "लॉगआउट",
+        backToShop: "दुकान देखें",
+        tabOrders: "लाइव ऑर्डर",
+        tabMenu: "मेनू और स्टॉक",
+        tabAnalytics: "लाभ और ख़र्च",
+        tabRiders: "राइडर व कैश",
+        tabCustomers: "ग्राहक",
+        tabCoupons: "कूपन / ऑफर",
+        tabSettings: "सेटिंग्स",
+        searchOrdersPh: "🔍 ऑर्डर #, नाम, फोन या मोहल्ला खोजें...",
+        searchMenuAdminPh: "🔍 आइटम खोजें...",
+        searchCustPh: "🔍 नाम, फोन या मोहल्ला खोजें...",
+        addManualOrder: "फ़ोन ऑर्डर जोड़ें",
+        manualOrderTitle: "📞 नया फ़ोन / वॉक-इन ऑर्डर",
+        moNamePh: "ग्राहक का नाम *",
+        moPhonePh: "मोबाइल (10 अंक) *",
+        moAddrPh: "पता / मोहल्ला *",
+        moNotePh: "रसोई नोट (जैसे: कम मिर्च)",
+        moDelPh: "डिलीवरी चार्ज (₹)",
+        moPickItems: "आइटम चुनें:",
+        moSaveBtn: "✅ ऑर्डर सेव करें",
+        noOrders: "कोई ऑर्डर नहीं मिला।",
+        callCustomer: "कॉल",
+        whatsappCustomer: "WhatsApp",
+        openMap: "GPS मैप",
+        kotBtn: "KOT",
+        billBtn: "बिल",
+        assignRiderOpt: "-- राइडर चुनें --",
+        blockNumber: "ब्लॉक",
+        alreadyBlocked: "ब्लॉक है",
+        confirmBlock: (ph) => `क्या आप ${ph} को ब्लॉक करना चाहते हैं?`,
+        confirmDeleteOrder: "क्या आप इस ऑर्डर को हमेशा के लिए हटाना चाहते हैं?",
+        addNewItem: "नया आइटम जोड़ें",
+        editItem: "आइटम संपादित करें",
+        adminMenuHeading: "मेनू आइटम और लागत प्रबंधन",
+        lblItemNameHi: "नाम (हिंदी में) *",
+        lblItemNameEn: "Name (English) *",
+        lblItemDescHi: "विवरण (हिंदी)",
+        lblItemDescEn: "Description (English)",
+        lblItemSelling: "बिक्री मूल्य (₹) *",
+        lblItemCost: "बनाने की लागत (₹) *",
+        lblItemCategory: "कैटेगरी",
+        lblItemStockCount: "दैनिक स्टॉक संख्या (खाली = असीमित)",
+        lblItemImage: "Image URL",
+        lblItemInStock: "स्टॉक में (In Stock)",
+        lblItemIsVeg: "🟢 शुद्ध शाकाहारी (Veg)",
+        lblItemIsPopular: "⭐ लोकप्रिय (Popular)",
+        save: "सेव करें",
+        inStock: "स्टॉक में है",
+        markOutStock: "स्टॉक ख़त्म",
+        sellingPrice: "बिक्री",
+        makingCost: "लागत",
+        profitPerItem: "मुनाफ़ा",
+        stockLeftBadge: (n) => `📦 स्टॉक: ${n}`,
+        deleteConfirm: "क्या आप इस आइटम को हमेशा के लिए हटाना चाहते हैं?",
+        todayTitle: "आज का हिसाब (Today - IST)",
+        monthTitle: "इस महीने का हिसाब (This Month)",
+        allTimeTitle: "कुल हिसाब (All Time)",
+        deliveredOrdersSub: "डिलीवर हुए ऑर्डर",
+        totalSales: "कुल बिक्री (Sales)",
+        cashVsUpi: (c, u) => `💵 Cash: ₹${c} | 📲 UPI: ₹${u}`,
+        totalMakingCost: "मेकिंग लागत (Cost)",
+        deliveryCollected: "डिलीवरी संग्रह",
+        extraExpenses: "दैनिक ख़र्च (Expenses)",
+        netProfit: "शुद्ध मुनाफ़ा (Net Profit)",
+        topItemsTitle: "🏆 सबसे ज़्यादा बिकने वाले आइटम",
+        noTopItems: "अभी कोई डिलीवर ऑर्डर डेटा नहीं है।",
+        orderSummaryCounts: "ऑर्डर स्थिति सारांश",
+        expenseSectionTitle: "💸 दैनिक दुकान ख़र्च (Daily Expenses)",
+        expTitlePh: "ख़र्च का नाम (जैसे: गैस सिलेंडर)",
+        expAmtPh: "राशि (₹)",
+        exportExpCsv: "ख़र्च CSV",
+        addExpenseBtn: "ख़र्च जोड़ें",
+        noExpenses: "अभी कोई अतिरिक्त ख़र्च दर्ज नहीं है।",
+        riderFormTitle: "🛵 डिलीवरी बॉय / राइडर जोड़ें",
+        riderNamePh: "राइडर का नाम (जैसे: राजू)",
+        riderPhonePh: "10 अंकों का मोबाइल *",
+        riderVehPh: "बाइक / साइकिल",
+        addRiderBtn: "राइडर जोड़ें",
+        noRiders: "अभी कोई राइडर नहीं जोड़ा गया है।",
+        settleCashBtn: "✅ कैश हिसाब साफ़ करें",
+        cashSettledMsg: "हिसाब साफ़ ✅",
+        customersHeading: "👥 ग्राहक खाता और इतिहास",
+        custOrdersLbl: "ऑर्डर",
+        custDeliveredLbl: "डिलीवर",
+        noCustomers: "कोई ग्राहक डेटा नहीं मिला।",
+        couponFormTitle: "🎟️ नया कूपन कोड बनाएं",
+        addCouponBtn: "कूपन बनाएं",
+        minOrderShort: "न्यूनतम",
+        usedShort: "उपयोग",
+        noCoupons: "कोई कूपन कोड नहीं बनाया गया है।",
+        settingsFormTitle: "दुकान की सेटिंग्स",
+        lblShopOpenToggle: "दुकान खुली है (Shop Open)",
+        lblShopOpenSub: "बंद करने पर ग्राहक ऑर्डर नहीं कर पाएंगे",
+        lblShopNameHi: "दुकान का नाम (हिंदी)",
+        lblShopNameEn: "Shop Name (English)",
+        lblDeliveryCharge: "डिलीवरी चार्ज (₹)",
+        lblFreeDeliveryAbove: "फ़्री डिलीवरी (₹ से ऊपर, 0=बंद)",
+        lblMinOrder: "न्यूनतम ऑर्डर (₹)",
+        lblSupportPhone: "सहायता नंबर (Call)",
+        lblUpiId: "दुकान UPI ID (बिल के लिए)",
+        lblHoursHi: "खुलने का समय (हिंदी)",
+        lblHoursEn: "Open Hours (English)",
+        lblAnnounceHi: "ऑफ़र सूचना (हिंदी)",
+        lblAnnounceEn: "Announcement (English)",
+        settingsSaved: "✅ सेटिंग्स सफलतापूर्वक सेव हो गईं!",
+        saveSettings: "सेटिंग्स सेव करें",
+        blockedListTitle: "🚫 ब्लॉक किए गए नंबर",
+        blockBtn: "ब्लॉक करें",
+        unblockBtn: "अनलॉक",
+        noBlocked: "कोई नंबर ब्लॉक नहीं है।",
+        statuses: {
+          All: "सभी",
+          Pending: "लंबित (Pending)",
+          Cooking: "बन रहा है (Cooking)",
+          "Out for Delivery": "रास्ते में है",
+          Delivered: "डिलीवर हो गया",
+          Cancelled: "रद्द (Cancelled)",
+        },
+      },
+      en: {
+        langBtn: "हिंदी",
+        open: "OPEN",
+        closed: "CLOSED",
+        tagline: "Fresh & Hot Food • 1–2 km Village Delivery",
+        shopClosedBanner: "Shop is currently closed. Please order during open hours.",
+        heroBadge: "🛵 Village Home Delivery (1–2 km)",
+        heroTitle: "Hot & Fresh Snacks at Your Doorstep!",
+        heroSubtitle: "Fast Hyperlocal Delivery • Cash on Delivery (COD) Only",
+        deliveryCharge: "Delivery Fee",
+        minOrder: "Min Order",
+        payment: "Payment",
+        freeDeliveryBanner: (amt) => `🎉 FREE Delivery on orders ₹${amt} & above!`,
+        freeDeliveryApplied: "FREE!",
+        recentOrderTitle: "Your Recent Order",
+        statusLabel: "Status:",
+        riderAssigned: (n, p) => `🛵 Rider: ${n} (${p})`,
+        refreshTrack: "Check Status",
+        menuHeading: "Today's Fresh Menu",
+        searchMenuPh: "🔍 Search samosa, burger, momos...",
+        refresh: "Refresh",
+        allCategories: "All",
+        catSnacks: "Snacks",
+        catFastFood: "Fast Food",
+        catChinese: "Chinese",
+        catMeals: "Meals",
+        catBeverages: "Beverages",
+        outOfStock: "Out of Stock",
+        onlyLeft: (n) => `Only ${n} left!`,
+        popularBadge: "⭐ Popular",
+        addBtn: "+ Add",
+        itemsSelected: "items selected",
+        viewCart: "View Cart",
+        checkoutTitle: "Your Cart & Checkout",
+        couponPh: "Promo code (e.g. FIRST20)",
+        applyCoupon: "Apply",
+        couponAppliedMsg: (code, disc) => `✅ Coupon ${code} applied! You save ₹${disc}.`,
+        couponFreeDelMsg: (code) => `✅ Coupon ${code} applied! Delivery is FREE.`,
+        couponMinFail: (code, min) => `⚠️ Min order ₹${min} required for coupon ${code}.`,
+        subtotal: "Items Subtotal",
+        discountLabel: "Coupon Discount",
+        totalCod: "Total Payable (COD)",
+        minOrderWarn: (min, diff) => `Minimum order value is ₹${min}. Please add ₹${diff} more to checkout.`,
+        lblName: "Customer Full Name *",
+        phName: "e.g., Rahul Sharma",
+        lblPhone: "10-digit Mobile Number *",
+        phPhone: "e.g., 9876543210",
+        lblAddress: "Village Address (Mohalla / Gali / Near Landmark) *",
+        phAddress: "e.g., Near Shiv Mandir, Bada Mohalla",
+        lblCustNote: "Special Cooking Note (Optional)",
+        phCustNote: "e.g., Less spicy, extra green chutney",
+        errInvalidName: "Please enter a valid name (at least 2 characters).",
+        errInvalidPhone: "Please enter a valid 10-digit Indian mobile number starting with 6-9.",
+        errInvalidAddress: "Please enter your Mohalla / Gali / Landmark address.",
+        errShopClosed: "Shop is currently closed. Orders cannot be placed right now.",
+        errBlocked: "This phone number has been blocked from placing orders.",
+        shareGps: "📍 Share Live GPS Location",
+        gpsFetching: "📡 Fetching your live GPS location...",
+        gpsHint: "Optional: Helps our delivery boy find your home quickly",
+        gpsSuccess: "✅ Location captured:",
+        gpsUnsupported: "GPS Geolocation is not supported in your browser.",
+        gpsDenied: "GPS permission denied. Please enter your landmark address above.",
+        codOnly: "Payment Mode: Cash on Delivery (Cash / UPI at Door)",
+        placeOrderBtn: "Confirm Order (COD)",
+        placingOrderBtn: "Confirming your order, please wait...",
+        coldStartNote: "Free server wake-up may take 15–30 seconds. Please do not close this page.",
+        serverWaking: "⏳ Waking up shop server, please wait a few seconds...",
+        serverError: "⚠️ Unable to reach shop server. Please refresh in a moment.",
+        backendNotSet: "⚙️ Setup needed: Set RENDER_BACKEND_URL in index.html (Demo Preview active).",
+        successTitle: "Order Confirmed!",
+        successSubtitle: "Your food is being prepared and will arrive at your doorstep soon.",
+        orderNumber: "Order Number",
+        done: "Done",
+        // Admin UI
+        adminLoginTitle: "🔐 Secret Admin Login",
+        adminLoginDesc: "Enter the admin password to access the store dashboard.",
+        adminLoginBtn: "Login",
+        adminLoginChecking: "Verifying...",
+        adminDemoHint: "⚠️ Render Backend not connected yet. Enter 'demo' to preview Admin UI.",
+        adminDemoWrong: "Backend not connected yet. Enter 'demo' to preview Admin UI.",
+        adminHeaderTitle: "Gaon Rasoi - Admin Panel",
+        autoRefreshOn: "Auto-Alert: ON",
+        autoRefreshOff: "Auto-Alert: OFF",
+        logout: "Logout",
+        backToShop: "Back to Shop",
+        tabOrders: "Live Orders",
+        tabMenu: "Menu & Stock",
+        tabAnalytics: "Profit & Expenses",
+        tabRiders: "Riders & Cash",
+        tabCustomers: "Customers",
+        tabCoupons: "Coupons",
+        tabSettings: "Settings",
+        searchOrdersPh: "🔍 Search Order #, name, phone or address...",
+        searchMenuAdminPh: "🔍 Search items...",
+        searchCustPh: "🔍 Search name, phone or address...",
+        addManualOrder: "Add Phone Order",
+        manualOrderTitle: "📞 New Phone / Walk-in Order",
+        moNamePh: "Customer Name *",
+        moPhonePh: "Mobile (10 digits) *",
+        moAddrPh: "Address / Mohalla *",
+        moNotePh: "Kitchen note (e.g. less spicy)",
+        moDelPh: "Delivery Charge (₹)",
+        moPickItems: "Select Items:",
+        moSaveBtn: "✅ Save Order",
+        noOrders: "No orders found.",
+        callCustomer: "Call",
+        whatsappCustomer: "WhatsApp",
+        openMap: "GPS Map",
+        kotBtn: "KOT",
+        billBtn: "Bill",
+        assignRiderOpt: "-- Assign Rider --",
+        blockNumber: "Block",
+        alreadyBlocked: "Blocked",
+        confirmBlock: (ph) => `Block ${ph} from placing future orders?`,
+        confirmDeleteOrder: "Permanently delete this order?",
+        addNewItem: "Add New Item",
+        editItem: "Edit Menu Item",
+        adminMenuHeading: "Menu Items & Cost Manager",
+        lblItemNameHi: "Name (Hindi) *",
+        lblItemNameEn: "Name (English) *",
+        lblItemDescHi: "Description (Hindi)",
+        lblItemDescEn: "Description (English)",
+        lblItemSelling: "Selling Price (₹) *",
+        lblItemCost: "Making Cost (₹) *",
+        lblItemCategory: "Category",
+        lblItemStockCount: "Daily Stock Qty (Blank = Unlimited)",
+        lblItemImage: "Image URL",
+        lblItemInStock: "In Stock",
+        lblItemIsVeg: "🟢 Pure Veg",
+        lblItemIsPopular: "⭐ Popular",
+        save: "Save Item",
+        inStock: "In Stock",
+        markOutStock: "Out of Stock",
+        sellingPrice: "Selling",
+        makingCost: "Cost",
+        profitPerItem: "Profit",
+        stockLeftBadge: (n) => `📦 Stock: ${n}`,
+        deleteConfirm: "Permanently delete this menu item?",
+        todayTitle: "Today's Performance (IST)",
+        monthTitle: "This Month (IST)",
+        allTimeTitle: "All-Time Performance",
+        deliveredOrdersSub: "Delivered Orders",
+        totalSales: "Total Sales",
+        cashVsUpi: (c, u) => `💵 Cash: ₹${c} | 📲 UPI: ₹${u}`,
+        totalMakingCost: "Making Cost",
+        deliveryCollected: "Delivery Fees",
+        extraExpenses: "Shop Expenses",
+        netProfit: "Net Profit",
+        topItemsTitle: "🏆 Top Selling Items",
+        noTopItems: "No delivered order data yet.",
+        orderSummaryCounts: "Order Status Breakdown",
+        expenseSectionTitle: "💸 Daily Shop Expenses",
+        expTitlePh: "Expense title (e.g. Gas Cylinder)",
+        expAmtPh: "Amount (₹)",
+        exportExpCsv: "Expenses CSV",
+        addExpenseBtn: "Add Expense",
+        noExpenses: "No extra expenses recorded yet.",
+        riderFormTitle: "🛵 Add Delivery Boy / Rider",
+        riderNamePh: "Rider Name (e.g. Raju)",
+        riderPhonePh: "10-digit Mobile *",
+        riderVehPh: "Bike / Cycle",
+        addRiderBtn: "Add Rider",
+        noRiders: "No delivery riders added yet.",
+        settleCashBtn: "✅ Settle Cash",
+        cashSettledMsg: "Cash Settled ✅",
+        customersHeading: "👥 Customers Directory & History",
+        custOrdersLbl: "Orders",
+        custDeliveredLbl: "Delivered",
+        noCustomers: "No customer history found yet.",
+        couponFormTitle: "🎟️ Create Promo Coupon",
+        addCouponBtn: "Create Coupon",
+        minOrderShort: "Min",
+        usedShort: "Used",
+        noCoupons: "No coupons created yet.",
+        settingsFormTitle: "Store Settings",
+        lblShopOpenToggle: "Shop Open",
+        lblShopOpenSub: "Customers cannot place orders when closed",
+        lblShopNameHi: "Shop Name (Hindi)",
+        lblShopNameEn: "Shop Name (English)",
+        lblDeliveryCharge: "Delivery Charge (₹)",
+        lblFreeDeliveryAbove: "Free Delivery Above ₹ (0 = off)",
+        lblMinOrder: "Minimum Order Amount (₹)",
+        lblSupportPhone: "Support Phone (Call)",
+        lblUpiId: "Shop UPI ID (for Bills)",
+        lblHoursHi: "Open Hours (Hindi)",
+        lblHoursEn: "Open Hours (English)",
+        lblAnnounceHi: "Announcement (Hindi)",
+        lblAnnounceEn: "Announcement (English)",
+        settingsSaved: "✅ Settings saved successfully!",
+        saveSettings: "Save Settings",
+        blockedListTitle: "🚫 Blocked Phone Numbers",
+        blockBtn: "Block",
+        unblockBtn: "Unblock",
+        noBlocked: "No blocked phone numbers.",
+        statuses: {
+          All: "All",
+          Pending: "Pending",
+          Cooking: "Cooking",
+          "Out for Delivery": "Out for Delivery",
+          Delivered: "Delivered",
+          Cancelled: "Cancelled",
+        },
+      },
+    };
+
+    const FALLBACK_DEFAULT_MENU = [
+      {
+        _id: "demo-1",
+        nameHi: "गरमा-गरम समोसा",
+        nameEn: "Samosa",
+        descHi: "तीखी हरी और मीठी इमली चटनी के साथ (1 पीस)",
+        descEn: "Crispy potato-stuffed pastry with green & tamarind chutney (1 pc)",
+        category: "Snacks",
+        sellingPrice: 15,
+        makingCost: 7,
+        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        stockCount: null,
+        isVeg: true,
+        isPopular: true,
+      },
+      {
+        _id: "demo-2",
+        nameHi: "आलू पैटीज़",
+        nameEn: "Patties",
+        descHi: "खस्ता बेक्ड पफ पेस्ट्री मसाला आलू के साथ",
+        descEn: "Flaky golden puff pastry filled with spiced potato masala",
+        category: "Snacks",
+        sellingPrice: 25,
+        makingCost: 12,
+        imageUrl: "https://images.unsplash.com/photo-1626776876729-bab4369a5a5a?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        stockCount: null,
+        isVeg: true,
+        isPopular: false,
+      },
+      {
+        _id: "demo-3",
+        nameHi: "देसी मसाला बर्गर",
+        nameEn: "Burger",
+        descHi: "क्रिस्पी आलू टिक्की, प्याज़, टमाटर और स्पेशल सॉस",
+        descEn: "Crispy aloo tikki patty, fresh veggies & tangy house sauce",
+        category: "Fast Food",
+        sellingPrice: 40,
+        makingCost: 19,
+        imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        stockCount: null,
+        isVeg: true,
+        isPopular: false,
+      },
+      {
+        _id: "demo-4",
+        nameHi: "वेज चाउमीन",
+        nameEn: "Veg Chowmein",
+        descHi: "ताज़ी सब्ज़ियों और देसी मसालों के साथ फुल प्लेट",
+        descEn: "Street-style stir-fried noodles tossed with crunchy veggies",
+        category: "Chinese",
+        sellingPrice: 50,
+        makingCost: 22,
+        imageUrl: "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        stockCount: null,
+        isVeg: true,
+        isPopular: true,
+      },
+      {
+        _id: "demo-5",
+        nameHi: "एग चाउमीन",
+        nameEn: "Egg Chowmein",
+        descHi: "डबल अंडे और स्पाइसी सॉस के साथ गरम चाउमीन",
+        descEn: "Wok-tossed noodles with scrambled egg, cabbage & chili sauce",
+        category: "Chinese",
+        sellingPrice: 70,
+        makingCost: 33,
+        imageUrl: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        stockCount: null,
+        isVeg: false,
+        isPopular: false,
+      },
+      {
+        _id: "demo-6",
+        nameHi: "वेज मोमोज़ (8 पीस)",
+        nameEn: "Momos",
+        descHi: "तीखी लाल मोमो चटनी के साथ गरम स्टीम्ड मोमोज़",
+        descEn: "Steamed dumplings (8 pcs) served with fiery red garlic chutney",
+        category: "Chinese",
+        sellingPrice: 50,
+        makingCost: 22,
+        imageUrl: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        stockCount: 12,
+        isVeg: true,
+        isPopular: true,
+      },
+      {
+        _id: "demo-7",
+        nameHi: "कचौड़ी सब्ज़ी",
+        nameEn: "Kachori Sabzi",
+        descHi: "2 खस्ता कचौड़ी और चटपटी आलू रसेदार सब्ज़ी",
+        descEn: "2 crispy dal kachoris paired with spicy homestyle aloo sabzi",
+        category: "Meals",
+        sellingPrice: 30,
+        makingCost: 14,
+        imageUrl: "https://images.unsplash.com/photo-1606491956689-2ea866880c84?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        stockCount: null,
+        isVeg: true,
+        isPopular: false,
+      },
+      {
+        _id: "demo-8",
+        nameHi: "ब्रेड पकौड़ा",
+        nameEn: "Bread Pakora",
+        descHi: "मसाला आलू स्टफिंग वाला कुरकुरा ब्रेड पकौड़ा",
+        descEn: "Golden gram-flour battered bread stuffed with spiced potato",
+        category: "Snacks",
+        sellingPrice: 20,
+        makingCost: 9,
+        imageUrl: "https://images.unsplash.com/photo-1630383249896-424e482df921?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        stockCount: null,
+        isVeg: true,
+        isPopular: false,
+      },
+    ];
+
+    const state = {
+      lang: localStorage.getItem("gr_lang") || "hi",
+      settings: {
+        shopNameHi: "गाँव रसोई",
+        shopNameEn: "Gaon Rasoi",
+        isOpen: true,
+        deliveryCharge: 15,
+        freeDeliveryAbove: 0,
+        minOrderAmount: 50,
+        deliveryRadiusKm: 2,
+        openHoursHi: "सुबह 9:00 से रात 9:30 तक",
+        openHoursEn: "9:00 AM – 9:30 PM",
+        supportPhone: "",
+        upiId: "",
+        announcementHi: "",
+        announcementEn: "",
+      },
+      menu: [],
+      menuSearch: "",
+      selectedCategory: "All",
+      cart: JSON.parse(localStorage.getItem("gr_cart") || "{}"),
+      appliedCoupon: null,
+      gps: null,
+      recentOrder: JSON.parse(localStorage.getItem("gr_recent_order") || "null"),
+      logoTapTimes: [],
+      adminToken: sessionStorage.getItem("gr_admin_token") || "",
+      activeAdminTab: "orders",
+      adminOrderFilter: "All",
+      adminOrderSearch: "",
+      adminMenuSearch: "",
+      adminCustomerSearch: "",
+      adminOrders: [],
+      adminBlockedSet: new Set(),
+      adminMenu: [],
+      adminAnalytics: null,
+      adminExpenses: [],
+      adminRiders: [],
+      adminCustomers: [],
+      adminCoupons: [],
+      adminSettingsData: null,
+      adminBlockedList: [],
+      autoRefreshEnabled: true,
+      autoRefreshTimer: null,
+      lastPendingCount: null,
+    };
+
+    function t(key, ...args) {
+      const val = TRANSLATIONS[state.lang][key];
+      return typeof val === "function" ? val(...args) : val ?? key;
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function safeImageUrl(url) {
+      if (typeof url === "string" && /^https?:\/\//i.test(url.trim())) {
+        return url.trim();
+      }
+      return FALLBACK_FOOD_IMG;
+    }
+
+    function normalizeIndianPhone(raw) {
+      let digits = String(raw || "").replace(/\D/g, "");
+      if (digits.length === 12 && digits.startsWith("91")) digits = digits.slice(2);
+      else if (digits.length === 11 && digits.startsWith("0")) digits = digits.slice(1);
+      return /^[6-9]\d{9}$/.test(digits) ? digits : "";
+    }
+
+    function formatIST(dateStr) {
+      try {
+        return new Date(dateStr).toLocaleString("en-IN", {
+          timeZone: "Asia/Kolkata",
+          day: "2-digit",
+          month: "short",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        });
+      } catch {
+        return dateStr;
+      }
+    }
+
+    function getElapsedMinutes(dateStr) {
+      return Math.max(0, Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000));
+    }
+
+    function playNewOrderChime() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        [880, 1174].forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.15, ctx.currentTime + idx * 0.16);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.16 + 0.25);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + idx * 0.16);
+          osc.stop(ctx.currentTime + idx * 0.16 + 0.26);
+        });
+      } catch {}
+    }
+
+    function saveCart() {
+      localStorage.setItem("gr_cart", JSON.stringify(state.cart));
+    }
+
+    function getCartSummary() {
+      let totalItems = 0;
+      let subtotal = 0;
+      const detailedItems = [];
+
+      for (const item of state.menu) {
+        const qty = state.cart[item._id] || 0;
+        if (qty > 0 && item.inStock) {
+          totalItems += qty;
+          subtotal += item.sellingPrice * qty;
+          detailedItems.push({ item, qty });
+        }
+      }
+
+      let deliveryCharge = 0;
+      if (totalItems > 0) {
+        const freeAbove = state.settings.freeDeliveryAbove || 0;
+        deliveryCharge = freeAbove > 0 && subtotal >= freeAbove ? 0 : state.settings.deliveryCharge;
+      }
+
+      let discountAmount = 0;
+      let couponWarning = "";
+      if (state.appliedCoupon && totalItems > 0) {
+        const cp = state.appliedCoupon;
+        if (subtotal >= (cp.minOrderAmount || 0)) {
+          if (cp.discountType === "FREE_DELIVERY") {
+            deliveryCharge = 0;
+          } else if (cp.discountType === "FLAT") {
+            discountAmount = Math.min(subtotal, Math.round(cp.discountValue ?? cp.discountAmount ?? 0));
+          } else if (cp.discountType === "PERCENT") {
+            let calc = Math.round((subtotal * (cp.discountValue || 0)) / 100);
+            if (cp.maxDiscount > 0) calc = Math.min(calc, cp.maxDiscount);
+            discountAmount = Math.min(subtotal, calc);
+          }
+        } else {
+          couponWarning = t("couponMinFail", cp.code, cp.minOrderAmount);
+        }
+      }
+
+      const total = Math.max(0, subtotal - discountAmount) + deliveryCharge;
+      return { totalItems, subtotal, discountAmount, deliveryCharge, total, detailedItems, couponWarning };
+    }
+
+    async function apiFetch(path, options = {}, useAdminAuth = false) {
+      const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+      if (useAdminAuth && state.adminToken) {
+        headers["Authorization"] = `Bearer ${state.adminToken}`;
+      }
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 45000);
+      try {
+        const res = await fetch(`${API_BASE_URL}${path}`, {
+          ...options,
+          headers,
+          signal: controller.signal,
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          const err = new Error(data.error || `Request failed (${res.status})`);
+          err.status = res.status;
+          err.code = data.code;
+          throw err;
+        }
+        return data;
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    }
+
+    async function loadStoreData() {
+      const banner = document.getElementById("serverBanner");
+      const loader = document.getElementById("menuLoader");
+
+      if (API_BASE_URL.includes("YOUR-RENDER-APP")) {
+        banner.className = "rounded-2xl p-3 text-xs sm:text-sm font-semibold border bg-amber-50 border-amber-200 text-amber-800";
+        banner.textContent = t("backendNotSet");
+        banner.classList.remove("hidden");
+        state.menu = FALLBACK_DEFAULT_MENU;
+        loader.classList.add("hidden");
+        renderAll();
+        return;
+      }
+
+      const slowTimer = setTimeout(() => {
+        banner.className = "rounded-2xl p-3 text-xs sm:text-sm font-semibold border bg-blue-50 border-blue-200 text-blue-800";
+        banner.textContent = t("serverWaking");
+        banner.classList.remove("hidden");
+      }, 2200);
+
+      try {
+        const data = await apiFetch("/api/store");
+        clearTimeout(slowTimer);
+        banner.classList.add("hidden");
+        state.settings = data.settings;
+        state.menu = data.menu || [];
+
+        const validIds = new Set(state.menu.filter((m) => m.inStock).map((m) => m._id));
+        for (const id of Object.keys(state.cart)) {
+          if (!validIds.has(id)) delete state.cart[id];
+        }
+        saveCart();
+        renderAll();
+      } catch (err) {
+        clearTimeout(slowTimer);
+        banner.className = "rounded-2xl p-3 text-xs sm:text-sm font-semibold border bg-red-50 border-red-200 text-red-700";
+        banner.textContent = t("serverError");
+        banner.classList.remove("hidden");
+      } finally {
+        loader.classList.add("hidden");
+      }
+    }
+
+    function applyStaticTranslations() {
+      document.documentElement.lang = state.lang;
+      document.getElementById("langToggleLabel").textContent = t("langBtn");
+
+      const s = state.settings;
+      document.getElementById("headerShopName").textContent = state.lang === "hi" ? s.shopNameHi : s.shopNameEn;
+      document.getElementById("headerTagline").textContent = t("tagline");
+
+      const callBtn = document.getElementById("headerCallBtn");
+      const cleanSupport = normalizeIndianPhone(s.supportPhone || "");
+      if (cleanSupport) {
+        callBtn.href = `tel:${cleanSupport}`;
+        callBtn.classList.remove("hidden");
+      } else {
+        callBtn.classList.add("hidden");
+      }
+
+      const annBanner = document.getElementById("announcementBanner");
+      const annMsg = state.lang === "hi" ? s.announcementHi : s.announcementEn;
+      if (annMsg) {
+        document.getElementById("announcementText").textContent = annMsg;
+        annBanner.classList.remove("hidden");
+      } else {
+        annBanner.classList.add("hidden");
+      }
+
+      const statusBadge = document.getElementById("headerStatusBadge");
+      const statusText = document.getElementById("headerStatusText");
+      if (s.isOpen) {
+        statusBadge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800";
+        statusBadge.querySelector("span").className = "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse";
+        statusText.textContent = t("open");
+        document.getElementById("shopClosedBanner").classList.add("hidden");
+      } else {
+        statusBadge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-100 text-red-800";
+        statusBadge.querySelector("span").className = "w-1.5 h-1.5 rounded-full bg-red-500";
+        statusText.textContent = t("closed");
+        document.getElementById("shopClosedBannerText").textContent = t("shopClosedBanner");
+        document.getElementById("shopClosedBanner").classList.remove("hidden");
+      }
+
+      document.getElementById("heroBadge").textContent = t("heroBadge");
+      document.getElementById("heroTitle").textContent = t("heroTitle");
+      document.getElementById("heroSubtitle").textContent = t("heroSubtitle");
+      const hrs = state.lang === "hi" ? s.openHoursHi : s.openHoursEn;
+      document.getElementById("heroHoursText").textContent = hrs ? `🕒 ${hrs}` : "";
+      document.getElementById("statDeliveryLabel").textContent = t("deliveryCharge");
+      document.getElementById("statDeliveryValue").textContent = `₹${s.deliveryCharge}`;
+      document.getElementById("statMinOrderLabel").textContent = t("minOrder");
+      document.getElementById("statMinOrderValue").textContent = `₹${s.minOrderAmount}`;
+      document.getElementById("statPaymentLabel").textContent = t("payment");
+
+      const freeBanner = document.getElementById("freeDeliveryHintBanner");
+      if (s.freeDeliveryAbove > 0) {
+        freeBanner.textContent = t("freeDeliveryBanner", s.freeDeliveryAbove);
+        freeBanner.classList.remove("hidden");
+      } else {
+        freeBanner.classList.add("hidden");
+      }
+
+      document.getElementById("recentOrderTitle").textContent = t("recentOrderTitle");
+      document.getElementById("recentOrderStatusLabel").textContent = t("statusLabel");
+      document.getElementById("refreshTrackText").textContent = t("refreshTrack");
+
+      document.getElementById("menuHeading").textContent = t("menuHeading");
+      document.getElementById("customerMenuSearch").placeholder = t("searchMenuPh");
+      document.getElementById("refreshMenuText").textContent = t("refresh");
+
+      document.getElementById("checkoutTitle").textContent = t("checkoutTitle");
+      document.getElementById("couponCodeInput").placeholder = t("couponPh");
+      document.getElementById("applyCouponBtn").textContent = t("applyCoupon");
+      document.getElementById("billSubtotalLabel").textContent = t("subtotal");
+      document.getElementById("billDiscountLabel").textContent = t("discountLabel");
+      document.getElementById("billDeliveryLabel").textContent = t("deliveryCharge");
+      document.getElementById("billTotalLabel").textContent = t("totalCod");
+      document.getElementById("lblCustName").textContent = t("lblName");
+      document.getElementById("custName").placeholder = t("phName");
+      document.getElementById("lblCustPhone").textContent = t("lblPhone");
+      document.getElementById("custPhone").placeholder = t("phPhone");
+      document.getElementById("lblCustAddress").textContent = t("lblAddress");
+      document.getElementById("custAddress").placeholder = t("phAddress");
+      document.getElementById("lblCustNote").textContent = t("lblCustNote");
+      document.getElementById("custNote").placeholder = t("phCustNote");
+      document.getElementById("shareGpsBtnText").textContent = t("shareGps");
+      document.getElementById("gpsStatusText").textContent = t("gpsHint");
+      document.getElementById("gpsSuccessLabel").textContent = t("gpsSuccess");
+      document.getElementById("codOnlyText").textContent = t("codOnly");
+      document.getElementById("placeOrderBtnText").textContent = t("placeOrderBtn");
+
+      document.getElementById("successTitle").textContent = t("successTitle");
+      document.getElementById("successSubtitle").textContent = t("successSubtitle");
+      document.getElementById("successOrderNumLabel").textContent = t("orderNumber");
+      document.getElementById("successDoneBtnText").textContent = t("done");
+
+      // Admin UI Translations (100% coverage)
+      document.getElementById("adminLoginTitle").textContent = t("adminLoginTitle");
+      document.getElementById("adminLoginDesc").textContent = t("adminLoginDesc");
+      document.getElementById("adminLoginSubmitText").textContent = t("adminLoginBtn");
+      document.getElementById("adminHeaderTitle").textContent = t("adminHeaderTitle");
+      document.getElementById("autoRefreshLabel").textContent = state.autoRefreshEnabled ? t("autoRefreshOn") : t("autoRefreshOff");
+      document.getElementById("adminRefreshText").textContent = t("refresh");
+      document.getElementById("adminLogoutText").textContent = t("logout");
+      document.getElementById("adminBackShopText").textContent = t("backToShop");
+      document.getElementById("tabOrdersText").textContent = t("tabOrders");
+      document.getElementById("tabMenuText").textContent = t("tabMenu");
+      document.getElementById("tabAnalyticsText").textContent = t("tabAnalytics");
+      document.getElementById("tabRidersText").textContent = t("tabRiders");
+      document.getElementById("tabCustomersText").textContent = t("tabCustomers");
+      document.getElementById("tabCouponsText").textContent = t("tabCoupons");
+      document.getElementById("tabSettingsText").textContent = t("tabSettings");
+      document.getElementById("adminOrderSearch").placeholder = t("searchOrdersPh");
+      document.getElementById("adminMenuSearch").placeholder = t("searchMenuAdminPh");
+      document.getElementById("adminCustomerSearch").placeholder = t("searchCustPh");
+      document.getElementById("addManualOrderText").textContent = t("addManualOrder");
+      document.getElementById("manualOrderTitle").textContent = t("manualOrderTitle");
+      document.getElementById("moName").placeholder = t("moNamePh");
+      document.getElementById("moPhone").placeholder = t("moPhonePh");
+      document.getElementById("moAddress").placeholder = t("moAddrPh");
+      document.getElementById("moNote").placeholder = t("moNotePh");
+      document.getElementById("moDelivery").placeholder = t("moDelPh");
+      document.getElementById("moPickItemsLbl").textContent = t("moPickItems");
+      document.getElementById("moSaveBtn").textContent = t("moSaveBtn");
+
+      document.getElementById("adminMenuHeading").textContent = t("adminMenuHeading");
+      document.getElementById("addItemBtnText").textContent = t("addNewItem");
+      document.getElementById("lblItemNameHi").textContent = t("lblItemNameHi");
+      document.getElementById("lblItemNameEn").textContent = t("lblItemNameEn");
+      document.getElementById("lblItemDescHi").textContent = t("lblItemDescHi");
+      document.getElementById("lblItemDescEn").textContent = t("lblItemDescEn");
+      document.getElementById("lblItemSelling").textContent = t("lblItemSelling");
+      document.getElementById("lblItemCost").textContent = t("lblItemCost");
+      document.getElementById("lblItemCategory").textContent = t("lblItemCategory");
+      document.getElementById("lblItemStockCount").textContent = t("lblItemStockCount");
+      document.getElementById("lblItemImage").textContent = t("lblItemImage");
+      document.getElementById("lblItemInStock").textContent = t("lblItemInStock");
+      document.getElementById("lblItemIsVeg").textContent = t("lblItemIsVeg");
+      document.getElementById("lblItemIsPopular").textContent = t("lblItemIsPopular");
+      document.getElementById("saveItemBtnText").textContent = t("save");
+
+      document.getElementById("expenseSectionTitle").textContent = t("expenseSectionTitle");
+      document.getElementById("expTitle").placeholder = t("expTitlePh");
+      document.getElementById("expAmount").placeholder = t("expAmtPh");
+      document.getElementById("exportExpCsvText").textContent = t("exportExpCsv");
+      document.getElementById("addExpenseBtnText").textContent = t("addExpenseBtn");
+
+      document.getElementById("riderFormTitle").textContent = t("riderFormTitle");
+      document.getElementById("riderName").placeholder = t("riderNamePh");
+      document.getElementById("riderPhone").placeholder = t("riderPhonePh");
+      document.getElementById("riderVehicle").placeholder = t("riderVehPh");
+      document.getElementById("addRiderBtnText").textContent = t("addRiderBtn");
+
+      document.getElementById("customersHeading").textContent = t("customersHeading");
+      document.getElementById("couponFormTitle").textContent = t("couponFormTitle");
+      document.getElementById("addCouponBtnText").textContent = t("addCouponBtn");
+
+      document.getElementById("settingsFormTitle").textContent = t("settingsFormTitle");
+      document.getElementById("lblShopOpenToggle").textContent = t("lblShopOpenToggle");
+      document.getElementById("lblShopOpenSub").textContent = t("lblShopOpenSub");
+      document.getElementById("lblShopNameHi").textContent = t("lblShopNameHi");
+      document.getElementById("lblShopNameEn").textContent = t("lblShopNameEn");
+      document.getElementById("lblDeliveryCharge").textContent = t("lblDeliveryCharge");
+      document.getElementById("lblFreeDeliveryAbove").textContent = t("lblFreeDeliveryAbove");
+      document.getElementById("lblMinOrder").textContent = t("lblMinOrder");
+      document.getElementById("lblSupportPhone").textContent = t("lblSupportPhone");
+      document.getElementById("lblUpiId").textContent = t("lblUpiId");
+      document.getElementById("lblHoursHi").textContent = t("lblHoursHi");
+      document.getElementById("lblHoursEn").textContent = t("lblHoursEn");
+      document.getElementById("lblAnnounceHi").textContent = t("lblAnnounceHi");
+      document.getElementById("lblAnnounceEn").textContent = t("lblAnnounceEn");
+      document.getElementById("saveSettingsBtnText").textContent = t("saveSettings");
+      document.getElementById("blockedTitle").textContent = t("blockedListTitle");
+      document.getElementById("blockBtnText").textContent = t("blockBtn");
+    }
+
+    function getCategoryLabel(cat) {
+      const map = {
+        All: t("allCategories"),
+        Snacks: t("catSnacks"),
+        "Fast Food": t("catFastFood"),
+        Chinese: t("catChinese"),
+        Meals: t("catMeals"),
+        Beverages: t("catBeverages"),
+      };
+      return map[cat] || cat;
+    }
+
+    function renderCategoryPills() {
+      const cats = ["All", ...new Set(state.menu.map((m) => m.category || "Snacks"))];
+      const container = document.getElementById("categoryPills");
+      container.innerHTML = cats
+        .map((cat) => {
+          const active = state.selectedCategory === cat;
+          return `<button type="button" data-cat="${escapeHtml(cat)}"
+            class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border transition ${
+              active
+                ? "bg-slate-900 text-white border-slate-900"
+                : "bg-white text-slate-600 border-slate-200 hover:border-orange-300"
+            }">${escapeHtml(getCategoryLabel(cat))}</button>`;
+        })
+        .join("");
+
+      container.querySelectorAll("button[data-cat]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.selectedCategory = btn.dataset.cat;
+          renderCategoryPills();
+          renderMenuGrid();
+        });
+      });
+    }
+
+    function renderMenuGrid() {
+      const grid = document.getElementById("menuGrid");
+      const q = state.menuSearch.trim().toLowerCase();
+      const items = state.menu.filter((m) => {
+        const catOk = state.selectedCategory === "All" || (m.category || "Snacks") === state.selectedCategory;
+        if (!catOk) return false;
+        if (!q) return true;
+        return (
+          (m.nameHi || "").toLowerCase().includes(q) ||
+          (m.nameEn || "").toLowerCase().includes(q) ||
+          (m.descHi || "").toLowerCase().includes(q) ||
+          (m.descEn || "").toLowerCase().includes(q)
+        );
+      });
+
+      grid.innerHTML = items
+        .map((item) => {
+          const qty = state.cart[item._id] || 0;
+          const primaryName = state.lang === "hi" ? item.nameHi : item.nameEn;
+          const secondaryName = state.lang === "hi" ? item.nameEn : item.nameHi;
+          const desc = state.lang === "hi" ? item.descHi : item.descEn;
+          const imgSrc = safeImageUrl(item.imageUrl);
+          const vegDot = item.isVeg !== false
+            ? `<span class="inline-flex items-center justify-center w-3.5 h-3.5 border border-emerald-600 rounded-[3px] shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span></span>`
+            : `<span class="inline-flex items-center justify-center w-3.5 h-3.5 border border-red-600 rounded-[3px] shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-red-600"></span></span>`;
+          const lowStockBadge =
+            item.inStock && item.stockCount !== null && item.stockCount !== undefined && item.stockCount <= 5
+              ? `<span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">${escapeHtml(
+                  t("onlyLeft", item.stockCount)
+                )}</span>`
+              : "";
+
+          let actionHtml = "";
+          if (!item.inStock || (item.stockCount !== null && item.stockCount === 0)) {
+            actionHtml = `<span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-500 text-xs font-bold">${escapeHtml(
+              t("outOfStock")
+            )}</span>`;
+          } else if (qty === 0) {
+            actionHtml = `<button type="button" data-add="${item._id}"
+              class="px-3.5 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-300 text-xs font-extrabold transition active:scale-95">
+              ${escapeHtml(t("addBtn"))}
+            </button>`;
+          } else {
+            actionHtml = `<div class="inline-flex items-center bg-orange-600 text-white rounded-xl overflow-hidden shadow-sm">
+              <button type="button" data-dec="${item._id}" class="px-2.5 py-1 font-extrabold text-sm hover:bg-orange-700">−</button>
+              <span class="px-2 text-xs font-extrabold min-w-[22px] text-center">${qty}</span>
+              <button type="button" data-inc="${item._id}" class="px-2.5 py-1 font-extrabold text-sm hover:bg-orange-700">+</button>
+            </div>`;
+          }
+
+          return `<div class="bg-white rounded-2xl p-3 border border-orange-100/80 shadow-xs flex gap-3 items-stretch ${
+            !item.inStock ? "opacity-65" : ""
+          }">
+            <div class="w-24 h-24 rounded-xl overflow-hidden bg-orange-50 shrink-0 relative">
+              <img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(primaryName)}" loading="lazy"
+                onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'"
+                class="w-full h-full object-cover" />
+              ${item.isPopular ? `<span class="absolute top-1 left-1 bg-amber-400 text-slate-900 text-[9px] font-extrabold px-1.5 py-0.5 rounded-md shadow">${escapeHtml(t("popularBadge"))}</span>` : ""}
+            </div>
+            <div class="flex-1 min-w-0 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center gap-1.5">
+                  ${vegDot}
+                  <h4 class="font-extrabold text-slate-900 text-sm sm:text-base leading-tight truncate">${escapeHtml(primaryName)}</h4>
+                </div>
+                <p class="text-[11px] font-semibold text-slate-400 truncate mt-0.5">${escapeHtml(secondaryName)}</p>
+                ${desc ? `<p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-snug">${escapeHtml(desc)}</p>` : ""}
+              </div>
+              <div class="flex items-center justify-between gap-2 mt-2 pt-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-base font-extrabold text-slate-900">₹${item.sellingPrice}</span>
+                  ${lowStockBadge}
+                </div>
+                ${actionHtml}
+              </div>
+            </div>
+          </div>`;
+        })
+        .join("");
+
+      grid.querySelectorAll("[data-add], [data-inc]").forEach((btn) => {
+        btn.addEventListener("click", () => updateCartQty(btn.dataset.add || btn.dataset.inc, 1));
+      });
+      grid.querySelectorAll("[data-dec]").forEach((btn) => {
+        btn.addEventListener("click", () => updateCartQty(btn.dataset.dec, -1));
+      });
+    }
+
+    function updateCartQty(itemId, delta) {
+      const item = state.menu.find((m) => m._id === itemId);
+      const maxAllowed =
+        item && item.stockCount !== null && item.stockCount !== undefined ? Math.min(50, item.stockCount) : 50;
+      const current = state.cart[itemId] || 0;
+      const next = current + delta;
+      if (next <= 0) delete state.cart[itemId];
+      else state.cart[itemId] = Math.min(maxAllowed, next);
+      saveCart();
+      renderMenuGrid();
+      renderFloatingCart();
+      if (!document.getElementById("checkoutModal").classList.contains("hidden")) {
+        renderCheckoutDrawer();
+      }
+    }
+
+    function renderFloatingCart() {
+      const bar = document.getElementById("floatingCartBar");
+      const { totalItems, subtotal } = getCartSummary();
+      if (totalItems === 0) {
+        bar.classList.add("hidden");
+        return;
+      }
+      document.getElementById("cartBadgeCount").textContent = totalItems;
+      document.getElementById("cartBarItemsText").textContent = `${totalItems} ${t("itemsSelected")}`;
+      document.getElementById("cartBarTotalText").textContent = `₹${subtotal}`;
+      document.getElementById("cartBarActionText").textContent = t("viewCart");
+      bar.classList.remove("hidden");
+    }
+
+    function renderRecentOrderCard() {
+      const card = document.getElementById("recentOrderCard");
+      if (!state.recentOrder) {
+        card.classList.add("hidden");
+        return;
+      }
+      document.getElementById("recentOrderNum").textContent = state.recentOrder.orderNumber;
+      const badge = document.getElementById("recentOrderStatusBadge");
+      const st = state.recentOrder.status || "Pending";
+      badge.textContent = TRANSLATIONS[state.lang].statuses[st] || st;
+      const riderEl = document.getElementById("recentOrderRiderText");
+      if (state.recentOrder.assignedRider && state.recentOrder.assignedRider.name) {
+        riderEl.textContent = t("riderAssigned", state.recentOrder.assignedRider.name, state.recentOrder.assignedRider.phone);
+        riderEl.classList.remove("hidden");
+      } else {
+        riderEl.classList.add("hidden");
+      }
+      card.classList.remove("hidden");
+    }
+
+    function renderCheckoutDrawer() {
+      const { totalItems, subtotal, discountAmount, deliveryCharge, total, detailedItems, couponWarning } = getCartSummary();
+      const list = document.getElementById("checkoutItemsList");
+
+      if (totalItems === 0) {
+        document.getElementById("checkoutModal").classList.add("hidden");
+        return;
+      }
+
+      list.innerHTML = detailedItems
+        .map(({ item, qty }) => {
+          const name = state.lang === "hi" ? item.nameHi : item.nameEn;
+          return `<div class="flex items-center justify-between gap-2 bg-slate-50 rounded-xl px-3 py-2 border border-slate-100">
+            <div class="min-w-0">
+              <div class="text-sm font-bold text-slate-900 truncate">${escapeHtml(name)}</div>
+              <div class="text-xs text-slate-500">₹${item.sellingPrice} × ${qty} = ₹${item.sellingPrice * qty}</div>
+            </div>
+            <div class="inline-flex items-center bg-white border border-slate-200 rounded-lg overflow-hidden shrink-0">
+              <button type="button" data-cdec="${item._id}" class="px-2.5 py-1 text-sm font-bold text-slate-700 hover:bg-slate-100">−</button>
+              <span class="px-2 text-xs font-extrabold">${qty}</span>
+              <button type="button" data-cinc="${item._id}" class="px-2.5 py-1 text-sm font-bold text-slate-700 hover:bg-slate-100">+</button>
+            </div>
+          </div>`;
+        })
+        .join("");
+
+      list.querySelectorAll("[data-cinc]").forEach((b) =>
+        b.addEventListener("click", () => updateCartQty(b.dataset.cinc, 1))
+      );
+      list.querySelectorAll("[data-cdec]").forEach((b) =>
+        b.addEventListener("click", () => updateCartQty(b.dataset.cdec, -1))
+      );
+
+      if (couponWarning) {
+        const msgEl = document.getElementById("couponFeedbackMsg");
+        msgEl.textContent = couponWarning;
+        msgEl.className = "text-xs font-semibold text-amber-700";
+        msgEl.classList.remove("hidden");
+      }
+
+      document.getElementById("billSubtotalVal").textContent = `₹${subtotal}`;
+      const discRow = document.getElementById("billDiscountRow");
+      if (discountAmount > 0) {
+        document.getElementById("billDiscountVal").textContent = `-₹${discountAmount}`;
+        discRow.classList.remove("hidden");
+      } else {
+        discRow.classList.add("hidden");
+      }
+
+      document.getElementById("billDeliveryVal").textContent =
+        deliveryCharge === 0 ? t("freeDeliveryApplied") : `₹${deliveryCharge}`;
+      document.getElementById("billTotalVal").textContent = `₹${total}`;
+
+      const minWarn = document.getElementById("minOrderWarning");
+      const submitBtn = document.getElementById("placeOrderBtn");
+
+      if (!state.settings.isOpen) {
+        minWarn.textContent = t("errShopClosed");
+        minWarn.classList.remove("hidden");
+        submitBtn.disabled = true;
+      } else if (subtotal < state.settings.minOrderAmount) {
+        minWarn.textContent = t("minOrderWarn", state.settings.minOrderAmount, state.settings.minOrderAmount - subtotal);
+        minWarn.classList.remove("hidden");
+        submitBtn.disabled = true;
+      } else {
+        minWarn.classList.add("hidden");
+        submitBtn.disabled = false;
+      }
+    }
+
+    function renderAll() {
+      applyStaticTranslations();
+      renderCategoryPills();
+      renderMenuGrid();
+      renderFloatingCart();
+      renderRecentOrderCard();
+      if (!document.getElementById("checkoutModal").classList.contains("hidden")) {
+        renderCheckoutDrawer();
+      }
+      if (!document.getElementById("adminDashboard").classList.contains("hidden")) {
+        renderAdminOrders();
+        renderAdminMenu();
+        renderAdminAnalytics();
+        renderAdminExpenses();
+        renderAdminRiders();
+        renderAdminCustomers();
+        renderAdminCoupons();
+        renderAdminSettings();
+      }
+    }
+
+    // Coupon Apply / Remove
+    document.getElementById("applyCouponBtn").addEventListener("click", async () => {
+      const code = document.getElementById("couponCodeInput").value.trim().toUpperCase();
+      const msgEl = document.getElementById("couponFeedbackMsg");
+      if (!code) return;
+      const { subtotal } = getCartSummary();
+
+      if (API_BASE_URL.includes("YOUR-RENDER-APP")) {
+        state.appliedCoupon = { code, discountType: "FLAT", discountValue: 10, discountAmount: 10, minOrderAmount: 0 };
+        msgEl.textContent = t("couponAppliedMsg", code, 10);
+        msgEl.className = "text-xs font-semibold text-emerald-700";
+        msgEl.classList.remove("hidden");
+        document.getElementById("removeCouponBtn").classList.remove("hidden");
+        renderCheckoutDrawer();
+        return;
+      }
+
+      try {
+        const res = await apiFetch("/api/coupons/validate", {
+          method: "POST",
+          body: JSON.stringify({ code, subtotal }),
+        });
+        state.appliedCoupon = res;
+        msgEl.textContent =
+          res.discountType === "FREE_DELIVERY"
+            ? t("couponFreeDelMsg", res.code)
+            : t("couponAppliedMsg", res.code, res.discountAmount);
+        msgEl.className = "text-xs font-semibold text-emerald-700";
+        msgEl.classList.remove("hidden");
+        document.getElementById("removeCouponBtn").classList.remove("hidden");
+        renderCheckoutDrawer();
+      } catch (err) {
+        state.appliedCoupon = null;
+        msgEl.textContent = err.message;
+        msgEl.className = "text-xs font-semibold text-red-600";
+        msgEl.classList.remove("hidden");
+        renderCheckoutDrawer();
+      }
+    });
+
+    document.getElementById("removeCouponBtn").addEventListener("click", () => {
+      state.appliedCoupon = null;
+      document.getElementById("couponCodeInput").value = "";
+      document.getElementById("couponFeedbackMsg").classList.add("hidden");
+      document.getElementById("removeCouponBtn").classList.add("hidden");
+      renderCheckoutDrawer();
+    });
+
+    // GPS & Checkout
+    document.getElementById("shareGpsBtn").addEventListener("click", () => {
+      const statusEl = document.getElementById("gpsStatusText");
+      if (!navigator.geolocation) {
+        statusEl.textContent = t("gpsUnsupported");
+        statusEl.className = "text-xs text-red-600 font-semibold text-center";
+        return;
+      }
+      statusEl.textContent = t("gpsFetching");
+      statusEl.className = "text-xs text-orange-600 font-semibold text-center animate-pulse";
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = Number(pos.coords.latitude.toFixed(6));
+          const lng = Number(pos.coords.longitude.toFixed(6));
+          const mapLink = `https://maps.google.com/?q=${lat},${lng}`;
+          state.gps = { lat, lng, mapLink };
+          statusEl.classList.add("hidden");
+          const link = document.getElementById("gpsPreviewLink");
+          link.href = mapLink;
+          link.textContent = `${lat}, ${lng}`;
+          document.getElementById("gpsConfirmedBox").classList.remove("hidden");
+        },
+        () => {
+          statusEl.className = "text-xs text-red-600 font-semibold text-center";
+          statusEl.textContent = t("gpsDenied");
+          statusEl.classList.remove("hidden");
+        },
+        { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 }
+      );
+    });
+
+    document.getElementById("clearGpsBtn").addEventListener("click", () => {
+      state.gps = null;
+      document.getElementById("gpsConfirmedBox").classList.add("hidden");
+      const statusEl = document.getElementById("gpsStatusText");
+      statusEl.className = "text-[11px] text-slate-500 text-center";
+      statusEl.textContent = t("gpsHint");
+      statusEl.classList.remove("hidden");
+    });
+
+    document.getElementById("checkoutForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const errBox = document.getElementById("checkoutErrorBox");
+      const phoneErr = document.getElementById("phoneErrorMsg");
+      errBox.classList.add("hidden");
+      phoneErr.classList.add("hidden");
+
+      const name = document.getElementById("custName").value.trim();
+      const rawPhone = document.getElementById("custPhone").value.trim();
+      const cleanPhone = normalizeIndianPhone(rawPhone);
+      const address = document.getElementById("custAddress").value.trim();
+      const customerNote = document.getElementById("custNote").value.trim();
+
+      if (name.length < 2) {
+        errBox.textContent = t("errInvalidName");
+        errBox.classList.remove("hidden");
+        return;
+      }
+      if (!cleanPhone) {
+        phoneErr.textContent = t("errInvalidPhone");
+        phoneErr.classList.remove("hidden");
+        return;
+      }
+      if (address.length < 4) {
+        errBox.textContent = t("errInvalidAddress");
+        errBox.classList.remove("hidden");
+        return;
+      }
+
+      const { detailedItems } = getCartSummary();
+      if (detailedItems.length === 0) return;
+
+      const btn = document.getElementById("placeOrderBtn");
+      const btnText = document.getElementById("placeOrderBtnText");
+      const coldHint = document.getElementById("coldStartHint");
+
+      btn.disabled = true;
+      btnText.textContent = t("placingOrderBtn");
+      const coldTimer = setTimeout(() => {
+        coldHint.textContent = t("coldStartNote");
+        coldHint.classList.remove("hidden");
+      }, 3000);
+
+      try {
+        const res = await apiFetch("/api/orders", {
+          method: "POST",
+          body: JSON.stringify({
+            customerName: name,
+            phone: cleanPhone,
+            address,
+            customerNote,
+            gpsLocation: state.gps,
+            couponCode: state.appliedCoupon ? state.appliedCoupon.code : "",
+            items: detailedItems.map(({ item, qty }) => ({
+              menuItemId: item._id,
+              quantity: qty,
+            })),
+          }),
+        });
+
+        clearTimeout(coldTimer);
+        coldHint.classList.add("hidden");
+
+        state.recentOrder = {
+          orderNumber: res.order.orderNumber,
+          phone: cleanPhone,
+          status: res.order.status,
+          assignedRider: null,
+        };
+        localStorage.setItem("gr_recent_order", JSON.stringify(state.recentOrder));
+        state.cart = {};
+        state.appliedCoupon = null;
+        saveCart();
+
+        // Cleanly reset coupon UI & note field for next order
+        document.getElementById("custNote").value = "";
+        document.getElementById("couponCodeInput").value = "";
+        document.getElementById("couponFeedbackMsg").classList.add("hidden");
+        document.getElementById("removeCouponBtn").classList.add("hidden");
+
+        document.getElementById("checkoutModal").classList.add("hidden");
+        document.getElementById("successOrderNumVal").textContent = res.order.orderNumber;
+        document.getElementById("successTotalVal").textContent = `₹${res.order.totalAmount} (COD)`;
+        document.getElementById("orderSuccessModal").classList.remove("hidden");
+        renderAll();
+      } catch (err) {
+        clearTimeout(coldTimer);
+        coldHint.classList.add("hidden");
+        if (err.code === "PHONE_BLOCKED") errBox.textContent = t("errBlocked");
+        else if (err.code === "SHOP_CLOSED") errBox.textContent = t("errShopClosed");
+        else errBox.textContent = err.message || t("serverError");
+        errBox.classList.remove("hidden");
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = t("placeOrderBtn");
+      }
+    });
+
+    // =========================================================================
+    // SECRET 5-TAP LOGO TRIGGER & ADMIN AUTH
+    // =========================================================================
+    document.getElementById("shopLogoBtn").addEventListener("click", () => {
+      const now = Date.now();
+      state.logoTapTimes = state.logoTapTimes.filter((ts) => now - ts <= 3000);
+      state.logoTapTimes.push(now);
+
+      if (state.logoTapTimes.length >= 5) {
+        state.logoTapTimes = [];
+        if (state.adminToken) {
+          openAdminDashboard();
+        } else {
+          const errEl = document.getElementById("adminLoginError");
+          if (API_BASE_URL.includes("YOUR-RENDER-APP")) {
+            errEl.textContent = t("adminDemoHint");
+            errEl.className = "text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2 font-semibold";
+            errEl.classList.remove("hidden");
+          } else {
+            errEl.className = "hidden text-xs text-red-600 font-semibold";
+            errEl.classList.add("hidden");
+          }
+          document.getElementById("adminPasswordInput").value = "";
+          document.getElementById("adminLoginModal").classList.remove("hidden");
+          setTimeout(() => document.getElementById("adminPasswordInput").focus(), 100);
+        }
+      }
+    });
+
+    document.getElementById("closeAdminLoginBtn").addEventListener("click", () => {
+      document.getElementById("adminLoginModal").classList.add("hidden");
+    });
+
+    document.getElementById("adminLoginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const pwd = document.getElementById("adminPasswordInput").value;
+      const errEl = document.getElementById("adminLoginError");
+      const btnText = document.getElementById("adminLoginSubmitText");
+      errEl.className = "hidden text-xs text-red-600 font-semibold";
+      errEl.classList.add("hidden");
+
+      if (API_BASE_URL.includes("YOUR-RENDER-APP")) {
+        if (pwd.trim().toLowerCase() === "demo") {
+          state.adminToken = "DEMO_TOKEN";
+          document.getElementById("adminLoginModal").classList.add("hidden");
+          openAdminDashboard();
+        } else {
+          errEl.textContent = t("adminDemoWrong");
+          errEl.classList.remove("hidden");
+        }
+        return;
+      }
+
+      btnText.textContent = t("adminLoginChecking");
+
+      try {
+        const res = await apiFetch("/api/admin/login", {
+          method: "POST",
+          body: JSON.stringify({ password: pwd }),
+        });
+        state.adminToken = res.token;
+        sessionStorage.setItem("gr_admin_token", res.token);
+        document.getElementById("adminLoginModal").classList.add("hidden");
+        openAdminDashboard();
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.classList.remove("hidden");
+      } finally {
+        btnText.textContent = t("adminLoginBtn");
+      }
+    });
+
+    // =========================================================================
+    // ADMIN DASHBOARD LOGIC (ALL 7 MANAGEMENT TABS)
+    // =========================================================================
+    function startAdminAutoRefresh() {
+      stopAdminAutoRefresh();
+      if (!state.autoRefreshEnabled) return;
+      state.autoRefreshTimer = setInterval(() => {
+        if (!document.getElementById("adminDashboard").classList.contains("hidden")) {
+          refreshAdminData(true);
+        }
+      }, 15000);
+    }
+
+    function stopAdminAutoRefresh() {
+      if (state.autoRefreshTimer) {
+        clearInterval(state.autoRefreshTimer);
+        state.autoRefreshTimer = null;
+      }
+    }
+
+    async function openAdminDashboard() {
+      document.getElementById("adminDashboard").classList.remove("hidden");
+      switchAdminTab(state.activeAdminTab);
+      await refreshAdminData(false);
+      startAdminAutoRefresh();
+    }
+
+    function seedDemoAdminStateOnce() {
+      if (state.adminMenu.length > 0) return;
+      state.adminMenu = FALLBACK_DEFAULT_MENU.map((m, idx) => ({ ...m, sortOrder: idx + 1 }));
+      state.adminRiders = [
+        { _id: "rider-1", name: "राजू (Raju)", phone: "9812300111", vehicleNote: "Bike" },
+        { _id: "rider-2", name: "सोनू (Sonu)", phone: "9812300222", vehicleNote: "Cycle" },
+      ];
+      state.adminOrders = [
+        {
+          _id: "demo-ord-1",
+          orderNumber: "GR-1024",
+          customerName: "रमेश यादव",
+          phone: "9876543210",
+          address: "शिव मंदिर के पास, बड़ा मोहल्ला",
+          customerNote: "समोसे के साथ मीठी चटनी ज़्यादा देना",
+          gpsLocation: { lat: 27.4728, lng: 77.331, mapLink: "https://maps.google.com/?q=27.4728,77.331" },
+          items: [
+            { nameHi: "गरमा-गरम समोसा", nameEn: "Samosa", quantity: 4, sellingPrice: 15, makingCost: 7 },
+            { nameHi: "वेज मोमोज़ (8 पीस)", nameEn: "Momos", quantity: 1, sellingPrice: 50, makingCost: 22 },
+          ],
+          subtotal: 110,
+          discountAmount: 0,
+          deliveryCharge: 15,
+          totalAmount: 125,
+          totalMakingCost: 50,
+          paymentCollectedMode: "Pending",
+          assignedRider: { riderId: "rider-1", name: "राजू (Raju)", phone: "9812300111" },
+          riderCashSettled: false,
+          source: "Website",
+          status: "Pending",
+          createdAt: new Date(Date.now() - 8 * 60000).toISOString(),
+        },
+        {
+          _id: "demo-ord-2",
+          orderNumber: "PH-1023",
+          customerName: "मुकेश शर्मा",
+          phone: "9812345678",
+          address: "मुख्य बाज़ार, डीग रोड",
+          customerNote: "",
+          gpsLocation: null,
+          items: [{ nameHi: "वेज चाउमीन", nameEn: "Veg Chowmein", quantity: 2, sellingPrice: 50, makingCost: 22 }],
+          subtotal: 100,
+          discountAmount: 10,
+          couponCode: "FIRST10",
+          deliveryCharge: 15,
+          totalAmount: 105,
+          totalMakingCost: 44,
+          paymentCollectedMode: "Cash",
+          assignedRider: { riderId: "rider-1", name: "राजू (Raju)", phone: "9812300111" },
+          riderCashSettled: false,
+          source: "Phone",
+          status: "Delivered",
+          createdAt: new Date(Date.now() - 3600000).toISOString(),
+        },
+      ];
+      state.adminExpenses = [
+        { _id: "exp-1", title: "एलपीजी गैस रिफ़िल", category: "Gas/Fuel", amount: 50, expenseDate: new Date().toISOString() },
+      ];
+      state.adminCoupons = [
+        { _id: "cp-1", code: "FIRST10", discountType: "FLAT", discountValue: 10, minOrderAmount: 80, isActive: true, usedCount: 4 },
+      ];
+      state.adminBlockedSet = new Set();
+      state.adminBlockedList = [];
+      state.adminSettingsData = state.settings;
+      recomputeDemoDerivedAdminData();
+    }
+
+    function recomputeDemoDerivedAdminData() {
+      const delivered = state.adminOrders.filter((o) => o.status === "Delivered");
+      let totalSales = 0, totalMakingCost = 0, deliveryChargesCollected = 0, discountsGiven = 0, cashSales = 0, upiSales = 0;
+      const itemMap = new Map();
+      for (const o of delivered) {
+        totalSales += o.totalAmount;
+        totalMakingCost += o.totalMakingCost || 0;
+        deliveryChargesCollected += o.deliveryCharge || 0;
+        discountsGiven += o.discountAmount || 0;
+        if (o.paymentCollectedMode === "UPI") upiSales += o.totalAmount;
+        else cashSales += o.totalAmount;
+        for (const it of o.items || []) {
+          const k = it.nameEn || it.nameHi;
+          if (!itemMap.has(k)) itemMap.set(k, { nameHi: it.nameHi, nameEn: it.nameEn, qtySold: 0, revenue: 0, profit: 0 });
+          const e = itemMap.get(k);
+          e.qtySold += it.quantity;
+          e.revenue += it.sellingPrice * it.quantity;
+          e.profit += (it.sellingPrice - (it.makingCost || 0)) * it.quantity;
+        }
+      }
+      const totalExpenses = state.adminExpenses.reduce((s, x) => s + x.amount, 0);
+      const grossProfit = totalSales - totalMakingCost;
+      const netProfit = grossProfit - totalExpenses;
+      const summary = {
+        deliveredCount: delivered.length,
+        totalSales,
+        cashSales,
+        upiSales,
+        totalMakingCost,
+        deliveryChargesCollected,
+        discountsGiven,
+        totalExpenses,
+        grossProfit,
+        grossMarginPercent: totalSales > 0 ? Number(((grossProfit / totalSales) * 100).toFixed(1)) : 0,
+        netProfit,
+        marginPercent: totalSales > 0 ? Number(((netProfit / totalSales) * 100).toFixed(1)) : 0,
+      };
+      const statusCounts = { Pending: 0, Cooking: 0, "Out for Delivery": 0, Delivered: 0, Cancelled: 0 };
+      state.adminOrders.forEach((o) => { if (o.status in statusCounts) statusCounts[o.status]++; });
+      state.adminAnalytics = {
+        today: summary,
+        month: summary,
+        total: summary,
+        topItems: [...itemMap.values()],
+        statusCounts,
+      };
+
+      // Enrich Demo Riders
+      state.adminRiders = state.adminRiders.map((r) => {
+        const my = state.adminOrders.filter((o) => o.assignedRider?.riderId === r._id);
+        const deliv = my.filter((o) => o.status === "Delivered");
+        return {
+          ...r,
+          todayCount: my.length,
+          deliveredCount: deliv.length,
+          activeCount: my.filter((o) => ["Pending", "Cooking", "Out for Delivery"].includes(o.status)).length,
+          cashCollected: deliv.filter((o) => o.paymentCollectedMode !== "UPI").reduce((s, o) => s + o.totalAmount, 0),
+          upiCollected: deliv.filter((o) => o.paymentCollectedMode === "UPI").reduce((s, o) => s + o.totalAmount, 0),
+          unsettledCash: deliv.filter((o) => o.paymentCollectedMode !== "UPI" && !o.riderCashSettled).reduce((s, o) => s + o.totalAmount, 0),
+        };
+      });
+
+      const custMap = new Map();
+      state.adminOrders.forEach((o) => {
+        if (!custMap.has(o.phone)) {
+          custMap.set(o.phone, {
+            phone: o.phone,
+            customerName: o.customerName,
+            lastAddress: o.address,
+            lastOrderAt: o.createdAt,
+            totalOrders: 0,
+            deliveredOrders: 0,
+            totalSpent: 0,
+            isBlocked: state.adminBlockedSet.has(o.phone),
+          });
+        }
+        const c = custMap.get(o.phone);
+        c.totalOrders++;
+        if (o.status === "Delivered") {
+          c.deliveredOrders++;
+          c.totalSpent += o.totalAmount;
+        }
+      });
+      state.adminCustomers = [...custMap.values()];
+    }
+
+    async function refreshAdminData(isBackground = false) {
+      if (state.adminToken === "DEMO_TOKEN") {
+        seedDemoAdminStateOnce();
+        recomputeDemoDerivedAdminData();
+        renderAdminOrders();
+        renderAdminMenu();
+        renderAdminAnalytics();
+        renderAdminExpenses();
+        renderAdminRiders();
+        renderAdminCustomers();
+        renderAdminCoupons();
+        renderAdminSettings();
+        return;
+      }
+
+      try {
+        const [ordersRes, menuRes, analyticsRes, expensesRes, ridersRes, customersRes, couponsRes, settingsRes] =
+          await Promise.all([
+            apiFetch("/api/admin/orders", {}, true),
+            apiFetch("/api/admin/menu", {}, true),
+            apiFetch("/api/admin/analytics", {}, true),
+            apiFetch("/api/admin/expenses", {}, true),
+            apiFetch("/api/admin/riders", {}, true),
+            apiFetch("/api/admin/customers", {}, true),
+            apiFetch("/api/admin/coupons", {}, true),
+            apiFetch("/api/admin/settings", {}, true),
+          ]);
+
+        const newOrders = ordersRes.orders || [];
+        const newPendingCount = newOrders.filter((o) => o.status === "Pending").length;
+        if (isBackground && state.lastPendingCount !== null && newPendingCount > state.lastPendingCount) {
+          playNewOrderChime();
+        }
+        state.lastPendingCount = newPendingCount;
+
+        state.adminOrders = newOrders;
+        state.adminBlockedSet = new Set(ordersRes.blockedNumbers || []);
+        state.adminMenu = menuRes.menu || [];
+        state.adminAnalytics = analyticsRes;
+        state.adminExpenses = expensesRes.expenses || [];
+        state.adminRiders = ridersRes.riders || [];
+        state.adminCustomers = customersRes.customers || [];
+        state.adminCoupons = couponsRes.coupons || [];
+        state.adminSettingsData = settingsRes.settings;
+        state.adminBlockedList = settingsRes.blockedNumbers || [];
+
+        if (settingsRes.settings) {
+          state.settings = settingsRes.settings;
+        }
+        renderAdminOrders();
+        renderAdminMenu();
+        renderAdminAnalytics();
+        renderAdminExpenses();
+        renderAdminRiders();
+        renderAdminCustomers();
+        renderAdminCoupons();
+        renderAdminSettings();
+      } catch (err) {
+        if (err.status === 401) {
+          logoutAdmin();
+        } else if (!isBackground) {
+          alert(err.message);
+        }
+      }
+    }
+
+    function logoutAdmin() {
+      stopAdminAutoRefresh();
+      state.adminToken = "";
+      sessionStorage.removeItem("gr_admin_token");
+      document.getElementById("adminDashboard").classList.add("hidden");
+    }
+
+    function switchAdminTab(tab) {
+      state.activeAdminTab = tab;
+      document.querySelectorAll(".admin-tab-btn").forEach((btn) => {
+        const isActive = btn.dataset.adminTab === tab;
+        btn.className = `admin-tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap ${
+          isActive ? "bg-orange-500 text-white" : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+        }`;
+      });
+      ["orders", "menu", "analytics", "riders", "customers", "coupons", "settings"].forEach((name) => {
+        const elId = "adminTab" + name.charAt(0).toUpperCase() + name.slice(1);
+        document.getElementById(elId).classList.toggle("hidden", tab !== name);
+      });
+    }
+
+    // --- ADMIN TAB 1: LIVE ORDERS + KOT + BILL + RIDER + CASH/UPI ---
+    function renderAdminOrders() {
+      const filters = ["All", "Pending", "Cooking", "Out for Delivery", "Delivered", "Cancelled"];
+      const counts = { All: state.adminOrders.length };
+      filters.slice(1).forEach((st) => {
+        counts[st] = state.adminOrders.filter((o) => o.status === st).length;
+      });
+
+      const pillBox = document.getElementById("orderFilterPills");
+      pillBox.innerHTML = filters
+        .map((st) => {
+          const active = state.adminOrderFilter === st;
+          return `<button type="button" data-of="${st}"
+            class="px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border ${
+              active ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-600 border-slate-200"
+            }">${escapeHtml(TRANSLATIONS[state.lang].statuses[st] || st)} (${counts[st]})</button>`;
+        })
+        .join("");
+
+      pillBox.querySelectorAll("[data-of]").forEach((b) =>
+        b.addEventListener("click", () => {
+          state.adminOrderFilter = b.dataset.of;
+          renderAdminOrders();
+        })
+      );
+
+      const q = state.adminOrderSearch.trim().toLowerCase();
+      const filtered = state.adminOrders.filter((o) => {
+        const stOk = state.adminOrderFilter === "All" || o.status === state.adminOrderFilter;
+        if (!stOk) return false;
+        if (!q) return true;
+        return (
+          (o.orderNumber || "").toLowerCase().includes(q) ||
+          (o.customerName || "").toLowerCase().includes(q) ||
+          (o.phone || "").includes(q) ||
+          (o.address || "").toLowerCase().includes(q)
+        );
+      });
+
+      const list = document.getElementById("adminOrdersList");
+      if (filtered.length === 0) {
+        list.innerHTML = `<div class="bg-white rounded-2xl p-8 text-center text-slate-500 text-sm font-semibold border border-slate-200">${escapeHtml(
+          t("noOrders")
+        )}</div>`;
+        return;
+      }
+
+      const statusColors = {
+        Pending: "bg-amber-100 text-amber-800",
+        Cooking: "bg-blue-100 text-blue-800",
+        "Out for Delivery": "bg-purple-100 text-purple-800",
+        Delivered: "bg-emerald-100 text-emerald-800",
+        Cancelled: "bg-red-100 text-red-800",
+      };
+
+      list.innerHTML = filtered
+        .map((ord) => {
+          const isBlocked = state.adminBlockedSet.has(ord.phone);
+          const hasGps = ord.gpsLocation && ord.gpsLocation.mapLink && ord.gpsLocation.mapLink.startsWith("https://maps.google.com/");
+          const mins = getElapsedMinutes(ord.createdAt);
+          const isActive = ["Pending", "Cooking", "Out for Delivery"].includes(ord.status);
+          const timerClass =
+            isActive && mins >= 25
+              ? "bg-red-100 text-red-800"
+              : isActive && mins >= 15
+              ? "bg-amber-100 text-amber-800"
+              : "bg-slate-100 text-slate-600";
+
+          const itemsHtml = ord.items
+            .map(
+              (it) =>
+                `<span class="inline-block bg-slate-100 text-slate-800 px-2 py-0.5 rounded-md text-xs font-semibold mr-1.5 mb-1">${escapeHtml(
+                  state.lang === "hi" ? it.nameHi : it.nameEn
+                )} × ${it.quantity} (₹${it.sellingPrice * it.quantity})</span>`
+            )
+            .join("");
+
+          const shopTitle = state.lang === "hi" ? state.settings.shopNameHi : state.settings.shopNameEn;
+          const waMsg = encodeURIComponent(
+            `नमस्ते ${ord.customerName} जी! 🙏\n*${shopTitle}* से आपका ऑर्डर *${ord.orderNumber}* अभी *${ord.status}* है।\nकुल राशि: ₹${ord.totalAmount} (COD)\nपता: ${ord.address}`
+          );
+
+          const riderOptions = `<option value="">${escapeHtml(t("assignRiderOpt"))}</option>` +
+            state.adminRiders
+              .map(
+                (r) =>
+                  `<option value="${r._id}" ${String(ord.assignedRider?.riderId) === String(r._id) ? "selected" : ""}>🛵 ${escapeHtml(
+                    r.name
+                  )}</option>`
+              )
+              .join("");
+
+          return `<div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
+            <div class="flex items-start justify-between gap-2 flex-wrap">
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-extrabold text-slate-900 text-sm">${escapeHtml(ord.orderNumber)}</span>
+                  <span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${statusColors[ord.status] || "bg-slate-100"}">${escapeHtml(
+                    TRANSLATIONS[state.lang].statuses[ord.status] || ord.status
+                  )}</span>
+                  <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-600">${escapeHtml(ord.source || "Website")}</span>
+                  ${isActive ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${timerClass}">⏱️ ${mins}m</span>` : ""}
+                </div>
+                <div class="text-xs text-slate-400 mt-0.5">${escapeHtml(formatIST(ord.createdAt))}</div>
+              </div>
+              <div class="text-right">
+                <div class="text-base font-extrabold text-slate-900">₹${ord.totalAmount}</div>
+                <div class="text-[11px] text-slate-500">₹${ord.subtotal}${ord.discountAmount ? ` − ₹${ord.discountAmount}` : ""} + ₹${ord.deliveryCharge} Del</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm bg-slate-50 rounded-xl p-3 border border-slate-100">
+              <div class="space-y-1">
+                <div class="font-bold text-slate-900">👤 ${escapeHtml(ord.customerName)}</div>
+                <div class="text-slate-600">🏠 ${escapeHtml(ord.address)}</div>
+                ${ord.customerNote ? `<div class="text-xs font-bold text-amber-800 bg-amber-50 px-2 py-1 rounded border border-amber-200">📝 ${escapeHtml(ord.customerNote)}</div>` : ""}
+              </div>
+              <div class="flex flex-wrap sm:justify-end items-center gap-1.5">
+                <a href="tel:${escapeHtml(ord.phone)}" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">
+                  📞 ${escapeHtml(ord.phone)}
+                </a>
+                <a href="https://wa.me/91${escapeHtml(ord.phone)}?text=${waMsg}" target="_blank" rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs font-bold">
+                  💬 ${escapeHtml(t("whatsappCustomer"))}
+                </a>
+                ${
+                  hasGps
+                    ? `<a href="${escapeHtml(ord.gpsLocation.mapLink)}" target="_blank" rel="noopener noreferrer"
+                        class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold">
+                        📍 ${escapeHtml(t("openMap"))}
+                      </a>`
+                    : ""
+                }
+              </div>
+            </div>
+
+            <div>${itemsHtml}</div>
+
+            <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 flex-wrap">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <select data-ord-status="${ord._id}" class="rounded-xl border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-800">
+                  ${["Pending", "Cooking", "Out for Delivery", "Delivered", "Cancelled"]
+                    .map(
+                      (st) =>
+                        `<option value="${st}" ${ord.status === st ? "selected" : ""}>${escapeHtml(
+                          TRANSLATIONS[state.lang].statuses[st] || st
+                        )}</option>`
+                    )
+                    .join("")}
+                </select>
+                <select data-ord-rider="${ord._id}" class="rounded-xl border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-700">
+                  ${riderOptions}
+                </select>
+                ${
+                  ord.status === "Delivered"
+                    ? `<select data-ord-paymode="${ord._id}" class="rounded-xl border border-emerald-300 bg-emerald-50 px-2.5 py-1.5 text-xs font-bold text-emerald-800">
+                        <option value="Cash" ${ord.paymentCollectedMode !== "UPI" ? "selected" : ""}>💵 Cash</option>
+                        <option value="UPI" ${ord.paymentCollectedMode === "UPI" ? "selected" : ""}>📲 UPI</option>
+                      </select>`
+                    : ""
+                }
+              </div>
+
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <button type="button" data-kot-ord="${ord._id}" class="px-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold">
+                  🍳 ${escapeHtml(t("kotBtn"))}
+                </button>
+                <button type="button" data-print-ord="${ord._id}" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold">
+                  🧾 ${escapeHtml(t("billBtn"))}
+                </button>
+                <button type="button" data-block-phone="${escapeHtml(ord.phone)}" ${isBlocked ? "disabled" : ""}
+                  class="px-2.5 py-1.5 rounded-xl text-xs font-bold border transition ${
+                    isBlocked
+                      ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
+                      : "bg-red-50 hover:bg-red-100 text-red-700 border-red-200"
+                  }">
+                  🚫 ${escapeHtml(isBlocked ? t("alreadyBlocked") : t("blockNumber"))}
+                </button>
+                <button type="button" data-del-ord="${ord._id}" class="px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-500 hover:text-red-700 border border-slate-200 text-xs font-bold">
+                  🗑️
+                </button>
+              </div>
+            </div>
+          </div>`;
+        })
+        .join("");
+
+      list.querySelectorAll("select[data-ord-status]").forEach((sel) => {
+        sel.addEventListener("change", async () => {
+          if (state.adminToken === "DEMO_TOKEN") {
+            const o = state.adminOrders.find((x) => x._id === sel.dataset.ordStatus);
+            if (o) {
+              o.status = sel.value;
+              if (o.status === "Delivered" && o.paymentCollectedMode === "Pending") o.paymentCollectedMode = "Cash";
+            }
+            await refreshAdminData();
+            return;
+          }
+          try {
+            await apiFetch(
+              `/api/admin/orders/${sel.dataset.ordStatus}/status`,
+              { method: "PATCH", body: JSON.stringify({ status: sel.value }) },
+              true
+            );
+            await refreshAdminData();
+          } catch (err) {
+            alert(err.message);
+          }
+        });
+      });
+
+      list.querySelectorAll("select[data-ord-rider]").forEach((sel) => {
+        sel.addEventListener("change", async () => {
+          if (state.adminToken === "DEMO_TOKEN") {
+            const o = state.adminOrders.find((x) => x._id === sel.dataset.ordRider);
+            const r = state.adminRiders.find((x) => x._id === sel.value);
+            if (o) o.assignedRider = r ? { riderId: r._id, name: r.name, phone: r.phone } : { riderId: null, name: "", phone: "" };
+            await refreshAdminData();
+            return;
+          }
+          try {
+            await apiFetch(
+              `/api/admin/orders/${sel.dataset.ordRider}/status`,
+              { method: "PATCH", body: JSON.stringify({ riderId: sel.value }) },
+              true
+            );
+            await refreshAdminData();
+          } catch (err) {
+            alert(err.message);
+          }
+        });
+      });
+
+      list.querySelectorAll("select[data-ord-paymode]").forEach((sel) => {
+        sel.addEventListener("change", async () => {
+          if (state.adminToken === "DEMO_TOKEN") {
+            const o = state.adminOrders.find((x) => x._id === sel.dataset.ordPaymode);
+            if (o) o.paymentCollectedMode = sel.value;
+            await refreshAdminData();
+            return;
+          }
+          try {
+            await apiFetch(
+              `/api/admin/orders/${sel.dataset.ordPaymode}/status`,
+              { method: "PATCH", body: JSON.stringify({ paymentCollectedMode: sel.value }) },
+              true
+            );
+            await refreshAdminData();
+          } catch (err) {
+            alert(err.message);
+          }
+        });
+      });
+
+      list.querySelectorAll("[data-print-ord]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const ord = state.adminOrders.find((o) => o._id === btn.dataset.printOrd);
+          if (ord) openReceiptModal(ord, "BILL");
+        });
+      });
+
+      list.querySelectorAll("[data-kot-ord]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const ord = state.adminOrders.find((o) => o._id === btn.dataset.kotOrd);
+          if (ord) openReceiptModal(ord, "KOT");
+        });
+      });
+
+      list.querySelectorAll("button[data-block-phone]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const phone = btn.dataset.blockPhone;
+          if (!confirm(t("confirmBlock", phone))) return;
+          if (state.adminToken === "DEMO_TOKEN") {
+            state.adminBlockedSet.add(phone);
+            state.adminBlockedList.unshift({ phone, reason: "Blocked from Order" });
+            await refreshAdminData();
+            return;
+          }
+          try {
+            await apiFetch(
+              "/api/admin/blocked-numbers",
+              { method: "POST", body: JSON.stringify({ phone, reason: "Blocked from Order" }) },
+              true
+            );
+            await refreshAdminData();
+          } catch (err) {
+            alert(err.message);
+          }
+        });
+      });
+
+      list.querySelectorAll("[data-del-ord]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (!confirm(t("confirmDeleteOrder"))) return;
+          if (state.adminToken === "DEMO_TOKEN") {
+            state.adminOrders = state.adminOrders.filter((o) => o._id !== btn.dataset.delOrd);
+            await refreshAdminData();
+            return;
+          }
+          try {
+            await apiFetch(`/api/admin/orders/${btn.dataset.delOrd}`, { method: "DELETE" }, true);
+            await refreshAdminData();
+          } catch (err) {
+            alert(err.message);
+          }
+        });
+      });
+    }
+
+    function openReceiptModal(ord, mode = "BILL") {
+      const shopName = state.lang === "hi" ? state.settings.shopNameHi : state.settings.shopNameEn;
+      if (mode === "KOT") {
+        const kotRows = ord.items
+          .map((it) => `<div class="flex justify-between font-bold text-sm"><span>${escapeHtml(it.nameHi)} / ${escapeHtml(it.nameEn)}</span><span>x ${it.quantity}</span></div>`)
+          .join("");
+        document.getElementById("receiptPrintArea").innerHTML = `
+          <div class="text-center border-b border-dashed border-slate-400 pb-2">
+            <div class="text-base font-extrabold">*** KITCHEN KOT ***</div>
+            <div>Order: ${escapeHtml(ord.orderNumber)} (${escapeHtml(ord.source || "Website")})</div>
+            <div>${escapeHtml(formatIST(ord.createdAt))}</div>
+          </div>
+          <div class="border-b border-dashed border-slate-400 py-2 space-y-1.5">${kotRows}</div>
+          ${ord.customerNote ? `<div class="p-2 bg-amber-50 border border-amber-300 font-bold">NOTE: ${escapeHtml(ord.customerNote)}</div>` : ""}
+          <div class="text-center pt-1 text-[11px]">Customer: ${escapeHtml(ord.customerName)}</div>
+        `;
+      } else {
+        const rows = ord.items
+          .map(
+            (it) => `<div class="flex justify-between">
+              <span>${escapeHtml(it.nameEn)} x${it.quantity}</span>
+              <span>₹${it.sellingPrice * it.quantity}</span>
+            </div>`
+          )
+          .join("");
+        document.getElementById("receiptPrintArea").innerHTML = `
+          <div class="text-center border-b border-dashed border-slate-400 pb-2">
+            <div class="text-base font-extrabold">${escapeHtml(shopName)}</div>
+            <div>Order: ${escapeHtml(ord.orderNumber)}</div>
+            <div>${escapeHtml(formatIST(ord.createdAt))}</div>
+          </div>
+          <div class="border-b border-dashed border-slate-400 py-2 space-y-0.5">
+            <div>Customer: ${escapeHtml(ord.customerName)}</div>
+            <div>Phone: ${escapeHtml(ord.phone)}</div>
+            <div>Addr: ${escapeHtml(ord.address)}</div>
+          </div>
+          <div class="border-b border-dashed border-slate-400 py-2 space-y-1">${rows}</div>
+          <div class="space-y-1 pt-1">
+            <div class="flex justify-between"><span>Subtotal</span><span>₹${ord.subtotal}</span></div>
+            ${ord.discountAmount ? `<div class="flex justify-between"><span>Discount</span><span>-₹${ord.discountAmount}</span></div>` : ""}
+            <div class="flex justify-between"><span>Delivery</span><span>₹${ord.deliveryCharge}</span></div>
+            <div class="flex justify-between font-extrabold text-sm border-t border-slate-300 pt-1"><span>TOTAL (COD)</span><span>₹${ord.totalAmount}</span></div>
+          </div>
+          ${state.settings.upiId ? `<div class="text-center pt-1 text-[11px]">UPI: ${escapeHtml(state.settings.upiId)}</div>` : ""}
+          <div class="text-center pt-2 text-[10px]">Thank you! Visit again 🙏</div>
+        `;
+      }
+      document.getElementById("receiptModal").classList.remove("hidden");
+    }
+
+    document.getElementById("printReceiptBtn").addEventListener("click", () => window.print());
+    document.getElementById("copyReceiptBtn").addEventListener("click", () => {
+      const text = document.getElementById("receiptPrintArea").innerText;
+      navigator.clipboard?.writeText(text).then(() => alert("✅ Copied!"));
+    });
+    document.getElementById("closeReceiptBtn").addEventListener("click", () => {
+      document.getElementById("receiptModal").classList.add("hidden");
+    });
+
+    // Manual Phone Order Modal
+    document.getElementById("openManualOrderBtn").addEventListener("click", () => {
+      document.getElementById("manualOrderForm").reset();
+      document.getElementById("moDelivery").value = state.settings.deliveryCharge ?? 15;
+      const picker = document.getElementById("moItemsPicker");
+      picker.innerHTML = state.adminMenu
+        .map(
+          (m) => `<div class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs">
+            <span class="font-bold truncate pr-2">${escapeHtml(m.nameHi)} (₹${m.sellingPrice})</span>
+            <input type="number" min="0" max="50" value="0" data-mo-item="${m._id}" class="w-14 rounded border border-slate-300 px-2 py-1 text-center font-bold" />
+          </div>`
+        )
+        .join("");
+      document.getElementById("manualOrderModal").classList.remove("hidden");
+    });
+    document.getElementById("closeManualOrderBtn").addEventListener("click", () => {
+      document.getElementById("manualOrderModal").classList.add("hidden");
+    });
+
+    document.getElementById("manualOrderForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const items = [];
+      document.querySelectorAll("[data-mo-item]").forEach((inp) => {
+        const qty = parseInt(inp.value, 10);
+        if (qty > 0) items.push({ menuItemId: inp.dataset.moItem, quantity: qty });
+      });
+      if (items.length === 0) return alert("Select at least 1 item.");
+      const phone = normalizeIndianPhone(document.getElementById("moPhone").value);
+      if (!phone) return alert(t("errInvalidPhone"));
+
+      const payload = {
+        customerName: document.getElementById("moName").value.trim(),
+        phone,
+        address: document.getElementById("moAddress").value.trim(),
+        customerNote: document.getElementById("moNote").value.trim(),
+        deliveryChargeOverride: document.getElementById("moDelivery").value,
+        status: document.getElementById("moStatus").value,
+        items,
+      };
+
+      if (state.adminToken === "DEMO_TOKEN") {
+        let sub = 0, cost = 0;
+        const ordItems = items.map((it) => {
+          const m = state.adminMenu.find((x) => x._id === it.menuItemId);
+          sub += m.sellingPrice * it.quantity;
+          cost += (m.makingCost || 0) * it.quantity;
+          return { nameHi: m.nameHi, nameEn: m.nameEn, quantity: it.quantity, sellingPrice: m.sellingPrice, makingCost: m.makingCost || 0 };
+        });
+        const del = Number(payload.deliveryChargeOverride || 0);
+        state.adminOrders.unshift({
+          _id: "demo-ph-" + Date.now(),
+          orderNumber: "PH-" + String(Date.now()).slice(-4),
+          customerName: payload.customerName,
+          phone: payload.phone,
+          address: payload.address,
+          customerNote: payload.customerNote,
+          items: ordItems,
+          subtotal: sub,
+          discountAmount: 0,
+          deliveryCharge: del,
+          totalAmount: sub + del,
+          totalMakingCost: cost,
+          paymentCollectedMode: payload.status === "Delivered" ? "Cash" : "Pending",
+          source: "Phone",
+          status: payload.status,
+          createdAt: new Date().toISOString(),
+        });
+        document.getElementById("manualOrderModal").classList.add("hidden");
+        await refreshAdminData();
+        return;
+      }
+
+      try {
+        await apiFetch("/api/admin/orders", { method: "POST", body: JSON.stringify(payload) }, true);
+        document.getElementById("manualOrderModal").classList.add("hidden");
+        await refreshAdminData();
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    function downloadCsv(filename, rows) {
+      const csv = rows
+        .map((r) => r.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(","))
+        .join("\n");
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("exportOrdersCsvBtn").addEventListener("click", () => {
+      const rows = [["Order #", "Date (IST)", "Source", "Status", "Payment Mode", "Customer", "Phone", "Address", "Subtotal", "Discount", "Delivery", "Total", "Making Cost"]];
+      state.adminOrders.forEach((o) => {
+        rows.push([
+          o.orderNumber,
+          formatIST(o.createdAt),
+          o.source || "Website",
+          o.status,
+          o.paymentCollectedMode || "Pending",
+          o.customerName,
+          o.phone,
+          o.address,
+          o.subtotal,
+          o.discountAmount || 0,
+          o.deliveryCharge,
+          o.totalAmount,
+          o.totalMakingCost || 0,
+        ]);
+      });
+      downloadCsv(`gaon-rasoi-orders-${new Date().toISOString().slice(0, 10)}.csv`, rows);
+    });
+
+    document.getElementById("exportExpensesCsvBtn").addEventListener("click", () => {
+      const rows = [["Date", "Title", "Category", "Amount (INR)"]];
+      state.adminExpenses.forEach((e) => rows.push([formatIST(e.expenseDate), e.title, e.category, e.amount]));
+      downloadCsv(`gaon-rasoi-expenses-${new Date().toISOString().slice(0, 10)}.csv`, rows);
+    });
+
+    // --- ADMIN TAB 2: MENU, STOCK COUNT & MARGIN ---
+    function renderAdminMenu() {
+      const q = state.adminMenuSearch.trim().toLowerCase();
+      const filtered = state.adminMenu.filter(
+        (m) => !q || m.nameHi.toLowerCase().includes(q) || m.nameEn.toLowerCase().includes(q)
+      );
+      const list = document.getElementById("adminMenuList");
+      list.innerHTML = filtered
+        .map((item) => {
+          const profit = item.sellingPrice - item.makingCost;
+          const marginPct = item.sellingPrice > 0 ? ((profit / item.sellingPrice) * 100).toFixed(0) : 0;
+          const stockTag =
+            item.stockCount !== null && item.stockCount !== undefined
+              ? `<span class="px-2 py-0.5 rounded bg-blue-50 text-blue-800 font-bold">${escapeHtml(t("stockLeftBadge", item.stockCount))}</span>`
+              : "";
+          return `<div class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-xs flex gap-3 items-start">
+            <img src="${escapeHtml(safeImageUrl(item.imageUrl))}" onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'"
+              class="w-16 h-16 rounded-xl object-cover bg-orange-50 shrink-0" />
+            <div class="flex-1 min-w-0 space-y-1.5">
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0">
+                  <div class="font-extrabold text-slate-900 text-sm truncate">
+                    ${item.isVeg !== false ? "🟢" : "🔴"} ${escapeHtml(item.nameHi)} / ${escapeHtml(item.nameEn)}
+                    ${item.isPopular ? "⭐" : ""}
+                  </div>
+                  <div class="text-xs text-slate-500">${escapeHtml(item.category || "Snacks")}</div>
+                </div>
+                <label class="inline-flex items-center gap-1.5 cursor-pointer shrink-0">
+                  <input type="checkbox" data-toggle-stock="${item._id}" ${item.inStock ? "checked" : ""} class="w-4 h-4 accent-emerald-600" />
+                  <span class="text-[11px] font-bold ${item.inStock ? "text-emerald-700" : "text-red-600"}">
+                    ${escapeHtml(item.inStock ? t("inStock") : t("markOutStock"))}
+                  </span>
+                </label>
+              </div>
+
+              <div class="flex flex-wrap gap-1.5 text-xs">
+                <span class="px-2 py-0.5 rounded bg-slate-100 font-bold">${escapeHtml(t("sellingPrice"))}: ₹${item.sellingPrice}</span>
+                <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-800 font-bold">${escapeHtml(t("makingCost"))}: ₹${item.makingCost}</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold">${escapeHtml(t("profitPerItem"))}: ₹${profit} (${marginPct}%)</span>
+                ${stockTag}
+              </div>
+
+              <div class="flex gap-2 pt-1">
+                <button type="button" data-edit-item="${item._id}" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold">✏️ Edit</button>
+                <button type="button" data-del-item="${item._id}" class="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold">🗑️ Delete</button>
+              </div>
+            </div>
+          </div>`;
+        })
+        .join("");
+
+      list.querySelectorAll("[data-toggle-stock]").forEach((cb) => {
+        cb.addEventListener("change", async () => {
+          if (state.adminToken === "DEMO_TOKEN") {
+            const it = state.adminMenu.find((m) => m._id === cb.dataset.toggleStock);
+            if (it) it.inStock = cb.checked;
+            renderAdminMenu();
+            return;
+          }
+          try {
+            await apiFetch(`/api/admin/menu/${cb.dataset.toggleStock}`, { method: "PUT", body: JSON.stringify({ inStock: cb.checked }) }, true);
+            await refreshAdminData();
+            await loadStoreData();
+          } catch (err) {
+            alert(err.message);
+          }
+        });
+      });
+
+      list.querySelectorAll("[data-edit-item]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const item = state.adminMenu.find((m) => m._id === btn.dataset.editItem);
+          if (!item) return;
+          document.getElementById("editItemId").value = item._id;
+          document.getElementById("itemNameHi").value = item.nameHi;
+          document.getElementById("itemNameEn").value = item.nameEn;
+          document.getElementById("itemDescHi").value = item.descHi || "";
+          document.getElementById("itemDescEn").value = item.descEn || "";
+          document.getElementById("itemSellingPrice").value = item.sellingPrice;
+          document.getElementById("itemMakingCost").value = item.makingCost;
+          document.getElementById("itemCategory").value = item.category || "Snacks";
+          document.getElementById("itemStockCount").value = item.stockCount !== null && item.stockCount !== undefined ? item.stockCount : "";
+          document.getElementById("itemImageUrl").value = item.imageUrl || "";
+          document.getElementById("itemInStock").checked = item.inStock;
+          document.getElementById("itemIsVeg").checked = item.isVeg !== false;
+          document.getElementById("itemIsPopular").checked = Boolean(item.isPopular);
+          document.getElementById("menuFormTitle").textContent = t("editItem");
+          const card = document.getElementById("menuItemFormCard");
+          card.classList.remove("hidden");
+          card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        });
+      });
+
+      list.querySelectorAll("[data-del-item]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (!confirm(t("deleteConfirm"))) return;
+          if (state.adminToken === "DEMO_TOKEN") {
+            state.adminMenu = state.adminMenu.filter((m) => m._id !== btn.dataset.delItem);
+            renderAdminMenu();
+            return;
+          }
+          try {
+            await apiFetch(`/api/admin/menu/${btn.dataset.delItem}`, { method: "DELETE" }, true);
+            await refreshAdminData();
+            await loadStoreData();
+          } catch (err) {
+            alert(err.message);
+          }
+        });
+      });
+    }
+
+    document.getElementById("openAddItemBtn").addEventListener("click", () => {
+      document.getElementById("adminMenuForm").reset();
+      document.getElementById("editItemId").value = "";
+      document.getElementById("itemInStock").checked = true;
+      document.getElementById("itemIsVeg").checked = true;
+      document.getElementById("itemIsPopular").checked = false;
+      document.getElementById("menuFormTitle").textContent = t("addNewItem");
+      document.getElementById("menuItemFormCard").classList.remove("hidden");
+    });
+    document.getElementById("cancelMenuFormBtn").addEventListener("click", () => {
+      document.getElementById("menuItemFormCard").classList.add("hidden");
+    });
+
+    document.getElementById("adminMenuForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const editId = document.getElementById("editItemId").value;
+      const rawStock = document.getElementById("itemStockCount").value.trim();
+      const payload = {
+        nameHi: document.getElementById("itemNameHi").value.trim(),
+        nameEn: document.getElementById("itemNameEn").value.trim(),
+        descHi: document.getElementById("itemDescHi").value.trim(),
+        descEn: document.getElementById("itemDescEn").value.trim(),
+        sellingPrice: Number(document.getElementById("itemSellingPrice").value),
+        makingCost: Number(document.getElementById("itemMakingCost").value),
+        category: document.getElementById("itemCategory").value,
+        stockCount: rawStock === "" ? null : Math.max(0, parseInt(rawStock, 10)),
+        imageUrl: document.getElementById("itemImageUrl").value.trim(),
+        inStock: document.getElementById("itemInStock").checked,
+        isVeg: document.getElementById("itemIsVeg").checked,
+        isPopular: document.getElementById("itemIsPopular").checked,
+      };
+      if (state.adminToken === "DEMO_TOKEN") {
+        if (editId) {
+          const idx = state.adminMenu.findIndex((x) => x._id === editId);
+          if (idx >= 0) state.adminMenu[idx] = { ...state.adminMenu[idx], ...payload };
+        } else {
+          state.adminMenu.push({ _id: "demo-" + Date.now(), ...payload });
+        }
+        document.getElementById("menuItemFormCard").classList.add("hidden");
+        renderAdminMenu();
+        return;
+      }
+      try {
+        if (editId) await apiFetch(`/api/admin/menu/${editId}`, { method: "PUT", body: JSON.stringify(payload) }, true);
+        else await apiFetch("/api/admin/menu", { method: "POST", body: JSON.stringify(payload) }, true);
+        document.getElementById("menuItemFormCard").classList.add("hidden");
+        await refreshAdminData();
+        await loadStoreData();
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    // --- ADMIN TAB 3: PROFIT, CASH vs UPI & DAILY EXPENSES ---
+    function renderAnalyticsBlock(title, stats) {
+      return `<div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
+        <div class="flex items-center justify-between flex-wrap gap-1">
+          <h3 class="font-extrabold text-slate-900 text-base">${escapeHtml(title)}</h3>
+          <span class="text-xs font-bold text-slate-500">${escapeHtml(t("deliveredOrdersSub"))}: ${stats.deliveredCount}</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+          <div class="bg-blue-50 border border-blue-100 rounded-xl p-3">
+            <div class="text-[11px] font-bold text-blue-700">${escapeHtml(t("totalSales"))}</div>
+            <div class="text-lg font-extrabold text-blue-900 mt-1">₹${stats.totalSales}</div>
+            <div class="text-[10px] font-semibold text-blue-700 mt-0.5">${escapeHtml(t("cashVsUpi", stats.cashSales || 0, stats.upiSales || 0))}</div>
+          </div>
+          <div class="bg-amber-50 border border-amber-100 rounded-xl p-3">
+            <div class="text-[11px] font-bold text-amber-700">${escapeHtml(t("totalMakingCost"))}</div>
+            <div class="text-lg font-extrabold text-amber-900 mt-1">₹${stats.totalMakingCost}</div>
+          </div>
+          <div class="bg-purple-50 border border-purple-100 rounded-xl p-3">
+            <div class="text-[11px] font-bold text-purple-700">${escapeHtml(t("deliveryCollected"))}</div>
+            <div class="text-lg font-extrabold text-purple-900 mt-1">₹${stats.deliveryChargesCollected}</div>
+          </div>
+          <div class="bg-red-50 border border-red-100 rounded-xl p-3">
+            <div class="text-[11px] font-bold text-red-700">${escapeHtml(t("extraExpenses"))}</div>
+            <div class="text-lg font-extrabold text-red-900 mt-1">₹${stats.totalExpenses || 0}</div>
+          </div>
+          <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 col-span-2 sm:col-span-1">
+            <div class="text-[11px] font-bold text-emerald-700">${escapeHtml(t("netProfit"))}</div>
+            <div class="text-lg font-extrabold text-emerald-900 mt-1">₹${stats.netProfit} <span class="text-xs">(${stats.marginPercent}%)</span></div>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function renderAdminAnalytics() {
+      const box = document.getElementById("analyticsContainer");
+      const a = state.adminAnalytics;
+      if (!a) return;
+
+      const countsHtml = Object.entries(a.statusCounts || {})
+        .map(
+          ([st, cnt]) =>
+            `<div class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-center">
+              <div class="text-[11px] font-bold text-slate-500">${escapeHtml(TRANSLATIONS[state.lang].statuses[st] || st)}</div>
+              <div class="text-lg font-extrabold text-slate-900">${cnt}</div>
+            </div>`
+        )
+        .join("");
+
+      const topHtml = (a.topItems || []).length
+        ? (a.topItems || [])
+            .map(
+              (it) => `<div class="flex items-center justify-between bg-slate-50 rounded-xl px-3 py-2 border border-slate-100 text-xs">
+                <span class="font-bold text-slate-900">${escapeHtml(state.lang === "hi" ? it.nameHi : it.nameEn)}</span>
+                <div class="flex gap-3 font-bold">
+                  <span class="text-slate-600">Qty: ${it.qtySold}</span>
+                  <span class="text-blue-700">₹${it.revenue}</span>
+                  <span class="text-emerald-700">+₹${it.profit}</span>
+                </div>
+              </div>`
+            )
+            .join("")
+        : `<p class="text-xs text-slate-400">${escapeHtml(t("noTopItems"))}</p>`;
+
+      box.innerHTML =
+        renderAnalyticsBlock(t("todayTitle"), a.today) +
+        (a.month ? renderAnalyticsBlock(t("monthTitle"), a.month) : "") +
+        renderAnalyticsBlock(t("allTimeTitle"), a.total) +
+        `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-2.5">
+            <h4 class="font-extrabold text-slate-900 text-sm">${escapeHtml(t("topItemsTitle"))}</h4>
+            <div class="space-y-1.5">${topHtml}</div>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-2.5">
+            <h4 class="font-extrabold text-slate-900 text-sm">${escapeHtml(t("orderSummaryCounts"))}</h4>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">${countsHtml}</div>
+          </div>
+        </div>`;
+    }
+
+    function renderAdminExpenses() {
+      const list = document.getElementById("expensesList");
+      if (state.adminExpenses.length === 0) {
+        list.innerHTML = `<p class="text-xs text-slate-400 text-center py-3">${escapeHtml(t("noExpenses"))}</p>`;
+        return;
+      }
+      list.innerHTML = state.adminExpenses
+        .map(
+          (ex) => `<div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
+            <div>
+              <div class="font-bold text-slate-900">${escapeHtml(ex.title)} <span class="text-[10px] bg-slate-200 px-1.5 py-0.5 rounded ml-1">${escapeHtml(ex.category)}</span></div>
+              <div class="text-slate-400">${escapeHtml(formatIST(ex.expenseDate))}</div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="font-extrabold text-red-700">₹${ex.amount}</span>
+              <button type="button" data-del-exp="${ex._id}" class="text-red-500 font-bold">✕</button>
+            </div>
+          </div>`
+        )
+        .join("");
+
+      list.querySelectorAll("[data-del-exp]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (state.adminToken === "DEMO_TOKEN") {
+            state.adminExpenses = state.adminExpenses.filter((x) => x._id !== btn.dataset.delExp);
+            await refreshAdminData();
+            return;
+          }
+          try {
+            await apiFetch(`/api/admin/expenses/${btn.dataset.delExp}`, { method: "DELETE" }, true);
+            await refreshAdminData();
+          } catch (err) {
+            alert(err.message);
+          }
+        });
+      });
+    }
+
+    document.getElementById("adminExpenseForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const payload = {
+        title: document.getElementById("expTitle").value.trim(),
+        category: document.getElementById("expCategory").value,
+        amount: Number(document.getElementById("expAmount").value),
+      };
+      if (state.adminToken === "DEMO_TOKEN") {
+        state.adminExpenses.unshift({ _id: "exp-" + Date.now(), ...payload, expenseDate: new Date().toISOString() });
+        document.getElementById("adminExpenseForm").reset();
+        await refreshAdminData();
+        return;
+      }
+      try {
+        await apiFetch("/api/admin/expenses", { method: "POST", body: JSON.stringify(payload) }, true);
+        document.getElementById("adminExpenseForm").reset();
+        await refreshAdminData();
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    // --- ADMIN TAB 4: RIDERS & CASH RECONCILIATION ---
+    function renderAdminRiders() {
+      const list = document.getElementById("adminRidersList");
+      if (state.adminRiders.length === 0) {
+        list.innerHTML = `<div class="col-span-2 bg-white rounded-2xl p-6 text-center text-xs text-slate-400 border border-slate-200">${escapeHtml(
+          t("noRiders")
+        )}</div>`;
+        return;
+      }
+      list.innerHTML = state.adminRiders
+        .map(
+          (r) => `<div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-2.5">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="font-extrabold text-slate-900 text-sm">🛵 ${escapeHtml(r.name)} <span class="text-xs font-semibold text-slate-400">(${escapeHtml(r.vehicleNote || "Bike")})</span></div>
+                <a href="tel:${escapeHtml(r.phone)}" class="text-xs font-bold text-emerald-700">📞 ${escapeHtml(r.phone)}</a>
+              </div>
+              <button type="button" data-del-rider="${r._id}" class="px-2 py-1 rounded-lg bg-red-50 text-red-700 text-xs font-bold">🗑️</button>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center text-xs bg-slate-50 rounded-xl p-2 border border-slate-100">
+              <div><div class="text-slate-500">Active / Del</div><div class="font-extrabold">${r.activeCount || 0} / ${r.deliveredCount || 0}</div></div>
+              <div><div class="text-slate-500">Cash / UPI</div><div class="font-extrabold">₹${r.cashCollected || 0} / ₹${r.upiCollected || 0}</div></div>
+              <div><div class="text-amber-700 font-bold">Unsettled Cash</div><div class="font-extrabold text-red-700">₹${r.unsettledCash || 0}</div></div>
+            </div>
+            ${
+              (r.unsettledCash || 0) > 0
+                ? `<button type="button" data-settle-rider="${r._id}" class="w-full py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">${escapeHtml(
+                    t("settleCashBtn")
+                  )} (₹${r.unsettledCash})</button>`
+                : `<div class="text-center text-xs font-bold text-emerald-700 py-1">${escapeHtml(t("cashSettledMsg"))}</div>`
+            }
+          </div>`
+        )
+        .join("");
+
+      list.querySelectorAll("[data-settle-rider]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (state.adminToken === "DEMO_TOKEN") {
+            state.adminOrders.forEach((o) => {
+              if (o.assignedRider?.riderId === btn.dataset.settleRider && o.status === "Delivered") {
+                o.riderCashSettled = true;
+              }
+            });
+            await refreshAdminData();
+            return;
+          }
+          try {
+            await apiFetch(`/api/admin/riders/${btn.dataset.settleRider}/settle`, { method: "POST" }, true);
+            await refreshAdminData();
+          } catch (err) {
+            alert(err.message);
+          }
+        });
+      });
+
+      list.querySelectorAll("[data-del-rider]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (state.adminToken === "DEMO_TOKEN") {
+            state.adminRiders = state.adminRiders.filter((r) => r._id !== btn.dataset.delRider);
+            await refreshAdminData();
+            return;
+          }
+          try {
+            await apiFetch(`/api/admin/riders/${btn.dataset.delRider}`, { method: "DELETE" }, true);
+            await refreshAdminData();
+          } catch (err) {
+            alert(err.message);
+          }
+        });
+      });
+    }
+
+    document.getElementById("adminRiderForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const phone = normalizeIndianPhone(document.getElementById("riderPhone").value);
+      if (!phone) return alert(t("errInvalidPhone"));
+      const payload = {
+        name: document.getElementById("riderName").value.trim(),
+        phone,
+        vehicleNote: document.getElementById("riderVehicle").value.trim() || "Bike",
+      };
+      if (state.adminToken === "DEMO_TOKEN") {
+        state.adminRiders.unshift({ _id: "rider-" + Date.now(), ...payload });
+        document.getElementById("adminRiderForm").reset();
+        await refreshAdminData();
+        return;
+      }
+      try {
+        await apiFetch("/api/admin/riders", { method: "POST", body: JSON.stringify(payload) }, true);
+        document.getElementById("adminRiderForm").reset();
+        await refreshAdminData();
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    // --- ADMIN TAB 5: CUSTOMERS CRM ---
+    function renderAdminCustomers() {
+      const q = state.adminCustomerSearch.trim().toLowerCase();
+      const filtered = state.adminCustomers.filter(
+        (c) =>
+          !q ||
+          (c.customerName || "").toLowerCase().includes(q) ||
+          (c.phone || "").includes(q) ||
+          (c.lastAddress || "").toLowerCase().includes(q)
+      );
+      const list = document.getElementById("adminCustomersList");
+      if (filtered.length === 0) {
+        list.innerHTML = `<div class="col-span-2 bg-white rounded-2xl p-6 text-center text-xs text-slate-400 border border-slate-200">${escapeHtml(
+          t("noCustomers")
+        )}</div>`;
+        return;
+      }
+      list.innerHTML = filtered
+        .map(
+          (c) => `<div class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-xs space-y-2">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="font-extrabold text-slate-900 text-sm">👤 ${escapeHtml(c.customerName)}</div>
+                <div class="text-xs text-slate-500">🏠 ${escapeHtml(c.lastAddress)}</div>
+              </div>
+              <span class="px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-800 text-xs font-extrabold">₹${c.totalSpent}</span>
+            </div>
+            <div class="flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-2">
+              <span>${escapeHtml(t("custOrdersLbl"))}: <b>${c.totalOrders}</b> (${escapeHtml(t("custDeliveredLbl"))}: ${c.deliveredOrders})</span>
+              <div class="flex gap-1.5">
+                <a href="tel:${escapeHtml(c.phone)}" class="px-2 py-1 rounded-lg bg-emerald-600 text-white font-bold">📞 ${escapeHtml(c.phone)}</a>
+                <a href="https://wa.me/91${escapeHtml(c.phone)}" target="_blank" rel="noopener noreferrer" class="px-2 py-1 rounded-lg bg-green-600 text-white font-bold">💬</a>
+              </div>
+            </div>
+          </div>`
+        )
+        .join("");
+    }
+
+    // --- ADMIN TAB 6: COUPONS MANAGER ---
+    function renderAdminCoupons() {
+      const list = document.getElementById("adminCouponsList");
+      if (state.adminCoupons.length === 0) {
+        list.innerHTML = `<div class="col-span-2 bg-white rounded-2xl p-6 text-center text-xs text-slate-400 border border-slate-200">${escapeHtml(
+          t("noCoupons")
+        )}</div>`;
+        return;
+      }
+      list.innerHTML = state.adminCoupons
+        .map((c) => {
+          const desc =
+            c.discountType === "FREE_DELIVERY"
+              ? t("freeDeliveryApplied")
+              : c.discountType === "PERCENT"
+              ? `${c.discountValue}% OFF`
+              : `₹${c.discountValue} OFF`;
+          return `<div class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-xs flex items-center justify-between gap-2">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-extrabold text-orange-600 text-sm">${escapeHtml(c.code)}</span>
+                <span class="px-2 py-0.5 rounded bg-slate-100 text-xs font-bold">${escapeHtml(desc)}</span>
+              </div>
+              <div class="text-xs text-slate-500 mt-0.5">${escapeHtml(t("minOrderShort"))}: ₹${c.minOrderAmount || 0} • ${escapeHtml(
+            t("usedShort")
+          )}: ${c.usedCount || 0}</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="checkbox" data-toggle-cp="${c._id}" ${c.isActive ? "checked" : ""} class="w-4 h-4 accent-emerald-600 cursor-pointer" />
+              <button type="button" data-del-cp="${c._id}" class="px-2 py-1 rounded-lg bg-red-50 text-red-700 text-xs font-bold">🗑️</button>
+            </div>
+          </div>`;
+        })
+        .join("");
+
+      list.querySelectorAll("[data-toggle-cp]").forEach((cb) => {
+        cb.addEventListener("change", async () => {
+          if (state.adminToken === "DEMO_TOKEN") {
+            const c = state.adminCoupons.find((x) => x._id === cb.dataset.toggleCp);
+            if (c) c.isActive = cb.checked;
+            return;
+          }
+          try {
+            await apiFetch(`/api/admin/coupons/${cb.dataset.toggleCp}`, { method: "PUT", body: JSON.stringify({ isActive: cb.checked }) }, true);
+          } catch (err) {
+            alert(err.message);
+          }
+        });
+      });
+
+      list.querySelectorAll("[data-del-cp]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (state.adminToken === "DEMO_TOKEN") {
+            state.adminCoupons = state.adminCoupons.filter((x) => x._id !== btn.dataset.delCp);
+            renderAdminCoupons();
+            return;
+          }
+          try {
+            await apiFetch(`/api/admin/coupons/${btn.dataset.delCp}`, { method: "DELETE" }, true);
+            await refreshAdminData();
+          } catch (err) {
+            alert(err.message);
+          }
+        });
+      });
+    }
+
+    document.getElementById("adminCouponForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const payload = {
+        code: document.getElementById("couponCode").value.trim().toUpperCase(),
+        discountType: document.getElementById("couponType").value,
+        discountValue: Number(document.getElementById("couponValue").value || 0),
+        minOrderAmount: Number(document.getElementById("couponMinOrder").value || 0),
+      };
+      if (state.adminToken === "DEMO_TOKEN") {
+        state.adminCoupons.unshift({ _id: "cp-" + Date.now(), ...payload, isActive: true, usedCount: 0 });
+        document.getElementById("adminCouponForm").reset();
+        renderAdminCoupons();
+        return;
+      }
+      try {
+        await apiFetch("/api/admin/coupons", { method: "POST", body: JSON.stringify(payload) }, true);
+        document.getElementById("adminCouponForm").reset();
+        await refreshAdminData();
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    // --- ADMIN TAB 7: STORE SETTINGS & BLOCKED NUMBERS ---
+    function renderAdminSettings() {
+      const s = state.adminSettingsData;
+      if (s) {
+        document.getElementById("settingIsOpen").checked = Boolean(s.isOpen);
+        document.getElementById("settingShopNameHi").value = s.shopNameHi || "";
+        document.getElementById("settingShopNameEn").value = s.shopNameEn || "";
+        document.getElementById("settingDeliveryCharge").value = s.deliveryCharge ?? 15;
+        document.getElementById("settingFreeDeliveryAbove").value = s.freeDeliveryAbove ?? 0;
+        document.getElementById("settingMinOrder").value = s.minOrderAmount ?? 50;
+        document.getElementById("settingSupportPhone").value = s.supportPhone || "";
+        document.getElementById("settingUpiId").value = s.upiId || "";
+        document.getElementById("settingHoursHi").value = s.openHoursHi || "";
+        document.getElementById("settingHoursEn").value = s.openHoursEn || "";
+        document.getElementById("settingAnnounceHi").value = s.announcementHi || "";
+        document.getElementById("settingAnnounceEn").value = s.announcementEn || "";
+      }
+
+      const list = document.getElementById("blockedNumbersList");
+      if (state.adminBlockedList.length === 0) {
+        list.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">${escapeHtml(t("noBlocked"))}</p>`;
+        return;
+      }
+      list.innerHTML = state.adminBlockedList
+        .map(
+          (b) => `<div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
+            <div>
+              <div class="font-extrabold text-slate-900">${escapeHtml(b.phone)}</div>
+              <div class="text-slate-400">${escapeHtml(b.reason || "")}</div>
+            </div>
+            <button type="button" data-unblock="${escapeHtml(b.phone)}" class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 hover:bg-emerald-50 text-slate-700 font-bold">
+              ${escapeHtml(t("unblockBtn"))}
+            </button>
+          </div>`
+        )
+        .join("");
+
+      list.querySelectorAll("[data-unblock]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (state.adminToken === "DEMO_TOKEN") {
+            state.adminBlockedSet.delete(btn.dataset.unblock);
+            state.adminBlockedList = state.adminBlockedList.filter((x) => x.phone !== btn.dataset.unblock);
+            await refreshAdminData();
+            return;
+          }
+          try {
+            await apiFetch(`/api/admin/blocked-numbers/${btn.dataset.unblock}`, { method: "DELETE" }, true);
+            await refreshAdminData();
+          } catch (err) {
+            alert(err.message);
+          }
+        });
+      });
+    }
+
+    document.getElementById("adminSettingsForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("settingsSavedMsg");
+      msg.classList.add("hidden");
+      const payload = {
+        isOpen: document.getElementById("settingIsOpen").checked,
+        shopNameHi: document.getElementById("settingShopNameHi").value.trim(),
+        shopNameEn: document.getElementById("settingShopNameEn").value.trim(),
+        deliveryCharge: Number(document.getElementById("settingDeliveryCharge").value),
+        freeDeliveryAbove: Number(document.getElementById("settingFreeDeliveryAbove").value || 0),
+        minOrderAmount: Number(document.getElementById("settingMinOrder").value),
+        supportPhone: document.getElementById("settingSupportPhone").value.trim(),
+        upiId: document.getElementById("settingUpiId").value.trim(),
+        openHoursHi: document.getElementById("settingHoursHi").value.trim(),
+        openHoursEn: document.getElementById("settingHoursEn").value.trim(),
+        announcementHi: document.getElementById("settingAnnounceHi").value.trim(),
+        announcementEn: document.getElementById("settingAnnounceEn").value.trim(),
+      };
+      if (state.adminToken === "DEMO_TOKEN") {
+        state.settings = { ...state.settings, ...payload };
+        state.adminSettingsData = state.settings;
+        msg.textContent = t("settingsSaved");
+        msg.classList.remove("hidden");
+        renderAll();
+        return;
+      }
+      try {
+        await apiFetch("/api/admin/settings", { method: "PUT", body: JSON.stringify(payload) }, true);
+        msg.textContent = t("settingsSaved");
+        msg.classList.remove("hidden");
+        await refreshAdminData();
+        await loadStoreData();
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    document.getElementById("manualBlockForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const input = document.getElementById("manualBlockPhone");
+      const clean = normalizeIndianPhone(input.value);
+      if (!clean) return alert(t("errInvalidPhone"));
+      if (state.adminToken === "DEMO_TOKEN") {
+        state.adminBlockedSet.add(clean);
+        state.adminBlockedList.unshift({ phone: clean, reason: "Manual Admin Block" });
+        input.value = "";
+        await refreshAdminData();
+        return;
+      }
+      try {
+        await apiFetch("/api/admin/blocked-numbers", { method: "POST", body: JSON.stringify({ phone: clean, reason: "Manual Admin Block" }) }, true);
+        input.value = "";
+        await refreshAdminData();
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    // =========================================================================
+    // GLOBAL EVENT LISTENERS & INIT
+    // =========================================================================
+    function toggleLanguage() {
+      state.lang = state.lang === "hi" ? "en" : "hi";
+      localStorage.setItem("gr_lang", state.lang);
+      renderAll();
+    }
+
+    document.getElementById("langToggleBtn").addEventListener("click", toggleLanguage);
+    document.getElementById("adminLangBtn").addEventListener("click", toggleLanguage);
+    document.getElementById("customerMenuSearch").addEventListener("input", (e) => {
+      state.menuSearch = e.target.value;
+      renderMenuGrid();
+    });
+    document.getElementById("adminOrderSearch").addEventListener("input", (e) => {
+      state.adminOrderSearch = e.target.value;
+      renderAdminOrders();
+    });
+    document.getElementById("adminMenuSearch").addEventListener("input", (e) => {
+      state.adminMenuSearch = e.target.value;
+      renderAdminMenu();
+    });
+    document.getElementById("adminCustomerSearch").addEventListener("input", (e) => {
+      state.adminCustomerSearch = e.target.value;
+      renderAdminCustomers();
+    });
+
+    document.getElementById("adminAutoRefreshBtn").addEventListener("click", () => {
+      state.autoRefreshEnabled = !state.autoRefreshEnabled;
+      const btn = document.getElementById("adminAutoRefreshBtn");
+      btn.className = state.autoRefreshEnabled
+        ? "px-2.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-xs font-bold border border-emerald-500"
+        : "px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold border border-slate-700";
+      document.getElementById("autoRefreshLabel").textContent = state.autoRefreshEnabled ? t("autoRefreshOn") : t("autoRefreshOff");
+      if (state.autoRefreshEnabled) startAdminAutoRefresh();
+      else stopAdminAutoRefresh();
+    });
+
+    document.getElementById("refreshMenuBtn").addEventListener("click", loadStoreData);
+    document.getElementById("openCheckoutBtn").addEventListener("click", () => {
+      document.getElementById("checkoutErrorBox").classList.add("hidden");
+      document.getElementById("phoneErrorMsg").classList.add("hidden");
+      renderCheckoutDrawer();
+      document.getElementById("checkoutModal").classList.remove("hidden");
+    });
+    document.getElementById("closeCheckoutBtn").addEventListener("click", () => {
+      document.getElementById("checkoutModal").classList.add("hidden");
+    });
+    document.getElementById("closeSuccessModalBtn").addEventListener("click", () => {
+      document.getElementById("orderSuccessModal").classList.add("hidden");
+    });
+
+    document.getElementById("refreshTrackBtn").addEventListener("click", async () => {
+      if (!state.recentOrder) return;
+      try {
+        const res = await apiFetch(
+          `/api/orders/track/${encodeURIComponent(state.recentOrder.orderNumber)}?phone=${encodeURIComponent(state.recentOrder.phone)}`
+        );
+        state.recentOrder.status = res.order.status;
+        state.recentOrder.assignedRider = res.order.assignedRider || null;
+        localStorage.setItem("gr_recent_order", JSON.stringify(state.recentOrder));
+        renderRecentOrderCard();
+      } catch {}
+    });
+
+    document.querySelectorAll(".admin-tab-btn").forEach((btn) => {
+      btn.addEventListener("click", () => switchAdminTab(btn.dataset.adminTab));
+    });
+    document.getElementById("adminRefreshBtn").addEventListener("click", () => refreshAdminData(false));
+    document.getElementById("adminLogoutBtn").addEventListener("click", logoutAdmin);
+    document.getElementById("adminCloseBtn").addEventListener("click", () => {
+      stopAdminAutoRefresh();
+      document.getElementById("adminDashboard").classList.add("hidden");
+      loadStoreData();
+    });
+
+    renderAll();
+    loadStoreData();
+  </script>
+</body>
+</html>
