@@ -83,6 +83,14 @@
       <span id="announcementText"></span>
     </div>
 
+    <div id="liveTimerBanner" class="hidden rounded-2xl bg-gradient-to-r from-rose-600 to-orange-600 text-white px-4 py-2.5 shadow-sm flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2 min-w-0">
+        <span class="text-lg shrink-0">⏱️</span>
+        <span id="liveTimerTitle" class="text-xs sm:text-sm font-extrabold truncate"></span>
+      </div>
+      <span id="liveTimerClock" class="px-2.5 py-1 rounded-xl bg-white/20 backdrop-blur font-mono text-sm sm:text-base font-extrabold shrink-0">00:00</span>
+    </div>
+
     <div id="shopClosedBanner" class="hidden rounded-2xl bg-red-50 border border-red-200 p-3.5 text-red-800 text-sm font-semibold flex items-center gap-2.5">
       <span class="text-xl">🛑</span>
       <span id="shopClosedBannerText">दुकान अभी बंद है। कृपया खुलने के समय ऑर्डर करें।</span>
@@ -136,9 +144,12 @@
           </p>
           <p id="recentOrderRiderText" class="hidden text-xs text-slate-600 mt-0.5 font-semibold"></p>
         </div>
-        <button id="refreshTrackBtn" type="button" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200 transition">
-          🔄 <span id="refreshTrackText">स्थिति देखें</span>
-        </button>
+        <div class="flex items-center gap-1.5">
+          <button id="refreshTrackBtn" type="button" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200 transition">
+            🔄 <span id="refreshTrackText">स्थिति देखें</span>
+          </button>
+          <button id="dismissTrackBtn" type="button" aria-label="Dismiss" class="hidden w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold">✕</button>
+        </div>
       </div>
     </section>
 
@@ -175,6 +186,35 @@
       </div>
 
       <div id="menuGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+
+      <!-- Progressive Load-on-Scroll Footer & Sentinel -->
+      <div id="menuScrollFooter" class="hidden pt-1 space-y-2.5 text-center">
+        <div id="menuScrollLoading" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+          <div class="bg-white rounded-2xl p-3 border border-orange-100 animate-pulse flex gap-3">
+            <div class="w-24 h-24 rounded-xl bg-slate-200 shrink-0"></div>
+            <div class="flex-1 space-y-2 py-1">
+              <div class="h-4 bg-slate-200 rounded w-3/4"></div>
+              <div class="h-3 bg-slate-200 rounded w-full"></div>
+              <div class="h-6 bg-slate-200 rounded w-1/3 mt-3"></div>
+            </div>
+          </div>
+          <div class="hidden sm:flex bg-white rounded-2xl p-3 border border-orange-100 animate-pulse gap-3">
+            <div class="w-24 h-24 rounded-xl bg-slate-200 shrink-0"></div>
+            <div class="flex-1 space-y-2 py-1">
+              <div class="h-4 bg-slate-200 rounded w-3/4"></div>
+              <div class="h-3 bg-slate-200 rounded w-full"></div>
+              <div class="h-6 bg-slate-200 rounded w-1/3 mt-3"></div>
+            </div>
+          </div>
+        </div>
+        <div id="menuScrollSentinel" class="py-2 flex flex-col items-center gap-2">
+          <p id="menuScrollHintText" class="text-xs font-semibold text-slate-500"></p>
+          <button id="loadMoreMenuBtn" type="button" class="px-4 py-2 rounded-xl bg-white hover:bg-orange-50 border border-orange-200 text-orange-700 text-xs font-extrabold shadow-xs transition">
+            <span id="loadMoreMenuBtnText">और आइटम देखें</span>
+          </button>
+        </div>
+        <p id="menuAllLoadedText" class="hidden text-[11px] font-semibold text-slate-400 py-1"></p>
+      </div>
     </section>
   </main>
 
@@ -201,13 +241,13 @@
   <!-- 4. CHECKOUT DRAWER / MODAL                                            -->
   <!-- ===================================================================== -->
   <div id="checkoutModal" class="hidden fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center">
-    <div class="bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl max-h-[92vh] flex flex-col shadow-2xl animate-slide-up overflow-hidden">
-      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0">
+    <div class="bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl max-h-[92vh] max-h-[92dvh] flex flex-col shadow-2xl animate-slide-up overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
         <h3 id="checkoutTitle" class="text-lg font-extrabold text-slate-900">आपका कार्ट और चेकआउट</h3>
         <button id="closeCheckoutBtn" type="button" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center">✕</button>
       </div>
 
-      <div class="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
+      <div class="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1 min-h-0 overscroll-contain">
         <div id="checkoutItemsList" class="space-y-2.5"></div>
 
         <!-- Coupon Code Input -->
@@ -308,6 +348,56 @@
       <button id="closeSuccessModalBtn" type="button" class="w-full py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm">
         <span id="successDoneBtnText">ठीक है</span>
       </button>
+    </div>
+  </div>
+
+  <!-- 5B. PRODUCT DETAIL MODAL (Full Description, Photo, Stock & Cart) -->
+  <div id="productDetailModal" class="hidden fixed inset-0 z-40 bg-slate-900/65 backdrop-blur-xs flex items-end sm:items-center justify-center">
+    <div class="bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl max-h-[92vh] max-h-[92dvh] flex flex-col shadow-2xl animate-slide-up overflow-hidden">
+      <div class="relative bg-orange-50 shrink-0">
+        <img id="pdImage" src="" alt="" class="w-full h-56 sm:h-64 object-cover" />
+        <button id="closeProductDetailBtn" type="button" aria-label="Close" class="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/95 hover:bg-white text-slate-800 font-extrabold shadow-md flex items-center justify-center">✕</button>
+        <div class="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap">
+          <span id="pdPopularBadge" class="hidden bg-amber-400 text-slate-900 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full shadow"></span>
+          <span id="pdCategoryBadge" class="bg-slate-900/80 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full backdrop-blur"></span>
+        </div>
+      </div>
+
+      <div class="p-4 sm:p-5 overflow-y-auto flex-1 min-h-0 overscroll-contain space-y-3.5">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span id="pdVegBadge" class="inline-flex items-center gap-1.5 text-[11px] font-bold px-2 py-0.5 rounded-full border"></span>
+            <span id="pdStockBadge" class="hidden text-[11px] font-bold px-2.5 py-0.5 rounded-full border"></span>
+          </div>
+          <h3 id="pdPrimaryName" class="text-xl font-extrabold text-slate-900 leading-snug pt-0.5"></h3>
+          <p id="pdSecondaryName" class="text-xs font-semibold text-slate-400"></p>
+        </div>
+
+        <div class="bg-orange-50/60 border border-orange-100 rounded-2xl p-3.5 space-y-1.5">
+          <div id="pdDescLabel" class="text-[11px] font-extrabold text-orange-800 uppercase tracking-wide">विवरण (Details)</div>
+          <p id="pdDescPrimary" class="text-sm text-slate-700 leading-relaxed whitespace-pre-line"></p>
+          <p id="pdDescSecondary" class="hidden text-xs text-slate-500 leading-relaxed pt-1 border-t border-orange-100/80"></p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex items-center gap-2">
+            <span>🛵</span>
+            <span id="pdDeliveryNote" class="font-semibold text-slate-700">1–2 किमी गाँव डिलीवरी</span>
+          </div>
+          <div class="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex items-center gap-2">
+            <span>💵</span>
+            <span id="pdCodNote" class="font-semibold text-slate-700">केवल COD / डिलीवरी पर UPI</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 border-t border-slate-100 bg-white shrink-0 flex items-center justify-between gap-3">
+        <div>
+          <div id="pdPriceVal" class="text-xl font-extrabold text-slate-900">₹0</div>
+          <div id="pdLineTotalVal" class="hidden text-[11px] font-bold text-orange-600"></div>
+        </div>
+        <div id="pdActionWrap" class="flex items-center gap-2"></div>
+      </div>
     </div>
   </div>
 
@@ -618,15 +708,44 @@
             </form>
           </div>
 
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
-            <h3 id="blockedTitle" class="font-extrabold text-slate-900 text-base">🚫 ब्लॉक किए गए नंबर</h3>
-            <form id="manualBlockForm" class="flex gap-2">
-              <input id="manualBlockPhone" type="tel" maxlength="10" placeholder="9876543210" class="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-              <button type="submit" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold">
-                <span id="blockBtnText">ब्लॉक करें</span>
-              </button>
-            </form>
-            <div id="blockedNumbersList" class="space-y-2 max-h-80 overflow-y-auto"></div>
+          <div class="space-y-4">
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+              <div class="flex items-center justify-between gap-2">
+                <h3 id="timerSectionTitle" class="font-extrabold text-slate-900 text-base">⏱️ लाइव वेबसाइट टाइमर (Live Timer)</h3>
+                <span id="adminTimerActiveBadge" class="hidden px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[11px] font-bold"></span>
+              </div>
+              <p id="timerSectionDesc" class="text-xs text-slate-500">ऑफ़र, ताज़ा बैच या दुकान खुलने की उल्टी गिनती ग्राहक की स्क्रीन पर दिखाएं।</p>
+              <form id="adminTimerForm" class="space-y-2.5">
+                <input id="timerTitleHiInput" type="text" maxlength="80" placeholder="टाइमर संदेश (हिंदी) जैसे: ताज़ा समोसा बैच तैयार होने में" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                <input id="timerTitleEnInput" type="text" maxlength="80" placeholder="Timer Title (English) e.g., Fresh batch ready in" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                <div class="flex flex-wrap gap-1.5">
+                  <button type="button" data-timer-preset="15" class="px-2.5 py-1 rounded-lg bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-800 text-xs font-bold">15m</button>
+                  <button type="button" data-timer-preset="30" class="px-2.5 py-1 rounded-lg bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-800 text-xs font-bold">30m</button>
+                  <button type="button" data-timer-preset="60" class="px-2.5 py-1 rounded-lg bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-800 text-xs font-bold">1 hr</button>
+                  <button type="button" data-timer-preset="120" class="px-2.5 py-1 rounded-lg bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-800 text-xs font-bold">2 hr</button>
+                </div>
+                <div class="flex gap-2">
+                  <input id="timerMinutesInput" type="number" min="1" max="1440" placeholder="मिनट (Minutes)" class="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                  <button id="startTimerBtn" type="submit" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold">
+                    <span id="startTimerBtnText">▶ टाइमर चालू करें</span>
+                  </button>
+                  <button id="clearTimerBtn" type="button" class="px-3 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold">
+                    <span id="clearTimerBtnText">✕ बंद</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+              <h3 id="blockedTitle" class="font-extrabold text-slate-900 text-base">🚫 ब्लॉक किए गए नंबर</h3>
+              <form id="manualBlockForm" class="flex gap-2">
+                <input id="manualBlockPhone" type="tel" maxlength="10" placeholder="9876543210" class="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                <button type="submit" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold">
+                  <span id="blockBtnText">ब्लॉक करें</span>
+                </button>
+              </form>
+              <div id="blockedNumbersList" class="space-y-2 max-h-80 overflow-y-auto"></div>
+            </div>
           </div>
         </div>
       </section>
@@ -728,6 +847,9 @@
         statusLabel: "स्थिति:",
         riderAssigned: (n, p) => `🛵 राइडर: ${n} (${p})`,
         refreshTrack: "स्थिति देखें",
+        checkingTrack: "जाँच रहे हैं...",
+        trackStatusToast: (st) => `✅ ऑर्डर की ताज़ा स्थिति: ${st}`,
+        trackNotFoundToast: "⚠️ यह ऑर्डर अब उपलब्ध नहीं है या हटाया जा चुका है।",
         menuHeading: "आज का ताज़ा मेनू",
         searchMenuPh: "🔍 समोसा, बर्गर, मोमोज़ खोजें...",
         refresh: "रिफ्रेश",
@@ -738,9 +860,35 @@
         catMeals: "भोजन",
         catBeverages: "पेय",
         outOfStock: "स्टॉक ख़त्म",
-        onlyLeft: (n) => `केवल ${n} बचे!`,
+        onlyLeft: (n) => `🔥 केवल ${n} बचे!`,
+        inStockQty: (n) => `📦 स्टॉक: ${n} बचे`,
+        stockCapReached: (n) => `⚠️ अभी केवल ${n} ही उपलब्ध हैं!`,
+        defaultTimerTitle: "⏱️ स्पेशल टाइम अपडेट",
+        timerSectionTitle: "⏱️ लाइव वेबसाइट टाइमर (Live Timer)",
+        timerSectionDesc: "ऑफ़र, ताज़ा बैच या दुकान खुलने की उल्टी गिनती ग्राहक की स्क्रीन पर दिखाएं।",
+        timerTitleHiPh: "टाइमर संदेश (हिंदी) जैसे: ताज़ा समोसा बैच तैयार होने में",
+        timerTitleEnPh: "Timer Title (English) e.g., Fresh batch ready in",
+        timerMinutesPh: "मिनट (Minutes)",
+        startTimerBtn: "▶ टाइमर चालू करें",
+        clearTimerBtn: "✕ बंद",
+        timerStartedToast: "✅ लाइव टाइमर वेबसाइट पर चालू हो गया!",
+        timerClearedToast: "⏹️ लाइव टाइमर बंद कर दिया गया।",
+        timerInvalidMin: "कृपया 1 से 1440 मिनट के बीच समय डालें।",
         popularBadge: "⭐ लोकप्रिय",
         addBtn: "+ जोड़ें",
+        addToCartBtn: "+ कार्ट में जोड़ें",
+        pdDescLabel: "पूरा विवरण (Details)",
+        pdNoDesc: "ताज़ा और स्वादिष्ट घरेलू स्टाइल में तैयार।",
+        pdVegLabel: "🟢 शुद्ध शाकाहारी (Veg)",
+        pdNonVegLabel: "🔴 नॉन-वेज (Non-Veg)",
+        pdAvailable: "✅ अभी उपलब्ध",
+        pdDeliveryNote: "1–2 किमी गाँव डिलीवरी",
+        pdCodNote: "COD / डिलीवरी पर UPI",
+        pdLineTotal: (amt) => `कुल मूल्य: ₹${amt}`,
+        scrollMoreHint: (rem) => `👇 नीचे स्क्रॉल करें — ${rem} और आइटम हैं`,
+        loadMoreBtn: "और आइटम लोड करें",
+        loadingMoreText: "लोड हो रहे हैं...",
+        allLoadedText: (n) => `✅ सभी ${n} आइटम दिख चुके हैं`,
         itemsSelected: "आइटम चुने गए",
         viewCart: "ऑर्डर देखें",
         checkoutTitle: "आपका कार्ट और चेकआउट",
@@ -752,7 +900,8 @@
         subtotal: "खाने का कुल मूल्य",
         discountLabel: "कूपन छूट",
         totalCod: "कुल देय राशि (COD)",
-        minOrderWarn: (min, diff) => `न्यूनतम ऑर्डर ₹${min} होना ज़रूरी है। कृपया ₹${diff} का और सामान जोड़ें।`,
+        minOrderWarn: (min, diff, sub) => `न्यूनतम खाने का मूल्य (डिलीवरी चार्ज छोड़कर) ₹${min} होना ज़रूरी है। अभी ₹${sub} है — कृपया ₹${diff} का और सामान जोड़ें।`,
+        addMoreBtnShort: (diff, min) => `₹${diff} का और सामान जोड़ें (न्यूनतम ₹${min})`,
         lblName: "पूरा नाम *",
         phName: "जैसे: राहुल शर्मा",
         lblPhone: "10 अंकों का मोबाइल नंबर *",
@@ -930,6 +1079,9 @@
         statusLabel: "Status:",
         riderAssigned: (n, p) => `🛵 Rider: ${n} (${p})`,
         refreshTrack: "Check Status",
+        checkingTrack: "Checking...",
+        trackStatusToast: (st) => `✅ Current order status: ${st}`,
+        trackNotFoundToast: "⚠️ This order is no longer found or was removed.",
         menuHeading: "Today's Fresh Menu",
         searchMenuPh: "🔍 Search samosa, burger, momos...",
         refresh: "Refresh",
@@ -940,9 +1092,35 @@
         catMeals: "Meals",
         catBeverages: "Beverages",
         outOfStock: "Out of Stock",
-        onlyLeft: (n) => `Only ${n} left!`,
+        onlyLeft: (n) => `🔥 Only ${n} left!`,
+        inStockQty: (n) => `📦 ${n} in stock`,
+        stockCapReached: (n) => `⚠️ Only ${n} available right now!`,
+        defaultTimerTitle: "⏱️ Special Time Update",
+        timerSectionTitle: "⏱️ Live Website Countdown Timer",
+        timerSectionDesc: "Show a real-time countdown on customer screens for fresh batches, offers, or opening time.",
+        timerTitleHiPh: "Timer Message (Hindi) e.g., ताज़ा बैच तैयार होने में",
+        timerTitleEnPh: "Timer Title (English) e.g., Fresh batch ready in",
+        timerMinutesPh: "Minutes",
+        startTimerBtn: "▶ Start Timer",
+        clearTimerBtn: "✕ Clear",
+        timerStartedToast: "✅ Live countdown timer started on website!",
+        timerClearedToast: "⏹️ Live countdown timer cleared.",
+        timerInvalidMin: "Please enter minutes between 1 and 1440.",
         popularBadge: "⭐ Popular",
         addBtn: "+ Add",
+        addToCartBtn: "+ Add to Cart",
+        pdDescLabel: "Full Details",
+        pdNoDesc: "Freshly prepared homestyle dish.",
+        pdVegLabel: "🟢 Pure Veg",
+        pdNonVegLabel: "🔴 Non-Veg",
+        pdAvailable: "✅ In Stock",
+        pdDeliveryNote: "1–2 km Village Delivery",
+        pdCodNote: "Cash / UPI on Delivery",
+        pdLineTotal: (amt) => `Item total: ₹${amt}`,
+        scrollMoreHint: (rem) => `👇 Scroll down — ${rem} more items`,
+        loadMoreBtn: "Load More Items",
+        loadingMoreText: "Loading more...",
+        allLoadedText: (n) => `✅ Showing all ${n} items`,
         itemsSelected: "items selected",
         viewCart: "View Cart",
         checkoutTitle: "Your Cart & Checkout",
@@ -954,7 +1132,8 @@
         subtotal: "Items Subtotal",
         discountLabel: "Coupon Discount",
         totalCod: "Total Payable (COD)",
-        minOrderWarn: (min, diff) => `Minimum order value is ₹${min}. Please add ₹${diff} more to checkout.`,
+        minOrderWarn: (min, diff, sub) => `Minimum items subtotal is ₹${min} (excluding delivery fee). Current items total is ₹${sub} — please add ₹${diff} more.`,
+        addMoreBtnShort: (diff, min) => `Add ₹${diff} more items (Min ₹${min})`,
         lblName: "Customer Full Name *",
         phName: "e.g., Rahul Sharma",
         lblPhone: "10-digit Mobile Number *",
@@ -1132,10 +1311,18 @@
         upiId: "",
         announcementHi: "",
         announcementEn: "",
+        timerTitleHi: "",
+        timerTitleEn: "",
+        timerEndsAt: null,
       },
+      clockOffsetMs: 0,
+      liveTimerInterval: null,
       menu: [],
       menuSearch: "",
       selectedCategory: "All",
+      menuVisibleCount: 4,
+      menuLoadingMore: false,
+      detailItemId: null,
       cart: JSON.parse(localStorage.getItem("gr_cart") || "{}"),
       appliedCoupon: null,
       gps: null,
@@ -1315,6 +1502,97 @@
       }
     }
 
+    function formatCountdown(ms) {
+      const totalSec = Math.max(0, Math.floor(ms / 1000));
+      const h = Math.floor(totalSec / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+      const pad = (n) => String(n).padStart(2, "0");
+      return h > 0 ? `${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
+    }
+
+    function updateLiveTimerUI() {
+      const banner = document.getElementById("liveTimerBanner");
+      const adminBadge = document.getElementById("adminTimerActiveBadge");
+      const endsAt = state.settings.timerEndsAt ? new Date(state.settings.timerEndsAt).getTime() : 0;
+      const nowServer = Date.now() - state.clockOffsetMs;
+      const remaining = endsAt - nowServer;
+
+      if (!endsAt || remaining <= 0) {
+        banner.classList.add("hidden");
+        if (adminBadge) adminBadge.classList.add("hidden");
+        if (state.liveTimerInterval) {
+          clearInterval(state.liveTimerInterval);
+          state.liveTimerInterval = null;
+        }
+        return;
+      }
+
+      const title =
+        (state.lang === "hi" ? state.settings.timerTitleHi : state.settings.timerTitleEn) ||
+        state.settings.timerTitleHi ||
+        state.settings.timerTitleEn ||
+        t("defaultTimerTitle");
+      const formatted = formatCountdown(remaining);
+      document.getElementById("liveTimerTitle").textContent = title;
+      document.getElementById("liveTimerClock").textContent = formatted;
+      banner.classList.remove("hidden");
+
+      if (adminBadge) {
+        adminBadge.textContent = `⏱️ ${formatted}`;
+        adminBadge.classList.remove("hidden");
+      }
+    }
+
+    function startLiveTimerLoop() {
+      if (state.liveTimerInterval) {
+        clearInterval(state.liveTimerInterval);
+        state.liveTimerInterval = null;
+      }
+      updateLiveTimerUI();
+      const endsAt = state.settings.timerEndsAt ? new Date(state.settings.timerEndsAt).getTime() : 0;
+      if (endsAt > Date.now() - state.clockOffsetMs) {
+        state.liveTimerInterval = setInterval(updateLiveTimerUI, 1000);
+      }
+    }
+
+    async function syncRecentOrderStatus(isManual = false) {
+      if (!state.recentOrder) return;
+      const btn = document.getElementById("refreshTrackBtn");
+      const btnText = document.getElementById("refreshTrackText");
+      if (isManual && btn && btnText) {
+        btn.disabled = true;
+        btnText.textContent = t("checkingTrack");
+      }
+      try {
+        const res = await apiFetch(
+          `/api/orders/track/${encodeURIComponent(state.recentOrder.orderNumber)}?phone=${encodeURIComponent(state.recentOrder.phone)}`
+        );
+        state.recentOrder.status = res.order.status;
+        state.recentOrder.assignedRider = res.order.assignedRider || null;
+        localStorage.setItem("gr_recent_order", JSON.stringify(state.recentOrder));
+        renderRecentOrderCard();
+        if (isManual) {
+          const stLabel = TRANSLATIONS[state.lang].statuses[res.order.status] || res.order.status;
+          showToast(t("trackStatusToast", stLabel));
+        }
+      } catch (err) {
+        if (err && err.status === 404) {
+          state.recentOrder = null;
+          localStorage.removeItem("gr_recent_order");
+          renderRecentOrderCard();
+          if (isManual) showToast(t("trackNotFoundToast"), "info");
+        } else if (isManual) {
+          showToast((err && err.message) || t("serverError"), true);
+        }
+      } finally {
+        if (isManual && btn && btnText) {
+          btn.disabled = false;
+          btnText.textContent = t("refreshTrack");
+        }
+      }
+    }
+
     async function loadStoreData() {
       const banner = document.getElementById("serverBanner");
       const loader = document.getElementById("menuLoader");
@@ -1329,6 +1607,9 @@
         const data = await apiFetch("/api/store");
         clearTimeout(slowTimer);
         banner.classList.add("hidden");
+        if (data.serverNow) {
+          state.clockOffsetMs = Date.now() - new Date(data.serverNow).getTime();
+        }
         state.settings = data.settings;
         state.menu = data.menu || [];
 
@@ -1343,6 +1624,10 @@
         }
         saveCart();
         renderAll();
+        startLiveTimerLoop();
+        if (state.recentOrder && ["Pending", "Cooking", "Out for Delivery"].includes(state.recentOrder.status)) {
+          syncRecentOrderStatus();
+        }
       } catch (err) {
         clearTimeout(slowTimer);
         banner.className = "rounded-2xl p-3 text-xs sm:text-sm font-semibold border bg-red-50 border-red-200 text-red-700";
@@ -1523,8 +1808,16 @@
       document.getElementById("lblAnnounceHi").textContent = t("lblAnnounceHi");
       document.getElementById("lblAnnounceEn").textContent = t("lblAnnounceEn");
       document.getElementById("saveSettingsBtnText").textContent = t("saveSettings");
+      document.getElementById("timerSectionTitle").textContent = t("timerSectionTitle");
+      document.getElementById("timerSectionDesc").textContent = t("timerSectionDesc");
+      document.getElementById("timerTitleHiInput").placeholder = t("timerTitleHiPh");
+      document.getElementById("timerTitleEnInput").placeholder = t("timerTitleEnPh");
+      document.getElementById("timerMinutesInput").placeholder = t("timerMinutesPh");
+      document.getElementById("startTimerBtnText").textContent = t("startTimerBtn");
+      document.getElementById("clearTimerBtnText").textContent = t("clearTimerBtn");
       document.getElementById("blockedTitle").textContent = t("blockedListTitle");
       document.getElementById("blockBtnText").textContent = t("blockBtn");
+      updateLiveTimerUI();
     }
 
     function getCategoryLabel(cat) {
@@ -1557,16 +1850,18 @@
       container.querySelectorAll("button[data-cat]").forEach((btn) => {
         btn.addEventListener("click", () => {
           state.selectedCategory = btn.dataset.cat;
+          state.menuVisibleCount = 4;
           renderCategoryPills();
           renderMenuGrid();
         });
       });
     }
 
-    function renderMenuGrid() {
-      const grid = document.getElementById("menuGrid");
+    const MENU_PAGE_SIZE = 4;
+
+    function getFilteredMenuItems() {
       const q = state.menuSearch.trim().toLowerCase();
-      const items = state.menu.filter((m) => {
+      return state.menu.filter((m) => {
         const catOk = state.selectedCategory === "All" || (m.category || "Snacks") === state.selectedCategory;
         if (!catOk) return false;
         if (!q) return true;
@@ -1577,15 +1872,195 @@
           (m.descEn || "").toLowerCase().includes(q)
         );
       });
+    }
+
+    function updateMenuScrollFooter(totalCount, shownCount) {
+      const footer = document.getElementById("menuScrollFooter");
+      const loadingEl = document.getElementById("menuScrollLoading");
+      const sentinel = document.getElementById("menuScrollSentinel");
+      const hintEl = document.getElementById("menuScrollHintText");
+      const loadBtnText = document.getElementById("loadMoreMenuBtnText");
+      const allEl = document.getElementById("menuAllLoadedText");
+
+      if (totalCount === 0) {
+        footer.classList.add("hidden");
+        return;
+      }
+
+      footer.classList.remove("hidden");
+      const remaining = totalCount - shownCount;
+      if (remaining > 0) {
+        allEl.classList.add("hidden");
+        if (state.menuLoadingMore) {
+          loadingEl.classList.remove("hidden");
+          sentinel.classList.add("hidden");
+        } else {
+          loadingEl.classList.add("hidden");
+          sentinel.classList.remove("hidden");
+          hintEl.textContent = t("scrollMoreHint", remaining);
+          loadBtnText.textContent = t("loadMoreBtn");
+        }
+      } else {
+        loadingEl.classList.add("hidden");
+        sentinel.classList.add("hidden");
+        allEl.textContent = t("allLoadedText", totalCount);
+        allEl.classList.remove("hidden");
+      }
+    }
+
+    function loadMoreMenuItems() {
+      const items = getFilteredMenuItems();
+      if (state.menuLoadingMore || state.menuVisibleCount >= items.length) return;
+      state.menuLoadingMore = true;
+      updateMenuScrollFooter(items.length, Math.min(state.menuVisibleCount, items.length));
+      setTimeout(() => {
+        state.menuLoadingMore = false;
+        state.menuVisibleCount += MENU_PAGE_SIZE;
+        renderMenuGrid();
+      }, 220);
+    }
+
+    function openProductDetail(itemId) {
+      const item = state.menu.find((m) => m._id === itemId);
+      if (!item) return;
+      state.detailItemId = itemId;
+      renderProductDetailModal();
+      document.getElementById("productDetailModal").classList.remove("hidden");
+    }
+
+    function renderProductDetailModal() {
+      const modal = document.getElementById("productDetailModal");
+      if (!state.detailItemId) return;
+      const item = state.menu.find((m) => m._id === state.detailItemId);
+      if (!item) {
+        modal.classList.add("hidden");
+        state.detailItemId = null;
+        return;
+      }
+
+      const qty = state.cart[item._id] || 0;
+      const primaryName = state.lang === "hi" ? item.nameHi : item.nameEn;
+      const secondaryName = state.lang === "hi" ? item.nameEn : item.nameHi;
+      const primaryDesc = (state.lang === "hi" ? item.descHi : item.descEn) || (state.lang === "hi" ? item.descEn : item.descHi) || t("pdNoDesc");
+      const secondaryDesc = state.lang === "hi" ? item.descEn : item.descHi;
+
+      const imgEl = document.getElementById("pdImage");
+      imgEl.src = safeImageUrl(item.imageUrl);
+      imgEl.alt = primaryName;
+      imgEl.onerror = () => {
+        imgEl.onerror = null;
+        imgEl.src = FALLBACK_FOOD_IMG;
+      };
+
+      const popEl = document.getElementById("pdPopularBadge");
+      if (item.isPopular) {
+        popEl.textContent = t("popularBadge");
+        popEl.classList.remove("hidden");
+      } else {
+        popEl.classList.add("hidden");
+      }
+      document.getElementById("pdCategoryBadge").textContent = getCategoryLabel(item.category || "Snacks");
+
+      const vegEl = document.getElementById("pdVegBadge");
+      if (item.isVeg !== false) {
+        vegEl.className = "inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full border bg-emerald-50 text-emerald-800 border-emerald-200";
+        vegEl.textContent = t("pdVegLabel");
+      } else {
+        vegEl.className = "inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full border bg-red-50 text-red-800 border-red-200";
+        vegEl.textContent = t("pdNonVegLabel");
+      }
+
+      const stEl = document.getElementById("pdStockBadge");
+      if (!item.inStock || item.stockCount === 0) {
+        stEl.className = "text-[11px] font-bold px-2.5 py-0.5 rounded-full border bg-slate-100 text-slate-600 border-slate-200";
+        stEl.textContent = t("outOfStock");
+        stEl.classList.remove("hidden");
+      } else if (item.stockCount !== null && item.stockCount !== undefined) {
+        if (item.stockCount <= 5) {
+          stEl.className = "text-[11px] font-bold px-2.5 py-0.5 rounded-full border bg-amber-100 text-amber-800 border-amber-200";
+          stEl.textContent = t("onlyLeft", item.stockCount);
+        } else {
+          stEl.className = "text-[11px] font-bold px-2.5 py-0.5 rounded-full border bg-emerald-50 text-emerald-800 border-emerald-200";
+          stEl.textContent = t("inStockQty", item.stockCount);
+        }
+        stEl.classList.remove("hidden");
+      } else {
+        stEl.className = "text-[11px] font-bold px-2.5 py-0.5 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-200";
+        stEl.textContent = t("pdAvailable");
+        stEl.classList.remove("hidden");
+      }
+
+      document.getElementById("pdPrimaryName").textContent = primaryName;
+      document.getElementById("pdSecondaryName").textContent = secondaryName;
+      document.getElementById("pdDescLabel").textContent = t("pdDescLabel");
+      document.getElementById("pdDescPrimary").textContent = primaryDesc;
+
+      const secDescEl = document.getElementById("pdDescSecondary");
+      if (secondaryDesc && secondaryDesc.trim() !== primaryDesc.trim()) {
+        secDescEl.textContent = secondaryDesc;
+        secDescEl.classList.remove("hidden");
+      } else {
+        secDescEl.classList.add("hidden");
+      }
+
+      document.getElementById("pdDeliveryNote").textContent = t("pdDeliveryNote");
+      document.getElementById("pdCodNote").textContent = t("pdCodNote");
+      document.getElementById("pdPriceVal").textContent = `₹${item.sellingPrice}`;
+
+      const lineTotalEl = document.getElementById("pdLineTotalVal");
+      if (qty > 0) {
+        lineTotalEl.textContent = t("pdLineTotal", item.sellingPrice * qty);
+        lineTotalEl.classList.remove("hidden");
+      } else {
+        lineTotalEl.classList.add("hidden");
+      }
+
+      const actionWrap = document.getElementById("pdActionWrap");
+      if (!item.inStock || item.stockCount === 0) {
+        actionWrap.innerHTML = `<span class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-500 text-sm font-bold">${escapeHtml(
+          t("outOfStock")
+        )}</span>`;
+      } else if (qty === 0) {
+        actionWrap.innerHTML = `<button type="button" id="pdAddBtn"
+          class="px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-sm font-extrabold shadow-md shadow-orange-200 transition active:scale-95">
+          ${escapeHtml(t("addToCartBtn"))}
+        </button>`;
+        document.getElementById("pdAddBtn").addEventListener("click", () => updateCartQty(item._id, 1));
+      } else {
+        actionWrap.innerHTML = `<div class="inline-flex items-center bg-orange-600 text-white rounded-xl overflow-hidden shadow-sm">
+            <button type="button" id="pdDecBtn" class="px-3 py-2 font-extrabold text-base hover:bg-orange-700">−</button>
+            <span class="px-2.5 text-sm font-extrabold min-w-[26px] text-center">${qty}</span>
+            <button type="button" id="pdIncBtn" class="px-3 py-2 font-extrabold text-base hover:bg-orange-700">+</button>
+          </div>
+          <button type="button" id="pdViewCartBtn" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold">
+            ${escapeHtml(t("viewCart"))} →
+          </button>`;
+        document.getElementById("pdDecBtn").addEventListener("click", () => updateCartQty(item._id, -1));
+        document.getElementById("pdIncBtn").addEventListener("click", () => updateCartQty(item._id, 1));
+        document.getElementById("pdViewCartBtn").addEventListener("click", () => {
+          modal.classList.add("hidden");
+          document.getElementById("checkoutErrorBox").classList.add("hidden");
+          document.getElementById("phoneErrorMsg").classList.add("hidden");
+          renderCheckoutDrawer();
+          document.getElementById("checkoutModal").classList.remove("hidden");
+        });
+      }
+    }
+
+    function renderMenuGrid() {
+      const grid = document.getElementById("menuGrid");
+      const items = getFilteredMenuItems();
 
       if (items.length === 0) {
         grid.innerHTML = `<div class="sm:col-span-2 bg-white rounded-2xl p-6 text-center text-sm font-semibold text-slate-500 border border-orange-100">${escapeHtml(
           t("noMenuMatch")
         )}</div>`;
+        updateMenuScrollFooter(0, 0);
         return;
       }
 
-      grid.innerHTML = items
+      const visibleItems = items.slice(0, state.menuVisibleCount);
+      grid.innerHTML = visibleItems
         .map((item) => {
           const qty = state.cart[item._id] || 0;
           const primaryName = state.lang === "hi" ? item.nameHi : item.nameEn;
@@ -1595,12 +2070,17 @@
           const vegDot = item.isVeg !== false
             ? `<span class="inline-flex items-center justify-center w-3.5 h-3.5 border border-emerald-600 rounded-[3px] shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span></span>`
             : `<span class="inline-flex items-center justify-center w-3.5 h-3.5 border border-red-600 rounded-[3px] shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-red-600"></span></span>`;
-          const lowStockBadge =
-            item.inStock && item.stockCount !== null && item.stockCount !== undefined && item.stockCount <= 5
-              ? `<span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">${escapeHtml(
-                  t("onlyLeft", item.stockCount)
-                )}</span>`
-              : "";
+          let stockBadge = "";
+          if (item.inStock && item.stockCount !== null && item.stockCount !== undefined && item.stockCount > 0) {
+            stockBadge =
+              item.stockCount <= 5
+                ? `<span class="text-[10px] font-bold text-amber-800 bg-amber-100 border border-amber-200 px-1.5 py-0.5 rounded">${escapeHtml(
+                    t("onlyLeft", item.stockCount)
+                  )}</span>`
+                : `<span class="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">${escapeHtml(
+                    t("inStockQty", item.stockCount)
+                  )}</span>`;
+          }
 
           let actionHtml = "";
           if (!item.inStock || (item.stockCount !== null && item.stockCount === 0)) {
@@ -1620,7 +2100,8 @@
             </div>`;
           }
 
-          return `<div class="bg-white rounded-2xl p-3 border border-orange-100/80 shadow-xs flex gap-3 items-stretch ${
+          return `<div data-open-item="${item._id}" role="button" tabindex="0"
+            class="bg-white rounded-2xl p-3 border border-orange-100/80 hover:border-orange-300 shadow-xs flex gap-3 items-stretch cursor-pointer transition ${
             !item.inStock ? "opacity-65" : ""
           }">
             <div class="w-24 h-24 rounded-xl overflow-hidden bg-orange-50 shrink-0 relative">
@@ -1639,9 +2120,9 @@
                 ${desc ? `<p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-snug">${escapeHtml(desc)}</p>` : ""}
               </div>
               <div class="flex items-center justify-between gap-2 mt-2 pt-1">
-                <div class="flex items-center gap-1.5">
+                <div class="flex items-center gap-1.5 flex-wrap">
                   <span class="text-base font-extrabold text-slate-900">₹${item.sellingPrice}</span>
-                  ${lowStockBadge}
+                  ${stockBadge}
                 </div>
                 ${actionHtml}
               </div>
@@ -1650,11 +2131,28 @@
         })
         .join("");
 
+      updateMenuScrollFooter(items.length, visibleItems.length);
+
       grid.querySelectorAll("[data-add], [data-inc]").forEach((btn) => {
-        btn.addEventListener("click", () => updateCartQty(btn.dataset.add || btn.dataset.inc, 1));
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          updateCartQty(btn.dataset.add || btn.dataset.inc, 1);
+        });
       });
       grid.querySelectorAll("[data-dec]").forEach((btn) => {
-        btn.addEventListener("click", () => updateCartQty(btn.dataset.dec, -1));
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          updateCartQty(btn.dataset.dec, -1);
+        });
+      });
+      grid.querySelectorAll("[data-open-item]").forEach((card) => {
+        card.addEventListener("click", () => openProductDetail(card.dataset.openItem));
+        card.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            openProductDetail(card.dataset.openItem);
+          }
+        });
       });
     }
 
@@ -1664,11 +2162,20 @@
         item && item.stockCount !== null && item.stockCount !== undefined ? Math.min(50, item.stockCount) : 50;
       const current = state.cart[itemId] || 0;
       const next = current + delta;
-      if (next <= 0) delete state.cart[itemId];
-      else state.cart[itemId] = Math.min(maxAllowed, next);
+      if (next <= 0) {
+        delete state.cart[itemId];
+      } else if (delta > 0 && current >= maxAllowed) {
+        showToast(t("stockCapReached", maxAllowed), "info");
+        return;
+      } else {
+        state.cart[itemId] = Math.min(maxAllowed, next);
+      }
       saveCart();
       renderMenuGrid();
       renderFloatingCart();
+      if (!document.getElementById("productDetailModal").classList.contains("hidden")) {
+        renderProductDetailModal();
+      }
       if (!document.getElementById("checkoutModal").classList.contains("hidden")) {
         renderCheckoutDrawer();
       }
@@ -1697,7 +2204,23 @@
       document.getElementById("recentOrderNum").textContent = state.recentOrder.orderNumber;
       const badge = document.getElementById("recentOrderStatusBadge");
       const st = state.recentOrder.status || "Pending";
+      const badgeColors = {
+        Pending: "bg-amber-100 text-amber-800",
+        Cooking: "bg-blue-100 text-blue-800",
+        "Out for Delivery": "bg-purple-100 text-purple-800",
+        Delivered: "bg-emerald-100 text-emerald-800",
+        Cancelled: "bg-red-100 text-red-800",
+      };
+      badge.className = `ml-1 inline-block px-2 py-0.5 rounded-full text-xs font-bold ${badgeColors[st] || "bg-amber-100 text-amber-800"}`;
       badge.textContent = TRANSLATIONS[state.lang].statuses[st] || st;
+      const dismissBtn = document.getElementById("dismissTrackBtn");
+      if (dismissBtn) {
+        if (st === "Delivered" || st === "Cancelled") {
+          dismissBtn.classList.remove("hidden");
+        } else {
+          dismissBtn.classList.add("hidden");
+        }
+      }
       const riderEl = document.getElementById("recentOrderRiderText");
       if (state.recentOrder.assignedRider && state.recentOrder.assignedRider.name) {
         riderEl.textContent = t("riderAssigned", state.recentOrder.assignedRider.name, state.recentOrder.assignedRider.phone);
@@ -1772,18 +2295,23 @@
 
       const minWarn = document.getElementById("minOrderWarning");
       const submitBtn = document.getElementById("placeOrderBtn");
+      const submitBtnText = document.getElementById("placeOrderBtnText");
 
       if (!state.settings.isOpen) {
         minWarn.textContent = t("errShopClosed");
         minWarn.classList.remove("hidden");
         submitBtn.disabled = true;
+        submitBtnText.textContent = t("closed");
       } else if (subtotal < state.settings.minOrderAmount) {
-        minWarn.textContent = t("minOrderWarn", state.settings.minOrderAmount, state.settings.minOrderAmount - subtotal);
+        const diff = state.settings.minOrderAmount - subtotal;
+        minWarn.textContent = t("minOrderWarn", state.settings.minOrderAmount, diff, subtotal);
         minWarn.classList.remove("hidden");
         submitBtn.disabled = true;
+        submitBtnText.textContent = t("addMoreBtnShort", diff, state.settings.minOrderAmount);
       } else {
         minWarn.classList.add("hidden");
         submitBtn.disabled = false;
+        submitBtnText.textContent = t("placeOrderBtn");
       }
     }
 
@@ -1793,6 +2321,9 @@
       renderMenuGrid();
       renderFloatingCart();
       renderRecentOrderCard();
+      if (!document.getElementById("productDetailModal").classList.contains("hidden")) {
+        renderProductDetailModal();
+      }
       if (!document.getElementById("checkoutModal").classList.contains("hidden")) {
         renderCheckoutDrawer();
       }
@@ -2112,8 +2643,14 @@
 
         if (settingsRes.settings) {
           state.settings = settingsRes.settings;
+          updateLiveTimerUI();
         }
-        renderAdminOrders();
+        const ordersListEl = document.getElementById("adminOrdersList");
+        const activeInsideOrders =
+          isBackground && ordersListEl && document.activeElement && ordersListEl.contains(document.activeElement);
+        if (!activeInsideOrders) {
+          renderAdminOrders();
+        }
         renderAdminMenu();
         renderAdminAnalytics();
         renderAdminExpenses();
@@ -2504,12 +3041,22 @@
       document.getElementById("moDelivery").value = state.settings.deliveryCharge ?? 15;
       const picker = document.getElementById("moItemsPicker");
       picker.innerHTML = state.adminMenu
-        .map(
-          (m) => `<div class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs">
-            <span class="font-bold truncate pr-2">${escapeHtml(m.nameHi)} (₹${m.sellingPrice})</span>
-            <input type="number" min="0" max="50" value="0" data-mo-item="${m._id}" class="w-14 rounded border border-slate-300 px-2 py-1 text-center font-bold" />
-          </div>`
-        )
+        .map((m) => {
+          const out = !m.inStock || m.stockCount === 0;
+          const stockText =
+            m.stockCount !== null && m.stockCount !== undefined
+              ? ` • ${m.stockCount} left`
+              : "";
+          const maxQty = m.stockCount !== null && m.stockCount !== undefined ? Math.min(50, m.stockCount) : 50;
+          return `<div class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs ${
+            out ? "opacity-55" : ""
+          }">
+            <span class="font-bold truncate pr-2">${escapeHtml(m.nameHi)} (₹${m.sellingPrice})${escapeHtml(stockText)}${
+              out ? " [OUT]" : ""
+            }</span>
+            <input type="number" min="0" max="${maxQty}" value="0" ${out ? "disabled" : ""} data-mo-item="${m._id}" class="w-14 rounded border border-slate-300 px-2 py-1 text-center font-bold disabled:bg-slate-100" />
+          </div>`;
+        })
         .join("");
       document.getElementById("manualOrderModal").classList.remove("hidden");
     });
@@ -3064,7 +3611,10 @@
         document.getElementById("settingHoursEn").value = s.openHoursEn || "";
         document.getElementById("settingAnnounceHi").value = s.announcementHi || "";
         document.getElementById("settingAnnounceEn").value = s.announcementEn || "";
+        document.getElementById("timerTitleHiInput").value = s.timerTitleHi || "";
+        document.getElementById("timerTitleEnInput").value = s.timerTitleEn || "";
       }
+      updateLiveTimerUI();
 
       const list = document.getElementById("blockedNumbersList");
       if (state.adminBlockedList.length === 0) {
@@ -3126,6 +3676,56 @@
       }
     });
 
+    document.getElementById("adminTimerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const mins = Number(document.getElementById("timerMinutesInput").value);
+      if (!Number.isFinite(mins) || mins <= 0 || mins > 1440) {
+        return showToast(t("timerInvalidMin"), true);
+      }
+      const payload = {
+        timerTitleHi: document.getElementById("timerTitleHiInput").value.trim(),
+        timerTitleEn: document.getElementById("timerTitleEnInput").value.trim(),
+        timerMinutes: mins,
+      };
+      try {
+        const res = await apiFetch("/api/admin/settings", { method: "PUT", body: JSON.stringify(payload) }, true);
+        if (res.settings) {
+          state.adminSettingsData = res.settings;
+          state.settings = res.settings;
+          startLiveTimerLoop();
+        }
+        showToast(t("timerStartedToast"));
+        await loadStoreData();
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    });
+
+    document.querySelectorAll("[data-timer-preset]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.getElementById("timerMinutesInput").value = btn.dataset.timerPreset;
+      });
+    });
+
+    document.getElementById("clearTimerBtn").addEventListener("click", async () => {
+      try {
+        const res = await apiFetch(
+          "/api/admin/settings",
+          { method: "PUT", body: JSON.stringify({ clearTimer: true }) },
+          true
+        );
+        if (res.settings) {
+          state.adminSettingsData = res.settings;
+          state.settings = res.settings;
+          startLiveTimerLoop();
+        }
+        showToast(t("timerClearedToast"));
+        await loadStoreData();
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    });
+
     document.getElementById("manualBlockForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const input = document.getElementById("manualBlockPhone");
@@ -3153,6 +3753,7 @@
     document.getElementById("adminLangBtn").addEventListener("click", toggleLanguage);
     document.getElementById("customerMenuSearch").addEventListener("input", (e) => {
       state.menuSearch = e.target.value;
+      state.menuVisibleCount = MENU_PAGE_SIZE;
       renderMenuGrid();
     });
     document.getElementById("adminOrderSearch").addEventListener("input", (e) => {
@@ -3192,26 +3793,59 @@
     document.getElementById("closeSuccessModalBtn").addEventListener("click", () => {
       document.getElementById("orderSuccessModal").classList.add("hidden");
     });
+    document.getElementById("closeProductDetailBtn").addEventListener("click", () => {
+      document.getElementById("productDetailModal").classList.add("hidden");
+    });
+    document.getElementById("loadMoreMenuBtn").addEventListener("click", loadMoreMenuItems);
 
-    ["checkoutModal", "orderSuccessModal", "adminLoginModal", "manualOrderModal", "receiptModal"].forEach((modalId) => {
+    if ("IntersectionObserver" in window) {
+      const sentinelEl = document.getElementById("menuScrollSentinel");
+      const menuObs = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            loadMoreMenuItems();
+          }
+        },
+        { rootMargin: "140px 0px" }
+      );
+      menuObs.observe(sentinelEl);
+    }
+    window.addEventListener(
+      "scroll",
+      () => {
+        const footer = document.getElementById("menuScrollFooter");
+        if (!footer || footer.classList.contains("hidden")) return;
+        const rect = footer.getBoundingClientRect();
+        if (rect.top <= window.innerHeight + 140) {
+          loadMoreMenuItems();
+        }
+      },
+      { passive: true }
+    );
+
+    ["checkoutModal", "orderSuccessModal", "productDetailModal", "adminLoginModal", "manualOrderModal", "receiptModal"].forEach((modalId) => {
       const mEl = document.getElementById(modalId);
       mEl.addEventListener("click", (e) => {
         if (e.target === mEl) mEl.classList.add("hidden");
       });
     });
 
-    document.getElementById("refreshTrackBtn").addEventListener("click", async () => {
-      if (!state.recentOrder) return;
-      try {
-        const res = await apiFetch(
-          `/api/orders/track/${encodeURIComponent(state.recentOrder.orderNumber)}?phone=${encodeURIComponent(state.recentOrder.phone)}`
-        );
-        state.recentOrder.status = res.order.status;
-        state.recentOrder.assignedRider = res.order.assignedRider || null;
-        localStorage.setItem("gr_recent_order", JSON.stringify(state.recentOrder));
-        renderRecentOrderCard();
-      } catch {}
+    document.getElementById("refreshTrackBtn").addEventListener("click", () => syncRecentOrderStatus(true));
+    document.getElementById("dismissTrackBtn").addEventListener("click", () => {
+      state.recentOrder = null;
+      localStorage.removeItem("gr_recent_order");
+      renderRecentOrderCard();
     });
+
+    setInterval(() => {
+      if (
+        !document.hidden &&
+        state.recentOrder &&
+        ["Pending", "Cooking", "Out for Delivery"].includes(state.recentOrder.status)
+      ) {
+        syncRecentOrderStatus(false);
+      }
+    }, 30000);
 
     document.querySelectorAll(".admin-tab-btn").forEach((btn) => {
       btn.addEventListener("click", () => switchAdminTab(btn.dataset.adminTab));
@@ -3227,5 +3861,5 @@
     renderAll();
     loadStoreData();
   </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5dff51e5d9091e6',t:'MTc5NTI2Njg2Ng=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5dff51e5d9091e6',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

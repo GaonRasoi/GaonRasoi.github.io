@@ -274,6 +274,9 @@ const storeSettingsSchema = new mongoose.Schema(
     upiId: { type: String, default: '', trim: true },
     announcementHi: { type: String, default: '', trim: true },
     announcementEn: { type: String, default: '', trim: true },
+    timerTitleHi: { type: String, default: '', trim: true },
+    timerTitleEn: { type: String, default: '', trim: true },
+    timerEndsAt: { type: Date, default: null },
   },
   { timestamps: true }
 );
@@ -649,6 +652,7 @@ app.get('/api/store', async (req, res) => {
     ]);
 
     res.json({
+      serverNow: new Date().toISOString(),
       settings: {
         shopNameHi: settings.shopNameHi,
         shopNameEn: settings.shopNameEn,
@@ -663,6 +667,9 @@ app.get('/api/store', async (req, res) => {
         upiId: settings.upiId || '',
         announcementHi: settings.announcementHi || '',
         announcementEn: settings.announcementEn || '',
+        timerTitleHi: settings.timerTitleHi || '',
+        timerTitleEn: settings.timerTitleEn || '',
+        timerEndsAt: settings.timerEndsAt || null,
       },
       menu,
     });
@@ -830,8 +837,9 @@ app.get('/api/orders/track/:orderNumber', async (req, res) => {
     if (!cleanPhone) {
       return res.status(400).json({ error: 'Valid 10-digit phone number is required.' });
     }
+    const cleanOrderNum = String(req.params.orderNumber || '').trim().toUpperCase();
     const order = await Order.findOne({
-      orderNumber: req.params.orderNumber,
+      orderNumber: cleanOrderNum,
       phone: cleanPhone,
     })
       .select('orderNumber status totalAmount discountAmount couponCode assignedRider items createdAt updatedAt')
@@ -966,13 +974,18 @@ app.patch('/api/admin/orders/:id/status', requireAdmin, validateObjectId, async 
     const allowedStatuses = ['Pending', 'Cooking', 'Out for Delivery', 'Delivered', 'Cancelled'];
     const { status, adminNote, paymentCollectedMode, riderId } = req.body || {};
 
+    const existingOrder = await Order.findById(req.params.id).lean();
+    if (!existingOrder) {
+      return res.status(404).json({ error: 'Order not found.' });
+    }
+
     const updateDoc = {};
     if (status !== undefined) {
       if (!allowedStatuses.includes(status)) {
         return res.status(400).json({ error: 'Invalid order status.' });
       }
       updateDoc.status = status;
-      if (status === 'Delivered' && !paymentCollectedMode) {
+      if (status === 'Delivered' && !paymentCollectedMode && existingOrder.paymentCollectedMode === 'Pending') {
         updateDoc.paymentCollectedMode = 'Cash';
       } else if (status === 'Cancelled') {
         updateDoc.paymentCollectedMode = 'Pending';
@@ -1564,6 +1577,10 @@ app.put('/api/admin/settings', requireAdmin, async (req, res) => {
       upiId,
       announcementHi,
       announcementEn,
+      timerTitleHi,
+      timerTitleEn,
+      timerMinutes,
+      clearTimer,
     } = req.body || {};
 
     const updates = {};
@@ -1588,6 +1605,16 @@ app.put('/api/admin/settings', requireAdmin, async (req, res) => {
     if (upiId !== undefined) updates.upiId = String(upiId).trim();
     if (announcementHi !== undefined) updates.announcementHi = String(announcementHi).trim();
     if (announcementEn !== undefined) updates.announcementEn = String(announcementEn).trim();
+    if (timerTitleHi !== undefined) updates.timerTitleHi = String(timerTitleHi).trim();
+    if (timerTitleEn !== undefined) updates.timerTitleEn = String(timerTitleEn).trim();
+    if (clearTimer === true) {
+      updates.timerEndsAt = null;
+    } else if (timerMinutes !== undefined && timerMinutes !== null && timerMinutes !== '') {
+      const mins = Number(timerMinutes);
+      if (Number.isFinite(mins)) {
+        updates.timerEndsAt = mins > 0 ? new Date(Date.now() + Math.min(1440, mins) * 60000) : null;
+      }
+    }
 
     const settings = await StoreSettings.findOneAndUpdate(
       { key: 'default' },
