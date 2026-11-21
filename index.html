@@ -681,6 +681,9 @@
     </div>
   </div>
 
+  <!-- Non-blocking Toast Banner -->
+  <div id="toastBanner" class="hidden fixed top-4 left-1/2 -translate-x-1/2 z-[70] max-w-sm w-[90%] px-4 py-2.5 rounded-2xl shadow-xl text-xs sm:text-sm font-bold text-center transition"></div>
+
   <!-- ===================================================================== -->
   <!-- 10. APPLICATION JAVASCRIPT                                            -->
   <!-- ===================================================================== -->
@@ -775,7 +778,8 @@
         coldStartNote: "मुफ़्त सर्वर शुरू होने में 15–30 सेकंड लग सकते हैं, कृपया पेज बंद न करें।",
         serverWaking: "⏳ दुकान का सर्वर शुरू हो रहा है, कृपया कुछ सेकंड प्रतीक्षा करें...",
         serverError: "⚠️ सर्वर से संपर्क नहीं हो पा रहा है। कृपया कुछ देर बाद रिफ्रेश करें।",
-        backendNotSet: "⚙️ सेटअप बाकी है: index.html में RENDER_BACKEND_URL डालें (अभी Demo Preview दिख रहा है)।",
+        noMenuMatch: "इस खोज के अनुसार कोई आइटम नहीं मिला।",
+        copiedToast: "✅ कॉपी हो गया!",
         successTitle: "ऑर्डर कन्फर्म हो गया!",
         successSubtitle: "आपका ताज़ा खाना जल्द ही तैयार होकर आपके घर पहुँचेगा।",
         orderNumber: "ऑर्डर नंबर",
@@ -785,8 +789,6 @@
         adminLoginDesc: "डैशबोर्ड खोलने के लिए एडमिन पासवर्ड दर्ज करें।",
         adminLoginBtn: "लॉगिन करें",
         adminLoginChecking: "जाँच हो रही है...",
-        adminDemoHint: "⚠️ अभी Render Backend नहीं जुड़ा है। Demo देखने के लिए पासवर्ड में 'demo' डालें।",
-        adminDemoWrong: "Backend अभी जुड़ा नहीं है। Demo देखने के लिए 'demo' लिखें।",
         adminHeaderTitle: "गाँव रसोई - एडमिन पैनल",
         autoRefreshOn: "ऑटो-अलर्ट: चालू",
         autoRefreshOff: "ऑटो-अलर्ट: बंद",
@@ -978,7 +980,8 @@
         coldStartNote: "Free server wake-up may take 15–30 seconds. Please do not close this page.",
         serverWaking: "⏳ Waking up shop server, please wait a few seconds...",
         serverError: "⚠️ Unable to reach shop server. Please refresh in a moment.",
-        backendNotSet: "⚙️ Setup needed: Set RENDER_BACKEND_URL in index.html (Demo Preview active).",
+        noMenuMatch: "No menu items match your search.",
+        copiedToast: "✅ Copied!",
         successTitle: "Order Confirmed!",
         successSubtitle: "Your food is being prepared and will arrive at your doorstep soon.",
         orderNumber: "Order Number",
@@ -988,8 +991,6 @@
         adminLoginDesc: "Enter the admin password to access the store dashboard.",
         adminLoginBtn: "Login",
         adminLoginChecking: "Verifying...",
-        adminDemoHint: "⚠️ Render Backend not connected yet. Enter 'demo' to preview Admin UI.",
-        adminDemoWrong: "Backend not connected yet. Enter 'demo' to preview Admin UI.",
         adminHeaderTitle: "Gaon Rasoi - Admin Panel",
         autoRefreshOn: "Auto-Alert: ON",
         autoRefreshOff: "Auto-Alert: OFF",
@@ -1115,129 +1116,6 @@
       },
     };
 
-    const FALLBACK_DEFAULT_MENU = [
-      {
-        _id: "demo-1",
-        nameHi: "गरमा-गरम समोसा",
-        nameEn: "Samosa",
-        descHi: "तीखी हरी और मीठी इमली चटनी के साथ (1 पीस)",
-        descEn: "Crispy potato-stuffed pastry with green & tamarind chutney (1 pc)",
-        category: "Snacks",
-        sellingPrice: 15,
-        makingCost: 7,
-        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80",
-        inStock: true,
-        stockCount: null,
-        isVeg: true,
-        isPopular: true,
-      },
-      {
-        _id: "demo-2",
-        nameHi: "आलू पैटीज़",
-        nameEn: "Patties",
-        descHi: "खस्ता बेक्ड पफ पेस्ट्री मसाला आलू के साथ",
-        descEn: "Flaky golden puff pastry filled with spiced potato masala",
-        category: "Snacks",
-        sellingPrice: 25,
-        makingCost: 12,
-        imageUrl: "https://images.unsplash.com/photo-1626776876729-bab4369a5a5a?auto=format&fit=crop&w=600&q=80",
-        inStock: true,
-        stockCount: null,
-        isVeg: true,
-        isPopular: false,
-      },
-      {
-        _id: "demo-3",
-        nameHi: "देसी मसाला बर्गर",
-        nameEn: "Burger",
-        descHi: "क्रिस्पी आलू टिक्की, प्याज़, टमाटर और स्पेशल सॉस",
-        descEn: "Crispy aloo tikki patty, fresh veggies & tangy house sauce",
-        category: "Fast Food",
-        sellingPrice: 40,
-        makingCost: 19,
-        imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80",
-        inStock: true,
-        stockCount: null,
-        isVeg: true,
-        isPopular: false,
-      },
-      {
-        _id: "demo-4",
-        nameHi: "वेज चाउमीन",
-        nameEn: "Veg Chowmein",
-        descHi: "ताज़ी सब्ज़ियों और देसी मसालों के साथ फुल प्लेट",
-        descEn: "Street-style stir-fried noodles tossed with crunchy veggies",
-        category: "Chinese",
-        sellingPrice: 50,
-        makingCost: 22,
-        imageUrl: "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80",
-        inStock: true,
-        stockCount: null,
-        isVeg: true,
-        isPopular: true,
-      },
-      {
-        _id: "demo-5",
-        nameHi: "एग चाउमीन",
-        nameEn: "Egg Chowmein",
-        descHi: "डबल अंडे और स्पाइसी सॉस के साथ गरम चाउमीन",
-        descEn: "Wok-tossed noodles with scrambled egg, cabbage & chili sauce",
-        category: "Chinese",
-        sellingPrice: 70,
-        makingCost: 33,
-        imageUrl: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80",
-        inStock: true,
-        stockCount: null,
-        isVeg: false,
-        isPopular: false,
-      },
-      {
-        _id: "demo-6",
-        nameHi: "वेज मोमोज़ (8 पीस)",
-        nameEn: "Momos",
-        descHi: "तीखी लाल मोमो चटनी के साथ गरम स्टीम्ड मोमोज़",
-        descEn: "Steamed dumplings (8 pcs) served with fiery red garlic chutney",
-        category: "Chinese",
-        sellingPrice: 50,
-        makingCost: 22,
-        imageUrl: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=600&q=80",
-        inStock: true,
-        stockCount: 12,
-        isVeg: true,
-        isPopular: true,
-      },
-      {
-        _id: "demo-7",
-        nameHi: "कचौड़ी सब्ज़ी",
-        nameEn: "Kachori Sabzi",
-        descHi: "2 खस्ता कचौड़ी और चटपटी आलू रसेदार सब्ज़ी",
-        descEn: "2 crispy dal kachoris paired with spicy homestyle aloo sabzi",
-        category: "Meals",
-        sellingPrice: 30,
-        makingCost: 14,
-        imageUrl: "https://images.unsplash.com/photo-1606491956689-2ea866880c84?auto=format&fit=crop&w=600&q=80",
-        inStock: true,
-        stockCount: null,
-        isVeg: true,
-        isPopular: false,
-      },
-      {
-        _id: "demo-8",
-        nameHi: "ब्रेड पकौड़ा",
-        nameEn: "Bread Pakora",
-        descHi: "मसाला आलू स्टफिंग वाला कुरकुरा ब्रेड पकौड़ा",
-        descEn: "Golden gram-flour battered bread stuffed with spiced potato",
-        category: "Snacks",
-        sellingPrice: 20,
-        makingCost: 9,
-        imageUrl: "https://images.unsplash.com/photo-1630383249896-424e482df921?auto=format&fit=crop&w=600&q=80",
-        inStock: true,
-        stockCount: null,
-        isVeg: true,
-        isPopular: false,
-      },
-    ];
-
     const state = {
       lang: localStorage.getItem("gr_lang") || "hi",
       settings: {
@@ -1325,6 +1203,19 @@
       } catch {
         return dateStr;
       }
+    }
+
+    let toastTimer = null;
+    function showToast(msg, isError = false) {
+      const el = document.getElementById("toastBanner");
+      if (!el) return;
+      el.textContent = msg;
+      el.className = `fixed top-4 left-1/2 -translate-x-1/2 z-[70] max-w-sm w-[90%] px-4 py-2.5 rounded-2xl shadow-xl text-xs sm:text-sm font-bold text-center transition ${
+        isError ? "bg-red-600 text-white" : "bg-slate-900 text-white"
+      }`;
+      el.classList.remove("hidden");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.add("hidden"), 2800);
     }
 
     function getElapsedMinutes(dateStr) {
@@ -1428,16 +1319,6 @@
       const banner = document.getElementById("serverBanner");
       const loader = document.getElementById("menuLoader");
 
-      if (API_BASE_URL.includes("YOUR-RENDER-APP")) {
-        banner.className = "rounded-2xl p-3 text-xs sm:text-sm font-semibold border bg-amber-50 border-amber-200 text-amber-800";
-        banner.textContent = t("backendNotSet");
-        banner.classList.remove("hidden");
-        state.menu = FALLBACK_DEFAULT_MENU;
-        loader.classList.add("hidden");
-        renderAll();
-        return;
-      }
-
       const slowTimer = setTimeout(() => {
         banner.className = "rounded-2xl p-3 text-xs sm:text-sm font-semibold border bg-blue-50 border-blue-200 text-blue-800";
         banner.textContent = t("serverWaking");
@@ -1451,9 +1332,14 @@
         state.settings = data.settings;
         state.menu = data.menu || [];
 
-        const validIds = new Set(state.menu.filter((m) => m.inStock).map((m) => m._id));
+        const itemMap = new Map(state.menu.map((m) => [m._id, m]));
         for (const id of Object.keys(state.cart)) {
-          if (!validIds.has(id)) delete state.cart[id];
+          const item = itemMap.get(id);
+          if (!item || !item.inStock || (item.stockCount !== null && item.stockCount === 0)) {
+            delete state.cart[id];
+          } else if (item.stockCount !== null && item.stockCount !== undefined && state.cart[id] > item.stockCount) {
+            state.cart[id] = item.stockCount;
+          }
         }
         saveCart();
         renderAll();
@@ -1692,6 +1578,13 @@
         );
       });
 
+      if (items.length === 0) {
+        grid.innerHTML = `<div class="sm:col-span-2 bg-white rounded-2xl p-6 text-center text-sm font-semibold text-slate-500 border border-orange-100">${escapeHtml(
+          t("noMenuMatch")
+        )}</div>`;
+        return;
+      }
+
       grid.innerHTML = items
         .map((item) => {
           const qty = state.cart[item._id] || 0;
@@ -1848,11 +1741,20 @@
         b.addEventListener("click", () => updateCartQty(b.dataset.cdec, -1))
       );
 
-      if (couponWarning) {
-        const msgEl = document.getElementById("couponFeedbackMsg");
-        msgEl.textContent = couponWarning;
-        msgEl.className = "text-xs font-semibold text-amber-700";
-        msgEl.classList.remove("hidden");
+      const cpMsgEl = document.getElementById("couponFeedbackMsg");
+      if (state.appliedCoupon) {
+        if (couponWarning) {
+          cpMsgEl.textContent = couponWarning;
+          cpMsgEl.className = "text-xs font-semibold text-amber-700";
+          cpMsgEl.classList.remove("hidden");
+        } else {
+          cpMsgEl.textContent =
+            state.appliedCoupon.discountType === "FREE_DELIVERY"
+              ? t("couponFreeDelMsg", state.appliedCoupon.code)
+              : t("couponAppliedMsg", state.appliedCoupon.code, discountAmount);
+          cpMsgEl.className = "text-xs font-semibold text-emerald-700";
+          cpMsgEl.classList.remove("hidden");
+        }
       }
 
       document.getElementById("billSubtotalVal").textContent = `₹${subtotal}`;
@@ -1908,21 +1810,13 @@
 
     // Coupon Apply / Remove
     document.getElementById("applyCouponBtn").addEventListener("click", async () => {
+      const btn = document.getElementById("applyCouponBtn");
       const code = document.getElementById("couponCodeInput").value.trim().toUpperCase();
       const msgEl = document.getElementById("couponFeedbackMsg");
       if (!code) return;
       const { subtotal } = getCartSummary();
 
-      if (API_BASE_URL.includes("YOUR-RENDER-APP")) {
-        state.appliedCoupon = { code, discountType: "FLAT", discountValue: 10, discountAmount: 10, minOrderAmount: 0 };
-        msgEl.textContent = t("couponAppliedMsg", code, 10);
-        msgEl.className = "text-xs font-semibold text-emerald-700";
-        msgEl.classList.remove("hidden");
-        document.getElementById("removeCouponBtn").classList.remove("hidden");
-        renderCheckoutDrawer();
-        return;
-      }
-
+      btn.disabled = true;
       try {
         const res = await apiFetch("/api/coupons/validate", {
           method: "POST",
@@ -1943,6 +1837,8 @@
         msgEl.className = "text-xs font-semibold text-red-600";
         msgEl.classList.remove("hidden");
         renderCheckoutDrawer();
+      } finally {
+        btn.disabled = false;
       }
     });
 
@@ -2084,8 +1980,13 @@
         clearTimeout(coldTimer);
         coldHint.classList.add("hidden");
         if (err.code === "PHONE_BLOCKED") errBox.textContent = t("errBlocked");
-        else if (err.code === "SHOP_CLOSED") errBox.textContent = t("errShopClosed");
-        else errBox.textContent = err.message || t("serverError");
+        else if (err.code === "SHOP_CLOSED") {
+          errBox.textContent = t("errShopClosed");
+          loadStoreData();
+        } else if (err.code === "OUT_OF_STOCK" || err.code === "INSUFFICIENT_STOCK") {
+          errBox.textContent = err.message || t("serverError");
+          loadStoreData();
+        } else errBox.textContent = err.message || t("serverError");
         errBox.classList.remove("hidden");
       } finally {
         btn.disabled = false;
@@ -2107,14 +2008,8 @@
           openAdminDashboard();
         } else {
           const errEl = document.getElementById("adminLoginError");
-          if (API_BASE_URL.includes("YOUR-RENDER-APP")) {
-            errEl.textContent = t("adminDemoHint");
-            errEl.className = "text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2 font-semibold";
-            errEl.classList.remove("hidden");
-          } else {
-            errEl.className = "hidden text-xs text-red-600 font-semibold";
-            errEl.classList.add("hidden");
-          }
+          errEl.className = "hidden text-xs text-red-600 font-semibold";
+          errEl.classList.add("hidden");
           document.getElementById("adminPasswordInput").value = "";
           document.getElementById("adminLoginModal").classList.remove("hidden");
           setTimeout(() => document.getElementById("adminPasswordInput").focus(), 100);
@@ -2130,22 +2025,12 @@
       e.preventDefault();
       const pwd = document.getElementById("adminPasswordInput").value;
       const errEl = document.getElementById("adminLoginError");
+      const btn = document.getElementById("adminLoginSubmitBtn");
       const btnText = document.getElementById("adminLoginSubmitText");
       errEl.className = "hidden text-xs text-red-600 font-semibold";
       errEl.classList.add("hidden");
 
-      if (API_BASE_URL.includes("YOUR-RENDER-APP")) {
-        if (pwd.trim().toLowerCase() === "demo") {
-          state.adminToken = "DEMO_TOKEN";
-          document.getElementById("adminLoginModal").classList.add("hidden");
-          openAdminDashboard();
-        } else {
-          errEl.textContent = t("adminDemoWrong");
-          errEl.classList.remove("hidden");
-        }
-        return;
-      }
-
+      btn.disabled = true;
       btnText.textContent = t("adminLoginChecking");
 
       try {
@@ -2161,6 +2046,7 @@
         errEl.textContent = err.message;
         errEl.classList.remove("hidden");
       } finally {
+        btn.disabled = false;
         btnText.textContent = t("adminLoginBtn");
       }
     });
@@ -2188,178 +2074,11 @@
     async function openAdminDashboard() {
       document.getElementById("adminDashboard").classList.remove("hidden");
       switchAdminTab(state.activeAdminTab);
-      await refreshAdminData(false);
-      startAdminAutoRefresh();
-    }
-
-    function seedDemoAdminStateOnce() {
-      if (state.adminMenu.length > 0) return;
-      state.adminMenu = FALLBACK_DEFAULT_MENU.map((m, idx) => ({ ...m, sortOrder: idx + 1 }));
-      state.adminRiders = [
-        { _id: "rider-1", name: "राजू (Raju)", phone: "9812300111", vehicleNote: "Bike" },
-        { _id: "rider-2", name: "सोनू (Sonu)", phone: "9812300222", vehicleNote: "Cycle" },
-      ];
-      state.adminOrders = [
-        {
-          _id: "demo-ord-1",
-          orderNumber: "GR-1024",
-          customerName: "रमेश यादव",
-          phone: "9876543210",
-          address: "शिव मंदिर के पास, बड़ा मोहल्ला",
-          customerNote: "समोसे के साथ मीठी चटनी ज़्यादा देना",
-          gpsLocation: { lat: 27.4728, lng: 77.331, mapLink: "https://maps.google.com/?q=27.4728,77.331" },
-          items: [
-            { nameHi: "गरमा-गरम समोसा", nameEn: "Samosa", quantity: 4, sellingPrice: 15, makingCost: 7 },
-            { nameHi: "वेज मोमोज़ (8 पीस)", nameEn: "Momos", quantity: 1, sellingPrice: 50, makingCost: 22 },
-          ],
-          subtotal: 110,
-          discountAmount: 0,
-          deliveryCharge: 15,
-          totalAmount: 125,
-          totalMakingCost: 50,
-          paymentCollectedMode: "Pending",
-          assignedRider: { riderId: "rider-1", name: "राजू (Raju)", phone: "9812300111" },
-          riderCashSettled: false,
-          source: "Website",
-          status: "Pending",
-          createdAt: new Date(Date.now() - 8 * 60000).toISOString(),
-        },
-        {
-          _id: "demo-ord-2",
-          orderNumber: "PH-1023",
-          customerName: "मुकेश शर्मा",
-          phone: "9812345678",
-          address: "मुख्य बाज़ार, डीग रोड",
-          customerNote: "",
-          gpsLocation: null,
-          items: [{ nameHi: "वेज चाउमीन", nameEn: "Veg Chowmein", quantity: 2, sellingPrice: 50, makingCost: 22 }],
-          subtotal: 100,
-          discountAmount: 10,
-          couponCode: "FIRST10",
-          deliveryCharge: 15,
-          totalAmount: 105,
-          totalMakingCost: 44,
-          paymentCollectedMode: "Cash",
-          assignedRider: { riderId: "rider-1", name: "राजू (Raju)", phone: "9812300111" },
-          riderCashSettled: false,
-          source: "Phone",
-          status: "Delivered",
-          createdAt: new Date(Date.now() - 3600000).toISOString(),
-        },
-      ];
-      state.adminExpenses = [
-        { _id: "exp-1", title: "एलपीजी गैस रिफ़िल", category: "Gas/Fuel", amount: 50, expenseDate: new Date().toISOString() },
-      ];
-      state.adminCoupons = [
-        { _id: "cp-1", code: "FIRST10", discountType: "FLAT", discountValue: 10, minOrderAmount: 80, isActive: true, usedCount: 4 },
-      ];
-      state.adminBlockedSet = new Set();
-      state.adminBlockedList = [];
-      state.adminSettingsData = state.settings;
-      recomputeDemoDerivedAdminData();
-    }
-
-    function recomputeDemoDerivedAdminData() {
-      const delivered = state.adminOrders.filter((o) => o.status === "Delivered");
-      let totalSales = 0, totalMakingCost = 0, deliveryChargesCollected = 0, discountsGiven = 0, cashSales = 0, upiSales = 0;
-      const itemMap = new Map();
-      for (const o of delivered) {
-        totalSales += o.totalAmount;
-        totalMakingCost += o.totalMakingCost || 0;
-        deliveryChargesCollected += o.deliveryCharge || 0;
-        discountsGiven += o.discountAmount || 0;
-        if (o.paymentCollectedMode === "UPI") upiSales += o.totalAmount;
-        else cashSales += o.totalAmount;
-        for (const it of o.items || []) {
-          const k = it.nameEn || it.nameHi;
-          if (!itemMap.has(k)) itemMap.set(k, { nameHi: it.nameHi, nameEn: it.nameEn, qtySold: 0, revenue: 0, profit: 0 });
-          const e = itemMap.get(k);
-          e.qtySold += it.quantity;
-          e.revenue += it.sellingPrice * it.quantity;
-          e.profit += (it.sellingPrice - (it.makingCost || 0)) * it.quantity;
-        }
-      }
-      const totalExpenses = state.adminExpenses.reduce((s, x) => s + x.amount, 0);
-      const grossProfit = totalSales - totalMakingCost;
-      const netProfit = grossProfit - totalExpenses;
-      const summary = {
-        deliveredCount: delivered.length,
-        totalSales,
-        cashSales,
-        upiSales,
-        totalMakingCost,
-        deliveryChargesCollected,
-        discountsGiven,
-        totalExpenses,
-        grossProfit,
-        grossMarginPercent: totalSales > 0 ? Number(((grossProfit / totalSales) * 100).toFixed(1)) : 0,
-        netProfit,
-        marginPercent: totalSales > 0 ? Number(((netProfit / totalSales) * 100).toFixed(1)) : 0,
-      };
-      const statusCounts = { Pending: 0, Cooking: 0, "Out for Delivery": 0, Delivered: 0, Cancelled: 0 };
-      state.adminOrders.forEach((o) => { if (o.status in statusCounts) statusCounts[o.status]++; });
-      state.adminAnalytics = {
-        today: summary,
-        month: summary,
-        total: summary,
-        topItems: [...itemMap.values()],
-        statusCounts,
-      };
-
-      // Enrich Demo Riders
-      state.adminRiders = state.adminRiders.map((r) => {
-        const my = state.adminOrders.filter((o) => o.assignedRider?.riderId === r._id);
-        const deliv = my.filter((o) => o.status === "Delivered");
-        return {
-          ...r,
-          todayCount: my.length,
-          deliveredCount: deliv.length,
-          activeCount: my.filter((o) => ["Pending", "Cooking", "Out for Delivery"].includes(o.status)).length,
-          cashCollected: deliv.filter((o) => o.paymentCollectedMode !== "UPI").reduce((s, o) => s + o.totalAmount, 0),
-          upiCollected: deliv.filter((o) => o.paymentCollectedMode === "UPI").reduce((s, o) => s + o.totalAmount, 0),
-          unsettledCash: deliv.filter((o) => o.paymentCollectedMode !== "UPI" && !o.riderCashSettled).reduce((s, o) => s + o.totalAmount, 0),
-        };
-      });
-
-      const custMap = new Map();
-      state.adminOrders.forEach((o) => {
-        if (!custMap.has(o.phone)) {
-          custMap.set(o.phone, {
-            phone: o.phone,
-            customerName: o.customerName,
-            lastAddress: o.address,
-            lastOrderAt: o.createdAt,
-            totalOrders: 0,
-            deliveredOrders: 0,
-            totalSpent: 0,
-            isBlocked: state.adminBlockedSet.has(o.phone),
-          });
-        }
-        const c = custMap.get(o.phone);
-        c.totalOrders++;
-        if (o.status === "Delivered") {
-          c.deliveredOrders++;
-          c.totalSpent += o.totalAmount;
-        }
-      });
-      state.adminCustomers = [...custMap.values()];
+      const ok = await refreshAdminData(false);
+      if (ok) startAdminAutoRefresh();
     }
 
     async function refreshAdminData(isBackground = false) {
-      if (state.adminToken === "DEMO_TOKEN") {
-        seedDemoAdminStateOnce();
-        recomputeDemoDerivedAdminData();
-        renderAdminOrders();
-        renderAdminMenu();
-        renderAdminAnalytics();
-        renderAdminExpenses();
-        renderAdminRiders();
-        renderAdminCustomers();
-        renderAdminCoupons();
-        renderAdminSettings();
-        return;
-      }
-
       try {
         const [ordersRes, menuRes, analyticsRes, expensesRes, ridersRes, customersRes, couponsRes, settingsRes] =
           await Promise.all([
@@ -2401,13 +2120,25 @@
         renderAdminRiders();
         renderAdminCustomers();
         renderAdminCoupons();
-        renderAdminSettings();
+        // Do not overwrite unsaved Settings form fields during 15s background polling
+        if (!isBackground) {
+          renderAdminSettings();
+        }
+        return true;
       } catch (err) {
         if (err.status === 401) {
           logoutAdmin();
+          if (!isBackground) {
+            const errEl = document.getElementById("adminLoginError");
+            errEl.textContent = err.message;
+            errEl.classList.remove("hidden");
+            document.getElementById("adminPasswordInput").value = "";
+            document.getElementById("adminLoginModal").classList.remove("hidden");
+          }
         } else if (!isBackground) {
-          alert(err.message);
+          showToast(err.message, true);
         }
+        return false;
       }
     }
 
@@ -2621,15 +2352,6 @@
 
       list.querySelectorAll("select[data-ord-status]").forEach((sel) => {
         sel.addEventListener("change", async () => {
-          if (state.adminToken === "DEMO_TOKEN") {
-            const o = state.adminOrders.find((x) => x._id === sel.dataset.ordStatus);
-            if (o) {
-              o.status = sel.value;
-              if (o.status === "Delivered" && o.paymentCollectedMode === "Pending") o.paymentCollectedMode = "Cash";
-            }
-            await refreshAdminData();
-            return;
-          }
           try {
             await apiFetch(
               `/api/admin/orders/${sel.dataset.ordStatus}/status`,
@@ -2638,20 +2360,13 @@
             );
             await refreshAdminData();
           } catch (err) {
-            alert(err.message);
+            showToast(err.message, true);
           }
         });
       });
 
       list.querySelectorAll("select[data-ord-rider]").forEach((sel) => {
         sel.addEventListener("change", async () => {
-          if (state.adminToken === "DEMO_TOKEN") {
-            const o = state.adminOrders.find((x) => x._id === sel.dataset.ordRider);
-            const r = state.adminRiders.find((x) => x._id === sel.value);
-            if (o) o.assignedRider = r ? { riderId: r._id, name: r.name, phone: r.phone } : { riderId: null, name: "", phone: "" };
-            await refreshAdminData();
-            return;
-          }
           try {
             await apiFetch(
               `/api/admin/orders/${sel.dataset.ordRider}/status`,
@@ -2660,19 +2375,13 @@
             );
             await refreshAdminData();
           } catch (err) {
-            alert(err.message);
+            showToast(err.message, true);
           }
         });
       });
 
       list.querySelectorAll("select[data-ord-paymode]").forEach((sel) => {
         sel.addEventListener("change", async () => {
-          if (state.adminToken === "DEMO_TOKEN") {
-            const o = state.adminOrders.find((x) => x._id === sel.dataset.ordPaymode);
-            if (o) o.paymentCollectedMode = sel.value;
-            await refreshAdminData();
-            return;
-          }
           try {
             await apiFetch(
               `/api/admin/orders/${sel.dataset.ordPaymode}/status`,
@@ -2681,7 +2390,7 @@
             );
             await refreshAdminData();
           } catch (err) {
-            alert(err.message);
+            showToast(err.message, true);
           }
         });
       });
@@ -2704,12 +2413,6 @@
         btn.addEventListener("click", async () => {
           const phone = btn.dataset.blockPhone;
           if (!confirm(t("confirmBlock", phone))) return;
-          if (state.adminToken === "DEMO_TOKEN") {
-            state.adminBlockedSet.add(phone);
-            state.adminBlockedList.unshift({ phone, reason: "Blocked from Order" });
-            await refreshAdminData();
-            return;
-          }
           try {
             await apiFetch(
               "/api/admin/blocked-numbers",
@@ -2718,7 +2421,7 @@
             );
             await refreshAdminData();
           } catch (err) {
-            alert(err.message);
+            showToast(err.message, true);
           }
         });
       });
@@ -2726,16 +2429,11 @@
       list.querySelectorAll("[data-del-ord]").forEach((btn) => {
         btn.addEventListener("click", async () => {
           if (!confirm(t("confirmDeleteOrder"))) return;
-          if (state.adminToken === "DEMO_TOKEN") {
-            state.adminOrders = state.adminOrders.filter((o) => o._id !== btn.dataset.delOrd);
-            await refreshAdminData();
-            return;
-          }
           try {
             await apiFetch(`/api/admin/orders/${btn.dataset.delOrd}`, { method: "DELETE" }, true);
             await refreshAdminData();
           } catch (err) {
-            alert(err.message);
+            showToast(err.message, true);
           }
         });
       });
@@ -2794,7 +2492,7 @@
     document.getElementById("printReceiptBtn").addEventListener("click", () => window.print());
     document.getElementById("copyReceiptBtn").addEventListener("click", () => {
       const text = document.getElementById("receiptPrintArea").innerText;
-      navigator.clipboard?.writeText(text).then(() => alert("✅ Copied!"));
+      navigator.clipboard?.writeText(text).then(() => showToast(t("copiedToast")));
     });
     document.getElementById("closeReceiptBtn").addEventListener("click", () => {
       document.getElementById("receiptModal").classList.add("hidden");
@@ -2826,9 +2524,9 @@
         const qty = parseInt(inp.value, 10);
         if (qty > 0) items.push({ menuItemId: inp.dataset.moItem, quantity: qty });
       });
-      if (items.length === 0) return alert("Select at least 1 item.");
+      if (items.length === 0) return showToast(t("moPickItems"), true);
       const phone = normalizeIndianPhone(document.getElementById("moPhone").value);
-      if (!phone) return alert(t("errInvalidPhone"));
+      if (!phone) return showToast(t("errInvalidPhone"), true);
 
       const payload = {
         customerName: document.getElementById("moName").value.trim(),
@@ -2840,44 +2538,12 @@
         items,
       };
 
-      if (state.adminToken === "DEMO_TOKEN") {
-        let sub = 0, cost = 0;
-        const ordItems = items.map((it) => {
-          const m = state.adminMenu.find((x) => x._id === it.menuItemId);
-          sub += m.sellingPrice * it.quantity;
-          cost += (m.makingCost || 0) * it.quantity;
-          return { nameHi: m.nameHi, nameEn: m.nameEn, quantity: it.quantity, sellingPrice: m.sellingPrice, makingCost: m.makingCost || 0 };
-        });
-        const del = Number(payload.deliveryChargeOverride || 0);
-        state.adminOrders.unshift({
-          _id: "demo-ph-" + Date.now(),
-          orderNumber: "PH-" + String(Date.now()).slice(-4),
-          customerName: payload.customerName,
-          phone: payload.phone,
-          address: payload.address,
-          customerNote: payload.customerNote,
-          items: ordItems,
-          subtotal: sub,
-          discountAmount: 0,
-          deliveryCharge: del,
-          totalAmount: sub + del,
-          totalMakingCost: cost,
-          paymentCollectedMode: payload.status === "Delivered" ? "Cash" : "Pending",
-          source: "Phone",
-          status: payload.status,
-          createdAt: new Date().toISOString(),
-        });
-        document.getElementById("manualOrderModal").classList.add("hidden");
-        await refreshAdminData();
-        return;
-      }
-
       try {
         await apiFetch("/api/admin/orders", { method: "POST", body: JSON.stringify(payload) }, true);
         document.getElementById("manualOrderModal").classList.add("hidden");
         await refreshAdminData();
       } catch (err) {
-        alert(err.message);
+        showToast(err.message, true);
       }
     });
 
@@ -2975,18 +2641,12 @@
 
       list.querySelectorAll("[data-toggle-stock]").forEach((cb) => {
         cb.addEventListener("change", async () => {
-          if (state.adminToken === "DEMO_TOKEN") {
-            const it = state.adminMenu.find((m) => m._id === cb.dataset.toggleStock);
-            if (it) it.inStock = cb.checked;
-            renderAdminMenu();
-            return;
-          }
           try {
             await apiFetch(`/api/admin/menu/${cb.dataset.toggleStock}`, { method: "PUT", body: JSON.stringify({ inStock: cb.checked }) }, true);
             await refreshAdminData();
             await loadStoreData();
           } catch (err) {
-            alert(err.message);
+            showToast(err.message, true);
           }
         });
       });
@@ -3018,17 +2678,12 @@
       list.querySelectorAll("[data-del-item]").forEach((btn) => {
         btn.addEventListener("click", async () => {
           if (!confirm(t("deleteConfirm"))) return;
-          if (state.adminToken === "DEMO_TOKEN") {
-            state.adminMenu = state.adminMenu.filter((m) => m._id !== btn.dataset.delItem);
-            renderAdminMenu();
-            return;
-          }
           try {
             await apiFetch(`/api/admin/menu/${btn.dataset.delItem}`, { method: "DELETE" }, true);
             await refreshAdminData();
             await loadStoreData();
           } catch (err) {
-            alert(err.message);
+            showToast(err.message, true);
           }
         });
       });
@@ -3065,17 +2720,6 @@
         isVeg: document.getElementById("itemIsVeg").checked,
         isPopular: document.getElementById("itemIsPopular").checked,
       };
-      if (state.adminToken === "DEMO_TOKEN") {
-        if (editId) {
-          const idx = state.adminMenu.findIndex((x) => x._id === editId);
-          if (idx >= 0) state.adminMenu[idx] = { ...state.adminMenu[idx], ...payload };
-        } else {
-          state.adminMenu.push({ _id: "demo-" + Date.now(), ...payload });
-        }
-        document.getElementById("menuItemFormCard").classList.add("hidden");
-        renderAdminMenu();
-        return;
-      }
       try {
         if (editId) await apiFetch(`/api/admin/menu/${editId}`, { method: "PUT", body: JSON.stringify(payload) }, true);
         else await apiFetch("/api/admin/menu", { method: "POST", body: JSON.stringify(payload) }, true);
@@ -3083,7 +2727,7 @@
         await refreshAdminData();
         await loadStoreData();
       } catch (err) {
-        alert(err.message);
+        showToast(err.message, true);
       }
     });
 
@@ -3189,16 +2833,11 @@
 
       list.querySelectorAll("[data-del-exp]").forEach((btn) => {
         btn.addEventListener("click", async () => {
-          if (state.adminToken === "DEMO_TOKEN") {
-            state.adminExpenses = state.adminExpenses.filter((x) => x._id !== btn.dataset.delExp);
-            await refreshAdminData();
-            return;
-          }
           try {
             await apiFetch(`/api/admin/expenses/${btn.dataset.delExp}`, { method: "DELETE" }, true);
             await refreshAdminData();
           } catch (err) {
-            alert(err.message);
+            showToast(err.message, true);
           }
         });
       });
@@ -3211,18 +2850,12 @@
         category: document.getElementById("expCategory").value,
         amount: Number(document.getElementById("expAmount").value),
       };
-      if (state.adminToken === "DEMO_TOKEN") {
-        state.adminExpenses.unshift({ _id: "exp-" + Date.now(), ...payload, expenseDate: new Date().toISOString() });
-        document.getElementById("adminExpenseForm").reset();
-        await refreshAdminData();
-        return;
-      }
       try {
         await apiFetch("/api/admin/expenses", { method: "POST", body: JSON.stringify(payload) }, true);
         document.getElementById("adminExpenseForm").reset();
         await refreshAdminData();
       } catch (err) {
-        alert(err.message);
+        showToast(err.message, true);
       }
     });
 
@@ -3263,36 +2896,22 @@
 
       list.querySelectorAll("[data-settle-rider]").forEach((btn) => {
         btn.addEventListener("click", async () => {
-          if (state.adminToken === "DEMO_TOKEN") {
-            state.adminOrders.forEach((o) => {
-              if (o.assignedRider?.riderId === btn.dataset.settleRider && o.status === "Delivered") {
-                o.riderCashSettled = true;
-              }
-            });
-            await refreshAdminData();
-            return;
-          }
           try {
             await apiFetch(`/api/admin/riders/${btn.dataset.settleRider}/settle`, { method: "POST" }, true);
             await refreshAdminData();
           } catch (err) {
-            alert(err.message);
+            showToast(err.message, true);
           }
         });
       });
 
       list.querySelectorAll("[data-del-rider]").forEach((btn) => {
         btn.addEventListener("click", async () => {
-          if (state.adminToken === "DEMO_TOKEN") {
-            state.adminRiders = state.adminRiders.filter((r) => r._id !== btn.dataset.delRider);
-            await refreshAdminData();
-            return;
-          }
           try {
             await apiFetch(`/api/admin/riders/${btn.dataset.delRider}`, { method: "DELETE" }, true);
             await refreshAdminData();
           } catch (err) {
-            alert(err.message);
+            showToast(err.message, true);
           }
         });
       });
@@ -3301,24 +2920,18 @@
     document.getElementById("adminRiderForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const phone = normalizeIndianPhone(document.getElementById("riderPhone").value);
-      if (!phone) return alert(t("errInvalidPhone"));
+      if (!phone) return showToast(t("errInvalidPhone"), true);
       const payload = {
         name: document.getElementById("riderName").value.trim(),
         phone,
         vehicleNote: document.getElementById("riderVehicle").value.trim() || "Bike",
       };
-      if (state.adminToken === "DEMO_TOKEN") {
-        state.adminRiders.unshift({ _id: "rider-" + Date.now(), ...payload });
-        document.getElementById("adminRiderForm").reset();
-        await refreshAdminData();
-        return;
-      }
       try {
         await apiFetch("/api/admin/riders", { method: "POST", body: JSON.stringify(payload) }, true);
         document.getElementById("adminRiderForm").reset();
         await refreshAdminData();
       } catch (err) {
-        alert(err.message);
+        showToast(err.message, true);
       }
     });
 
@@ -3398,31 +3011,21 @@
 
       list.querySelectorAll("[data-toggle-cp]").forEach((cb) => {
         cb.addEventListener("change", async () => {
-          if (state.adminToken === "DEMO_TOKEN") {
-            const c = state.adminCoupons.find((x) => x._id === cb.dataset.toggleCp);
-            if (c) c.isActive = cb.checked;
-            return;
-          }
           try {
             await apiFetch(`/api/admin/coupons/${cb.dataset.toggleCp}`, { method: "PUT", body: JSON.stringify({ isActive: cb.checked }) }, true);
           } catch (err) {
-            alert(err.message);
+            showToast(err.message, true);
           }
         });
       });
 
       list.querySelectorAll("[data-del-cp]").forEach((btn) => {
         btn.addEventListener("click", async () => {
-          if (state.adminToken === "DEMO_TOKEN") {
-            state.adminCoupons = state.adminCoupons.filter((x) => x._id !== btn.dataset.delCp);
-            renderAdminCoupons();
-            return;
-          }
           try {
             await apiFetch(`/api/admin/coupons/${btn.dataset.delCp}`, { method: "DELETE" }, true);
             await refreshAdminData();
           } catch (err) {
-            alert(err.message);
+            showToast(err.message, true);
           }
         });
       });
@@ -3436,18 +3039,12 @@
         discountValue: Number(document.getElementById("couponValue").value || 0),
         minOrderAmount: Number(document.getElementById("couponMinOrder").value || 0),
       };
-      if (state.adminToken === "DEMO_TOKEN") {
-        state.adminCoupons.unshift({ _id: "cp-" + Date.now(), ...payload, isActive: true, usedCount: 0 });
-        document.getElementById("adminCouponForm").reset();
-        renderAdminCoupons();
-        return;
-      }
       try {
         await apiFetch("/api/admin/coupons", { method: "POST", body: JSON.stringify(payload) }, true);
         document.getElementById("adminCouponForm").reset();
         await refreshAdminData();
       } catch (err) {
-        alert(err.message);
+        showToast(err.message, true);
       }
     });
 
@@ -3490,17 +3087,11 @@
 
       list.querySelectorAll("[data-unblock]").forEach((btn) => {
         btn.addEventListener("click", async () => {
-          if (state.adminToken === "DEMO_TOKEN") {
-            state.adminBlockedSet.delete(btn.dataset.unblock);
-            state.adminBlockedList = state.adminBlockedList.filter((x) => x.phone !== btn.dataset.unblock);
-            await refreshAdminData();
-            return;
-          }
           try {
             await apiFetch(`/api/admin/blocked-numbers/${btn.dataset.unblock}`, { method: "DELETE" }, true);
             await refreshAdminData();
           } catch (err) {
-            alert(err.message);
+            showToast(err.message, true);
           }
         });
       });
@@ -3524,14 +3115,6 @@
         announcementHi: document.getElementById("settingAnnounceHi").value.trim(),
         announcementEn: document.getElementById("settingAnnounceEn").value.trim(),
       };
-      if (state.adminToken === "DEMO_TOKEN") {
-        state.settings = { ...state.settings, ...payload };
-        state.adminSettingsData = state.settings;
-        msg.textContent = t("settingsSaved");
-        msg.classList.remove("hidden");
-        renderAll();
-        return;
-      }
       try {
         await apiFetch("/api/admin/settings", { method: "PUT", body: JSON.stringify(payload) }, true);
         msg.textContent = t("settingsSaved");
@@ -3539,7 +3122,7 @@
         await refreshAdminData();
         await loadStoreData();
       } catch (err) {
-        alert(err.message);
+        showToast(err.message, true);
       }
     });
 
@@ -3547,20 +3130,13 @@
       e.preventDefault();
       const input = document.getElementById("manualBlockPhone");
       const clean = normalizeIndianPhone(input.value);
-      if (!clean) return alert(t("errInvalidPhone"));
-      if (state.adminToken === "DEMO_TOKEN") {
-        state.adminBlockedSet.add(clean);
-        state.adminBlockedList.unshift({ phone: clean, reason: "Manual Admin Block" });
-        input.value = "";
-        await refreshAdminData();
-        return;
-      }
+      if (!clean) return showToast(t("errInvalidPhone"), true);
       try {
         await apiFetch("/api/admin/blocked-numbers", { method: "POST", body: JSON.stringify({ phone: clean, reason: "Manual Admin Block" }) }, true);
         input.value = "";
         await refreshAdminData();
       } catch (err) {
-        alert(err.message);
+        showToast(err.message, true);
       }
     });
 
@@ -3617,6 +3193,13 @@
       document.getElementById("orderSuccessModal").classList.add("hidden");
     });
 
+    ["checkoutModal", "orderSuccessModal", "adminLoginModal", "manualOrderModal", "receiptModal"].forEach((modalId) => {
+      const mEl = document.getElementById(modalId);
+      mEl.addEventListener("click", (e) => {
+        if (e.target === mEl) mEl.classList.add("hidden");
+      });
+    });
+
     document.getElementById("refreshTrackBtn").addEventListener("click", async () => {
       if (!state.recentOrder) return;
       try {
@@ -3644,5 +3227,5 @@
     renderAll();
     loadStoreData();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5dcba8b7f42cd8c',t:'MTc5NTIzMzAxMA=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5dcba8b7f42cd8c',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>

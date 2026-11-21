@@ -526,8 +526,8 @@ async function evaluateCouponAndTotals(subtotal, settings, rawCouponCode) {
   };
 }
 
-// Consolidate duplicate menuItemId entries and validate stock / limited stockCount
-async function validateAndDecrementItems(rawItems, enforceStock = true) {
+// Consolidate duplicate menuItemId entries, validate items/stock without mutating DB yet
+async function prepareOrderItems(rawItems, enforceStock = true) {
   if (!Array.isArray(rawItems) || rawItems.length === 0) {
     return { errorCode: 'EMPTY_CART', error: 'Your cart is empty.' };
   }
@@ -585,31 +585,52 @@ async function validateAndDecrementItems(rawItems, enforceStock = true) {
     });
 
     if (dbItem.stockCount !== null && dbItem.stockCount !== undefined) {
-      stockDecrements.push({ id: dbItem._id, qty });
+      const decQty = enforceStock ? qty : Math.min(dbItem.stockCount, qty);
+      if (decQty > 0) stockDecrements.push({ id: dbItem._id, qty: decQty });
     }
   }
 
-  // Atomically decrement limited-stock items and auto-flip inStock to false when depleted
+  return { orderItems, subtotal, totalMakingCost, stockDecrements };
+}
+
+// Atomically decrement limited-stock items after ALL order validations pass (with rollback on race condition)
+async function commitStockDecrements(stockDecrements, enforceStock = true) {
+  const applied = [];
   for (const dec of stockDecrements) {
     const updatedItem = await MenuItem.findOneAndUpdate(
       { _id: dec.id, stockCount: { $gte: dec.qty } },
       { $inc: { stockCount: -dec.qty } },
       { returnDocument: 'after' }
     );
-    if (!updatedItem && enforceStock) {
-      return { errorCode: 'OUT_OF_STOCK', error: 'Item just went out of stock. Please refresh.' };
+    if (!updatedItem) {
+      if (enforceStock) {
+        // Rollback previous decrements in this order
+        for (const prev of applied) {
+          await MenuItem.updateOne({ _id: prev.id }, { $inc: { stockCount: prev.qty }, $set: { inStock: true } });
+        }
+        return { errorCode: 'OUT_OF_STOCK', error: 'Item just went out of stock. Please refresh.' };
+      }
+      continue;
     }
-    if (updatedItem && updatedItem.stockCount !== null && updatedItem.stockCount <= 0 && updatedItem.inStock) {
+    applied.push(dec);
+    if (updatedItem.stockCount !== null && updatedItem.stockCount <= 0 && updatedItem.inStock) {
       await MenuItem.updateOne({ _id: updatedItem._id }, { $set: { inStock: false, stockCount: 0 } });
     }
   }
-
-  return { orderItems, subtotal, totalMakingCost };
+  return { ok: true };
 }
 
 // ----------------------------------------------------------------------------
 // 4. PUBLIC CUSTOMER API ROUTES
 // ----------------------------------------------------------------------------
+
+app.get('/', (req, res) => {
+  res.json({
+    ok: true,
+    app: 'Gaon Rasoi Backend API',
+    health: '/api/health',
+  });
+});
 
 app.get('/api/health', (req, res) => {
   res.json({
@@ -712,7 +733,7 @@ app.post('/api/orders', async (req, res) => {
       });
     }
 
-    const itemResult = await validateAndDecrementItems(items, true);
+    const itemResult = await prepareOrderItems(items, true);
     if (itemResult.error) {
       return res.status(400).json({
         code: itemResult.errorCode,
@@ -722,7 +743,7 @@ app.post('/api/orders', async (req, res) => {
       });
     }
 
-    const { orderItems, subtotal, totalMakingCost } = itemResult;
+    const { orderItems, subtotal, totalMakingCost, stockDecrements } = itemResult;
 
     if (subtotal < settings.minOrderAmount) {
       return res.status(400).json({
@@ -735,6 +756,11 @@ app.post('/api/orders', async (req, res) => {
     const pricing = await evaluateCouponAndTotals(subtotal, settings, couponCode);
     if (pricing.error) {
       return res.status(400).json({ code: pricing.errorCode, error: pricing.error });
+    }
+
+    const stockCommit = await commitStockDecrements(stockDecrements, true);
+    if (stockCommit.error) {
+      return res.status(400).json({ code: stockCommit.errorCode, error: stockCommit.error });
     }
 
     let cleanGps = { lat: null, lng: null, mapLink: '' };
@@ -891,20 +917,22 @@ app.post('/api/admin/orders', requireAdmin, async (req, res) => {
       return res.status(400).json({ error: 'Valid customer name, 10-digit Indian phone, and address are required.' });
     }
 
-    const itemResult = await validateAndDecrementItems(items, false);
+    const itemResult = await prepareOrderItems(items, false);
     if (itemResult.error) {
       return res.status(400).json({ error: itemResult.error });
     }
-    const { orderItems, subtotal, totalMakingCost } = itemResult;
+    const { orderItems, subtotal, totalMakingCost, stockDecrements } = itemResult;
 
     const settings = await getStoreSettings();
+    const parsedDel = Number(deliveryChargeOverride);
     const deliveryCharge =
-      deliveryChargeOverride !== undefined && deliveryChargeOverride !== ''
-        ? Math.max(0, Number(deliveryChargeOverride))
+      deliveryChargeOverride !== undefined && deliveryChargeOverride !== '' && Number.isFinite(parsedDel)
+        ? Math.max(0, parsedDel)
         : settings.deliveryCharge;
     const totalAmount = subtotal + deliveryCharge;
     const allowedStatuses = ['Pending', 'Cooking', 'Out for Delivery', 'Delivered'];
     const initialStatus = allowedStatuses.includes(status) ? status : 'Cooking';
+    await commitStockDecrements(stockDecrements, false);
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
 
     const newOrder = await Order.create({
@@ -1223,13 +1251,15 @@ app.get('/api/admin/expenses', requireAdmin, async (req, res) => {
 app.post('/api/admin/expenses', requireAdmin, async (req, res) => {
   try {
     const { title, category, amount, note, expenseDate } = req.body || {};
-    if (!title || amount === undefined || Number(amount) < 0) {
+    const numAmount = Number(amount);
+    if (!title || amount === undefined || !Number.isFinite(numAmount) || numAmount < 0) {
       return res.status(400).json({ error: 'Expense title and valid amount are required.' });
     }
+    const allowedCats = ['Gas/Fuel', 'Ingredients', 'Packaging', 'Delivery/Petrol', 'Staff', 'Other'];
     const expense = await Expense.create({
       title: String(title).trim(),
-      category: category || 'Other',
-      amount: Number(amount),
+      category: allowedCats.includes(category) ? category : 'Other',
+      amount: numAmount,
       note: note ? String(note).trim() : '',
       expenseDate: expenseDate ? new Date(expenseDate) : new Date(),
     });
@@ -1395,10 +1425,20 @@ app.post('/api/admin/menu', requireAdmin, async (req, res) => {
       return res.status(400).json({ error: 'Hindi name, English name, selling price, and making cost are required.' });
     }
 
-    const parsedStock =
-      stockCount === null || stockCount === undefined || stockCount === ''
-        ? null
-        : Math.max(0, parseInt(stockCount, 10));
+    const numSelling = Number(sellingPrice);
+    const numCost = Number(makingCost);
+    if (!Number.isFinite(numSelling) || numSelling < 0 || !Number.isFinite(numCost) || numCost < 0) {
+      return res.status(400).json({ error: 'Valid non-negative numbers are required for selling price and making cost.' });
+    }
+
+    let parsedStock = null;
+    if (stockCount !== null && stockCount !== undefined && stockCount !== '') {
+      const sInt = parseInt(stockCount, 10);
+      if (!Number.isInteger(sInt) || sInt < 0) {
+        return res.status(400).json({ error: 'Stock count must be a non-negative integer.' });
+      }
+      parsedStock = sInt;
+    }
 
     const item = await MenuItem.create({
       nameHi: String(nameHi).trim(),
@@ -1406,14 +1446,14 @@ app.post('/api/admin/menu', requireAdmin, async (req, res) => {
       descHi: descHi ? String(descHi).trim() : '',
       descEn: descEn ? String(descEn).trim() : '',
       category: category ? String(category).trim() : 'Snacks',
-      sellingPrice: Math.max(0, Number(sellingPrice)),
-      makingCost: Math.max(0, Number(makingCost)),
+      sellingPrice: Math.max(0, numSelling),
+      makingCost: Math.max(0, numCost),
       imageUrl: imageUrl ? String(imageUrl).trim() : '',
       inStock: inStock !== undefined ? Boolean(inStock) : true,
       stockCount: parsedStock,
       isVeg: isVeg !== undefined ? Boolean(isVeg) : true,
       isPopular: isPopular !== undefined ? Boolean(isPopular) : false,
-      sortOrder: sortOrder !== undefined ? Number(sortOrder) : 0,
+      sortOrder: Number.isFinite(Number(sortOrder)) ? Number(sortOrder) : 0,
     });
 
     res.status(201).json({ item });
@@ -1447,17 +1487,30 @@ app.put('/api/admin/menu/:id', requireAdmin, validateObjectId, async (req, res) 
     if (descHi !== undefined) updates.descHi = String(descHi).trim();
     if (descEn !== undefined) updates.descEn = String(descEn).trim();
     if (category !== undefined) updates.category = String(category).trim();
-    if (sellingPrice !== undefined) updates.sellingPrice = Math.max(0, Number(sellingPrice));
-    if (makingCost !== undefined) updates.makingCost = Math.max(0, Number(makingCost));
+    if (sellingPrice !== undefined) {
+      const n = Number(sellingPrice);
+      if (!Number.isFinite(n) || n < 0) return res.status(400).json({ error: 'Invalid sellingPrice.' });
+      updates.sellingPrice = n;
+    }
+    if (makingCost !== undefined) {
+      const n = Number(makingCost);
+      if (!Number.isFinite(n) || n < 0) return res.status(400).json({ error: 'Invalid makingCost.' });
+      updates.makingCost = n;
+    }
     if (imageUrl !== undefined) updates.imageUrl = String(imageUrl).trim();
     if (inStock !== undefined) updates.inStock = Boolean(inStock);
     if (stockCount !== undefined) {
-      updates.stockCount =
-        stockCount === null || stockCount === '' ? null : Math.max(0, parseInt(stockCount, 10));
+      if (stockCount === null || stockCount === '') {
+        updates.stockCount = null;
+      } else {
+        const sInt = parseInt(stockCount, 10);
+        if (!Number.isInteger(sInt) || sInt < 0) return res.status(400).json({ error: 'Invalid stockCount.' });
+        updates.stockCount = sInt;
+      }
     }
     if (isVeg !== undefined) updates.isVeg = Boolean(isVeg);
     if (isPopular !== undefined) updates.isPopular = Boolean(isPopular);
-    if (sortOrder !== undefined) updates.sortOrder = Number(sortOrder);
+    if (sortOrder !== undefined && Number.isFinite(Number(sortOrder))) updates.sortOrder = Number(sortOrder);
 
     const item = await MenuItem.findByIdAndUpdate(req.params.id, updates, { returnDocument: 'after' }).lean();
     if (!item) return res.status(404).json({ error: 'Menu item not found.' });
@@ -1517,10 +1570,18 @@ app.put('/api/admin/settings', requireAdmin, async (req, res) => {
     if (shopNameHi !== undefined) updates.shopNameHi = String(shopNameHi).trim();
     if (shopNameEn !== undefined) updates.shopNameEn = String(shopNameEn).trim();
     if (isOpen !== undefined) updates.isOpen = Boolean(isOpen);
-    if (deliveryCharge !== undefined) updates.deliveryCharge = Math.max(0, Number(deliveryCharge));
-    if (freeDeliveryAbove !== undefined) updates.freeDeliveryAbove = Math.max(0, Number(freeDeliveryAbove));
-    if (minOrderAmount !== undefined) updates.minOrderAmount = Math.max(0, Number(minOrderAmount));
-    if (deliveryRadiusKm !== undefined) updates.deliveryRadiusKm = Math.max(0.5, Number(deliveryRadiusKm));
+    if (deliveryCharge !== undefined && Number.isFinite(Number(deliveryCharge))) {
+      updates.deliveryCharge = Math.max(0, Number(deliveryCharge));
+    }
+    if (freeDeliveryAbove !== undefined && Number.isFinite(Number(freeDeliveryAbove))) {
+      updates.freeDeliveryAbove = Math.max(0, Number(freeDeliveryAbove));
+    }
+    if (minOrderAmount !== undefined && Number.isFinite(Number(minOrderAmount))) {
+      updates.minOrderAmount = Math.max(0, Number(minOrderAmount));
+    }
+    if (deliveryRadiusKm !== undefined && Number.isFinite(Number(deliveryRadiusKm))) {
+      updates.deliveryRadiusKm = Math.max(0.5, Number(deliveryRadiusKm));
+    }
     if (openHoursHi !== undefined) updates.openHoursHi = String(openHoursHi).trim();
     if (openHoursEn !== undefined) updates.openHoursEn = String(openHoursEn).trim();
     if (supportPhone !== undefined) updates.supportPhone = String(supportPhone).trim();
@@ -1575,6 +1636,9 @@ app.delete('/api/admin/blocked-numbers/:phone', requireAdmin, async (req, res) =
 });
 
 app.use((err, req, res, next) => {
+  if (err && err.type === 'entity.parse.failed') {
+    return res.status(400).json({ error: 'Invalid JSON request body.' });
+  }
   if (err && err.message && err.message.startsWith('CORS blocked')) {
     return res.status(403).json({ error: err.message });
   }
