@@ -209,7 +209,7 @@
         </div>
         <div id="menuScrollSentinel" class="py-2 flex flex-col items-center gap-2">
           <p id="menuScrollHintText" class="text-xs font-semibold text-slate-500"></p>
-          <button id="loadMoreMenuBtn" type="button" class="px-4 py-2 rounded-xl bg-white hover:bg-orange-50 border border-orange-200 text-orange-700 text-xs font-extrabold shadow-xs transition">
+          <button id="loadMoreMenuBtn" type="button" class="px-4 py-2 rounded-xl bg-white hover:bg-orange-50 border border-orange-200 text-orange-700 text-xs font-extrabold shadow-sm transition">
             <span id="loadMoreMenuBtnText">और आइटम देखें</span>
           </button>
         </div>
@@ -240,7 +240,7 @@
   <!-- ===================================================================== -->
   <!-- 4. CHECKOUT DRAWER / MODAL                                            -->
   <!-- ===================================================================== -->
-  <div id="checkoutModal" class="hidden fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center">
+  <div id="checkoutModal" class="hidden fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center">
     <div class="bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl max-h-[92vh] max-h-[92dvh] flex flex-col shadow-2xl animate-slide-up overflow-hidden">
       <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
         <h3 id="checkoutTitle" class="text-lg font-extrabold text-slate-900">आपका कार्ट और चेकआउट</h3>
@@ -305,7 +305,7 @@
           </div>
 
           <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 space-y-2">
-            <button id="shareGpsBtn" type="button" class="w-full py-2.5 px-3 rounded-xl bg-white hover:bg-emerald-50 border border-emerald-300 text-emerald-700 font-bold text-sm flex items-center justify-center gap-2 transition active:scale-98">
+            <button id="shareGpsBtn" type="button" class="w-full py-2.5 px-3 rounded-xl bg-white hover:bg-emerald-50 border border-emerald-300 text-emerald-700 font-bold text-sm flex items-center justify-center gap-2 transition active:scale-[0.98]">
               <span id="shareGpsBtnText">📍 लाइव GPS लोकेशन साझा करें</span>
             </button>
             <p id="gpsStatusText" class="text-[11px] text-slate-500 text-center">वैकल्पिक: डिलीवरी बॉय को आपका घर आसानी से मिलने के लिए</p>
@@ -335,7 +335,7 @@
   </div>
 
   <!-- 5. ORDER SUCCESS MODAL -->
-  <div id="orderSuccessModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+  <div id="orderSuccessModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
       <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mx-auto">✅</div>
       <h3 id="successTitle" class="text-xl font-extrabold text-slate-900">ऑर्डर कन्फर्म हो गया!</h3>
@@ -352,7 +352,7 @@
   </div>
 
   <!-- 5B. PRODUCT DETAIL MODAL (Full Description, Photo, Stock & Cart) -->
-  <div id="productDetailModal" class="hidden fixed inset-0 z-40 bg-slate-900/65 backdrop-blur-xs flex items-end sm:items-center justify-center">
+  <div id="productDetailModal" class="hidden fixed inset-0 z-40 bg-slate-900/65 backdrop-blur-sm flex items-end sm:items-center justify-center">
     <div class="bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl max-h-[92vh] max-h-[92dvh] flex flex-col shadow-2xl animate-slide-up overflow-hidden">
       <div class="relative bg-orange-50 shrink-0">
         <img id="pdImage" src="" alt="" class="w-full h-56 sm:h-64 object-cover" />
@@ -402,7 +402,7 @@
   </div>
 
   <!-- 6. SECRET ADMIN PASSWORD LOGIN MODAL -->
-  <div id="adminLoginModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+  <div id="adminLoginModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
       <div class="flex items-center justify-between">
         <h3 id="adminLoginTitle" class="text-lg font-extrabold text-slate-900">🔐 एडमिन लॉगिन</h3>
@@ -521,6 +521,7 @@
                 <option value="Fast Food">Fast Food</option>
                 <option value="Chinese">Chinese</option>
                 <option value="Meals">Meals</option>
+                <option value="Combos">Combo Packs</option>
                 <option value="Beverages">Beverages</option>
               </select>
             </div>
@@ -561,7 +562,7 @@
       <section id="adminTabAnalytics" class="hidden space-y-4">
         <div id="analyticsContainer" class="space-y-4"></div>
 
-        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
           <div class="flex items-center justify-between flex-wrap gap-2">
             <h3 id="expenseSectionTitle" class="font-extrabold text-slate-900 text-base">💸 दैनिक दुकान ख़र्च (Daily Expenses)</h3>
             <button id="exportExpensesCsvBtn" type="button" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold">📥 <span id="exportExpCsvText">ख़र्च CSV</span></button>
@@ -587,7 +588,7 @@
 
       <!-- TAB 4: RIDERS & COD CASH RECONCILIATION -->
       <section id="adminTabRiders" class="hidden space-y-4">
-        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
           <h3 id="riderFormTitle" class="font-extrabold text-slate-900 text-base">🛵 डिलीवरी बॉय / राइडर जोड़ें</h3>
           <form id="adminRiderForm" class="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
             <input id="riderName" type="text" required placeholder="राइडर का नाम (जैसे: राजू)" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" />
@@ -612,7 +613,7 @@
 
       <!-- TAB 6: COUPONS & PROMO OFFERS -->
       <section id="adminTabCoupons" class="hidden space-y-4">
-        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
           <h3 id="couponFormTitle" class="font-extrabold text-slate-900 text-base">🎟️ नया कूपन कोड बनाएं</h3>
           <form id="adminCouponForm" class="grid grid-cols-1 sm:grid-cols-5 gap-2.5">
             <input id="couponCode" type="text" required maxlength="20" placeholder="Code (जैसे FIRST20)" class="rounded-xl border border-slate-300 px-3 py-2 text-sm uppercase font-bold" />
@@ -755,7 +756,7 @@
   <!-- ===================================================================== -->
   <!-- 8. ADMIN MANUAL PHONE ORDER MODAL                                     -->
   <!-- ===================================================================== -->
-  <div id="manualOrderModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3">
+  <div id="manualOrderModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3">
     <div class="bg-white rounded-3xl max-w-md w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
       <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
         <h3 id="manualOrderTitle" class="font-extrabold text-slate-900 text-base">📞 नया फ़ोन / वॉक-इन ऑर्डर</h3>
@@ -789,7 +790,7 @@
   <!-- ===================================================================== -->
   <!-- 9. PRINTABLE BILL / KOT RECEIPT MODAL                                 -->
   <!-- ===================================================================== -->
-  <div id="receiptModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+  <div id="receiptModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl">
       <div id="receiptPrintArea" class="p-5 font-mono text-xs text-slate-900 space-y-2"></div>
       <div class="p-3 bg-slate-50 border-t border-slate-200 flex gap-2">
@@ -858,7 +859,8 @@
         catFastFood: "फास्ट फूड",
         catChinese: "चाइनीज़",
         catMeals: "भोजन",
-        catBeverages: "पेय",
+        catCombos: "कॉम्बो पैक",
+        catBeverages: "पेय / कोल्ड ड्रिंक",
         outOfStock: "स्टॉक ख़त्म",
         onlyLeft: (n) => `🔥 केवल ${n} बचे!`,
         inStockQty: (n) => `📦 स्टॉक: ${n} बचे`,
@@ -1090,7 +1092,8 @@
         catFastFood: "Fast Food",
         catChinese: "Chinese",
         catMeals: "Meals",
-        catBeverages: "Beverages",
+        catCombos: "Combo Packs",
+        catBeverages: "Cold Drinks & Beverages",
         outOfStock: "Out of Stock",
         onlyLeft: (n) => `🔥 Only ${n} left!`,
         inStockQty: (n) => `📦 ${n} in stock`,
@@ -1827,6 +1830,7 @@
         "Fast Food": t("catFastFood"),
         Chinese: t("catChinese"),
         Meals: t("catMeals"),
+        Combos: t("catCombos"),
         Beverages: t("catBeverages"),
       };
       return map[cat] || cat;
@@ -2101,7 +2105,7 @@
           }
 
           return `<div data-open-item="${item._id}" role="button" tabindex="0"
-            class="bg-white rounded-2xl p-3 border border-orange-100/80 hover:border-orange-300 shadow-xs flex gap-3 items-stretch cursor-pointer transition ${
+            class="bg-white rounded-2xl p-3 border border-orange-100/80 hover:border-orange-300 shadow-sm flex gap-3 items-stretch cursor-pointer transition ${
             !item.inStock ? "opacity-65" : ""
           }">
             <div class="w-24 h-24 rounded-xl overflow-hidden bg-orange-50 shrink-0 relative">
@@ -2507,6 +2511,7 @@
         document.getElementById("successTotalVal").textContent = `₹${res.order.totalAmount} (COD)`;
         document.getElementById("orderSuccessModal").classList.remove("hidden");
         renderAll();
+        loadStoreData();
       } catch (err) {
         clearTimeout(coldTimer);
         coldHint.classList.add("hidden");
@@ -2792,7 +2797,7 @@
               )
               .join("");
 
-          return `<div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
+          return `<div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
             <div class="flex items-start justify-between gap-2 flex-wrap">
               <div>
                 <div class="flex items-center gap-2 flex-wrap">
@@ -3150,7 +3155,7 @@
             item.stockCount !== null && item.stockCount !== undefined
               ? `<span class="px-2 py-0.5 rounded bg-blue-50 text-blue-800 font-bold">${escapeHtml(t("stockLeftBadge", item.stockCount))}</span>`
               : "";
-          return `<div class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-xs flex gap-3 items-start">
+          return `<div class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-sm flex gap-3 items-start">
             <img src="${escapeHtml(safeImageUrl(item.imageUrl))}" onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'"
               class="w-16 h-16 rounded-xl object-cover bg-orange-50 shrink-0" />
             <div class="flex-1 min-w-0 space-y-1.5">
@@ -3280,7 +3285,7 @@
 
     // --- ADMIN TAB 3: PROFIT, CASH vs UPI & DAILY EXPENSES ---
     function renderAnalyticsBlock(title, stats) {
-      return `<div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
+      return `<div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
         <div class="flex items-center justify-between flex-wrap gap-1">
           <h3 class="font-extrabold text-slate-900 text-base">${escapeHtml(title)}</h3>
           <span class="text-xs font-bold text-slate-500">${escapeHtml(t("deliveredOrdersSub"))}: ${stats.deliveredCount}</span>
@@ -3346,11 +3351,11 @@
         (a.month ? renderAnalyticsBlock(t("monthTitle"), a.month) : "") +
         renderAnalyticsBlock(t("allTimeTitle"), a.total) +
         `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-2.5">
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-2.5">
             <h4 class="font-extrabold text-slate-900 text-sm">${escapeHtml(t("topItemsTitle"))}</h4>
             <div class="space-y-1.5">${topHtml}</div>
           </div>
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-2.5">
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-2.5">
             <h4 class="font-extrabold text-slate-900 text-sm">${escapeHtml(t("orderSummaryCounts"))}</h4>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">${countsHtml}</div>
           </div>
@@ -3417,7 +3422,7 @@
       }
       list.innerHTML = state.adminRiders
         .map(
-          (r) => `<div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-2.5">
+          (r) => `<div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-2.5">
             <div class="flex items-start justify-between gap-2">
               <div>
                 <div class="font-extrabold text-slate-900 text-sm">🛵 ${escapeHtml(r.name)} <span class="text-xs font-semibold text-slate-400">(${escapeHtml(r.vehicleNote || "Bike")})</span></div>
@@ -3501,7 +3506,7 @@
       }
       list.innerHTML = filtered
         .map(
-          (c) => `<div class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-xs space-y-2">
+          (c) => `<div class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-sm space-y-2">
             <div class="flex items-start justify-between gap-2">
               <div>
                 <div class="font-extrabold text-slate-900 text-sm">👤 ${escapeHtml(c.customerName)}</div>
@@ -3538,7 +3543,7 @@
               : c.discountType === "PERCENT"
               ? `${c.discountValue}% OFF`
               : `₹${c.discountValue} OFF`;
-          return `<div class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-xs flex items-center justify-between gap-2">
+          return `<div class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-sm flex items-center justify-between gap-2">
             <div>
               <div class="flex items-center gap-2">
                 <span class="font-extrabold text-orange-600 text-sm">${escapeHtml(c.code)}</span>
@@ -3861,5 +3866,5 @@
     renderAll();
     loadStoreData();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5dff51e5d9091e6',t:'MTc5NTI2Njg2Ng=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5dff51e5d9091e6',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5e5ffc869ca5994',t:'MTc5NTMzMDIxOA=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5e5ffc869ca5994',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
