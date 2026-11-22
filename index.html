@@ -355,8 +355,10 @@
   <div id="productDetailModal" class="hidden fixed inset-0 z-40 bg-slate-900/65 backdrop-blur-sm flex items-end sm:items-center justify-center">
     <div class="bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl max-h-[92vh] max-h-[92dvh] flex flex-col shadow-2xl animate-slide-up overflow-hidden">
       <div class="relative bg-orange-50 shrink-0">
-        <img id="pdImage" src="" alt="" class="w-full h-56 sm:h-64 object-cover" />
-        <button id="closeProductDetailBtn" type="button" aria-label="Close" class="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/95 hover:bg-white text-slate-800 font-extrabold shadow-md flex items-center justify-center">✕</button>
+        <div id="pdMediaWrap" class="w-full h-56 sm:h-64 overflow-hidden bg-orange-50">
+          <img id="pdImage" src="" alt="" class="w-full h-full object-cover" />
+        </div>
+        <button id="closeProductDetailBtn" type="button" aria-label="Close" class="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/95 hover:bg-white text-slate-800 font-extrabold shadow-md flex items-center justify-center">✕</button>
         <div class="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap">
           <span id="pdPopularBadge" class="hidden bg-amber-400 text-slate-900 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full shadow"></span>
           <span id="pdCategoryBadge" class="bg-slate-900/80 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full backdrop-blur"></span>
@@ -531,7 +533,7 @@
             </div>
             <div class="sm:col-span-2">
               <label id="lblItemImage" class="block text-xs font-bold text-slate-700 mb-1">Image URL</label>
-              <input id="itemImageUrl" type="url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="https://..." />
+              <input id="itemImageUrl" type="text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="https://... (कॉम्बो के लिए: URL1 + URL2)" />
             </div>
             <div class="sm:col-span-2 flex flex-wrap items-center justify-between gap-3 pt-1">
               <div class="flex flex-wrap items-center gap-4">
@@ -1367,10 +1369,51 @@
     }
 
     function safeImageUrl(url) {
-      if (typeof url === "string" && /^https?:\/\//i.test(url.trim())) {
-        return url.trim();
+      if (typeof url === "string") {
+        const clean = url.trim();
+        if (/^https?:\/\//i.test(clean) || /^(\.?\/)?images\/[a-zA-Z0-9._\-\/]+$/i.test(clean)) {
+          return clean;
+        }
       }
       return FALLBACK_FOOD_IMG;
+    }
+
+    function parseImageUrls(rawUrl) {
+      if (typeof rawUrl !== "string" || !rawUrl.trim()) return [FALLBACK_FOOD_IMG];
+      const parts = rawUrl
+        .split(/\s+\+\s+|\s*\|\s*|,(?=\s*https?:\/\/)|\s+(?=https?:\/\/)/i)
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((s) => safeImageUrl(s))
+        .filter((s, idx, arr) => s && (s !== FALLBACK_FOOD_IMG || arr.length === 1));
+      return parts.length ? parts.slice(0, 4) : [FALLBACK_FOOD_IMG];
+    }
+
+    function renderItemMediaHtml(rawUrl, altText, opts = {}) {
+      const urls = parseImageUrls(rawUrl);
+      const lazyAttr = opts.lazy ? ' loading="lazy"' : "";
+      const imgIdAttr = opts.singleId ? ` id="${escapeHtml(opts.singleId)}"` : "";
+      const safeAlt = escapeHtml(altText || "GaonRasoi");
+      if (urls.length === 1) {
+        return `<img${imgIdAttr} src="${escapeHtml(urls[0])}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover" />`;
+      }
+      if (urls.length === 2) {
+        return `<div class="w-full h-full grid grid-cols-2 gap-[2px] bg-white relative">
+          <img src="${escapeHtml(urls[0])}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover" />
+          <img src="${escapeHtml(urls[1])}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover" />
+          ${opts.hidePlus ? "" : '<span class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white/95 text-orange-600 font-black text-xs shadow flex items-center justify-center pointer-events-none">+</span>'}
+        </div>`;
+      }
+      if (urls.length === 3) {
+        return `<div class="w-full h-full grid grid-cols-2 grid-rows-2 gap-[2px] bg-white relative">
+          <img src="${escapeHtml(urls[0])}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover row-span-2" />
+          <img src="${escapeHtml(urls[1])}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover" />
+          <img src="${escapeHtml(urls[2])}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover" />
+        </div>`;
+      }
+      return `<div class="w-full h-full grid grid-cols-2 grid-rows-2 gap-[2px] bg-white relative">
+        ${urls.map((u) => `<img src="${escapeHtml(u)}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover" />`).join("")}
+      </div>`;
     }
 
     function normalizeIndianPhone(raw) {
@@ -1948,13 +1991,10 @@
       const primaryDesc = (state.lang === "hi" ? item.descHi : item.descEn) || (state.lang === "hi" ? item.descEn : item.descHi) || t("pdNoDesc");
       const secondaryDesc = state.lang === "hi" ? item.descEn : item.descHi;
 
-      const imgEl = document.getElementById("pdImage");
-      imgEl.src = safeImageUrl(item.imageUrl);
-      imgEl.alt = primaryName;
-      imgEl.onerror = () => {
-        imgEl.onerror = null;
-        imgEl.src = FALLBACK_FOOD_IMG;
-      };
+      const pdMediaWrap = document.getElementById("pdMediaWrap");
+      if (pdMediaWrap) {
+        pdMediaWrap.innerHTML = renderItemMediaHtml(item.imageUrl, primaryName, { singleId: "pdImage" });
+      }
 
       const popEl = document.getElementById("pdPopularBadge");
       if (item.isPopular) {
@@ -2070,7 +2110,7 @@
           const primaryName = state.lang === "hi" ? item.nameHi : item.nameEn;
           const secondaryName = state.lang === "hi" ? item.nameEn : item.nameHi;
           const desc = state.lang === "hi" ? item.descHi : item.descEn;
-          const imgSrc = safeImageUrl(item.imageUrl);
+          const mediaHtml = renderItemMediaHtml(item.imageUrl, primaryName, { lazy: true });
           const vegDot = item.isVeg !== false
             ? `<span class="inline-flex items-center justify-center w-3.5 h-3.5 border border-emerald-600 rounded-[3px] shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span></span>`
             : `<span class="inline-flex items-center justify-center w-3.5 h-3.5 border border-red-600 rounded-[3px] shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-red-600"></span></span>`;
@@ -2109,10 +2149,8 @@
             !item.inStock ? "opacity-65" : ""
           }">
             <div class="w-24 h-24 rounded-xl overflow-hidden bg-orange-50 shrink-0 relative">
-              <img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(primaryName)}" loading="lazy"
-                onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'"
-                class="w-full h-full object-cover" />
-              ${item.isPopular ? `<span class="absolute top-1 left-1 bg-amber-400 text-slate-900 text-[9px] font-extrabold px-1.5 py-0.5 rounded-md shadow">${escapeHtml(t("popularBadge"))}</span>` : ""}
+              ${mediaHtml}
+              ${item.isPopular ? `<span class="absolute top-1 left-1 z-10 bg-amber-400 text-slate-900 text-[9px] font-extrabold px-1.5 py-0.5 rounded-md shadow">${escapeHtml(t("popularBadge"))}</span>` : ""}
             </div>
             <div class="flex-1 min-w-0 flex flex-col justify-between">
               <div>
@@ -3156,8 +3194,9 @@
               ? `<span class="px-2 py-0.5 rounded bg-blue-50 text-blue-800 font-bold">${escapeHtml(t("stockLeftBadge", item.stockCount))}</span>`
               : "";
           return `<div class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-sm flex gap-3 items-start">
-            <img src="${escapeHtml(safeImageUrl(item.imageUrl))}" onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'"
-              class="w-16 h-16 rounded-xl object-cover bg-orange-50 shrink-0" />
+            <div class="w-16 h-16 rounded-xl overflow-hidden bg-orange-50 shrink-0">
+              ${renderItemMediaHtml(item.imageUrl, item.nameHi, { hidePlus: true })}
+            </div>
             <div class="flex-1 min-w-0 space-y-1.5">
               <div class="flex items-start justify-between gap-2">
                 <div class="min-w-0">
@@ -3866,5 +3905,5 @@
     renderAll();
     loadStoreData();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5e5ffc869ca5994',t:'MTc5NTMzMDIxOA=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5e5ffc869ca5994',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5e62598cfc66068',t:'MTc5NTMzMTc2Nw=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5e62598cfc66068',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
