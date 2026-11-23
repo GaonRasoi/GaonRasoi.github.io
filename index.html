@@ -21,9 +21,63 @@
     }
     .animate-slide-up { animation: slideUp 0.22s ease-out forwards; }
     @media print {
-      body * { visibility: hidden !important; }
-      #receiptPrintArea, #receiptPrintArea * { visibility: visible !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-      #receiptPrintArea { position: fixed; left: 0; top: 0; width: 100%; background: #ffffff !important; color: #0f172a !important; padding: 16px; overflow: visible !important; max-height: none !important; }
+      @page {
+        size: auto;
+        margin: 6mm;
+      }
+      html, body {
+        background: #ffffff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+      }
+      body > *:not(#receiptModal) {
+        display: none !important;
+      }
+      #receiptModal {
+        position: static !important;
+        inset: auto !important;
+        display: block !important;
+        background: transparent !important;
+        backdrop-filter: none !important;
+        padding: 0 !important;
+        margin: 0 auto !important;
+        width: 100% !important;
+        max-width: 340px !important;
+      }
+      #receiptModalCard {
+        box-shadow: none !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        display: block !important;
+        width: 100% !important;
+        background: #ffffff !important;
+      }
+      #receiptModalFooter {
+        display: none !important;
+      }
+      #receiptPrintArea, #receiptPrintArea * {
+        visibility: visible !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      #receiptPrintArea {
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+        width: 100% !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+        padding: 12px !important;
+        overflow: visible !important;
+        max-height: none !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
     }
     html[data-theme="dark"] #receiptPrintArea,
     html[data-theme="warm"] #receiptPrintArea {
@@ -1120,9 +1174,9 @@
   <!-- 9. PRINTABLE BILL / KOT RECEIPT MODAL                                 -->
   <!-- ===================================================================== -->
   <div id="receiptModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
-    <div class="bg-white rounded-2xl max-w-sm w-full max-h-[92vh] max-h-[92dvh] flex flex-col overflow-hidden shadow-2xl">
-      <div id="receiptPrintArea" class="relative overflow-y-auto flex-1 min-h-0 bg-white p-5 font-mono text-xs text-slate-900"></div>
-      <div class="p-3 bg-slate-50 border-t border-slate-200 flex gap-2 shrink-0">
+    <div id="receiptModalCard" class="bg-white rounded-2xl max-w-sm w-full max-h-[92vh] max-h-[92dvh] flex flex-col overflow-hidden shadow-2xl">
+      <div id="receiptPrintArea" class="relative overflow-y-auto flex-1 min-h-0 bg-white p-4 sm:p-5 font-mono text-xs text-slate-900"></div>
+      <div id="receiptModalFooter" class="p-3 bg-slate-50 border-t border-slate-200 flex gap-2 shrink-0">
         <button id="printReceiptBtn" type="button" class="flex-1 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs">🖨️ Print</button>
         <button id="copyReceiptBtn" type="button" class="flex-1 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs">📋 Copy</button>
         <button id="closeReceiptBtn" type="button" class="px-3 py-2 rounded-xl bg-slate-200 text-slate-800 font-bold text-xs">✕</button>
@@ -2638,6 +2692,7 @@
         .replace(/\u0911/g, "\u0913") // ऑ -> ओ
         .replace(/\u0949/g, "\u094b") // ॉ -> ो
         .replace(/\u0901/g, "\u0902") // ँ -> ं
+        .replace(/[\u0966-\u096f]/g, (ch) => String(ch.charCodeAt(0) - 0x0966)) // ०-९ -> 0-9
         .replace(/(\d)\.(\d)/g, "$1__DOT__$2")
         .replace(/[₹()\[\]+\-_/.,!?;:'"`|]+/g, " ")
         .replace(/__DOT__/g, ".")
@@ -2680,6 +2735,7 @@
         .replace(/\b1\.25\s*(ltr|litre|liter|l)\b/g, "1.25l")
         .replace(/\b1\s*(ltr|litre|liter|l)\b/g, "1l")
         .replace(/\b(\d+)\s*ml\b/g, "$1ml")
+        .replace(/\b(\d+)\s*x\b/g, "$1")
         .replace(/\bbina\s+delivery(\s+charge)?\b/g, "free delivery")
         .replace(/\s+/g, " ")
         .trim();
@@ -2721,6 +2777,13 @@
       if (tok === targetWord) return true;
       if (/^\d/.test(tok) || /^\d/.test(targetWord)) return false;
       if (tok.length >= 3 && targetWord.startsWith(tok)) return true;
+      if (
+        Math.min(tok.length, targetWord.length) >= 3 &&
+        Math.max(tok.length, targetWord.length) >= 4 &&
+        Math.abs(tok.length - targetWord.length) <= 1
+      ) {
+        if (damerauLevenshtein(tok, targetWord, 1) <= 1) return true;
+      }
       if (tok.length < 4 || targetWord.length < 4) return false;
       const maxDist = tok.length >= 7 && targetWord.length >= 7 ? 2 : 1;
       return damerauLevenshtein(tok, targetWord, maxDist) <= maxDist;
@@ -4964,6 +5027,8 @@
       );
 
       const q = state.adminOrderSearch.trim().toLowerCase();
+      const rawDigitsQ = q.replace(/\D/g, "");
+      const digitsQ = normalizeIndianPhone(q) || (rawDigitsQ.length === 12 && rawDigitsQ.startsWith("91") ? rawDigitsQ.slice(2) : rawDigitsQ.length === 11 && rawDigitsQ.startsWith("0") ? rawDigitsQ.slice(1) : rawDigitsQ);
       const filtered = state.adminOrders.filter((o) => {
         const stOk = state.adminOrderFilter === "All" || o.status === state.adminOrderFilter;
         if (!stOk) return false;
@@ -4972,7 +5037,9 @@
           (o.orderNumber || "").toLowerCase().includes(q) ||
           (o.customerName || "").toLowerCase().includes(q) ||
           (o.phone || "").includes(q) ||
-          (o.address || "").toLowerCase().includes(q)
+          (digitsQ.length >= 4 && (o.phone || "").includes(digitsQ)) ||
+          (o.address || "").toLowerCase().includes(q) ||
+          (o.items || []).some((it) => itemMatchesSearch(it, q))
         );
       });
 
@@ -7639,11 +7706,14 @@
     // --- ADMIN TAB 5: CUSTOMERS CRM ---
     function renderAdminCustomers() {
       const q = state.adminCustomerSearch.trim().toLowerCase();
+      const rawDigitsQ = q.replace(/\D/g, "");
+      const digitsQ = normalizeIndianPhone(q) || (rawDigitsQ.length === 12 && rawDigitsQ.startsWith("91") ? rawDigitsQ.slice(2) : rawDigitsQ.length === 11 && rawDigitsQ.startsWith("0") ? rawDigitsQ.slice(1) : rawDigitsQ);
       const filtered = state.adminCustomers.filter(
         (c) =>
           !q ||
           (c.customerName || "").toLowerCase().includes(q) ||
           (c.phone || "").includes(q) ||
+          (digitsQ.length >= 4 && (c.phone || "").includes(digitsQ)) ||
           (c.lastAddress || "").toLowerCase().includes(q)
       );
       const list = document.getElementById("adminCustomersList");
@@ -8316,5 +8386,5 @@
     renderAll();
     loadStoreData();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5efdb1bacba598a',t:'MTc5NTQzMzU3Mw=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5efdb1bacba598a',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5efee8b6a31d90e',t:'MTc5NTQzNDM2OQ=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5efee8b6a31d90e',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

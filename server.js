@@ -1398,6 +1398,7 @@ app.get('/api/admin/orders', requireAdmin, async (req, res) => {
 });
 
 app.post('/api/admin/orders', requireAdmin, async (req, res) => {
+  let committedStockDecrements = [];
   try {
     const { customerName, phone, address, customerNote, items, deliveryChargeOverride, status, adminNote } =
       req.body || {};
@@ -1425,7 +1426,8 @@ app.post('/api/admin/orders', requireAdmin, async (req, res) => {
     const allowedStatuses = ['Pending', 'Cooking', 'Out for Delivery', 'Delivered'];
     const initialStatus = allowedStatuses.includes(status) ? status : 'Cooking';
     await commitStockDecrements(stockDecrements, false);
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    committedStockDecrements = stockDecrements;
+    const randomSuffix = crypto.randomInt(100000, 999999);
 
     const newOrder = await Order.create({
       orderNumber: `PH-${Date.now().toString().slice(-4)}${randomSuffix}`,
@@ -1445,9 +1447,16 @@ app.post('/api/admin/orders', requireAdmin, async (req, res) => {
       adminNote: adminNote ? String(adminNote).trim() : '',
       status: initialStatus,
     });
+    committedStockDecrements = [];
 
     res.status(201).json({ order: newOrder });
   } catch (err) {
+    for (const dec of committedStockDecrements) {
+      await MenuItem.updateOne(
+        { _id: dec.id, stockCount: { $ne: null } },
+        { $inc: { stockCount: dec.qty }, $set: { inStock: true } }
+      ).catch(() => {});
+    }
     console.error('POST /api/admin/orders error:', err);
     res.status(500).json({ error: 'Failed to create manual phone order.' });
   }
@@ -1475,6 +1484,9 @@ app.patch('/api/admin/orders/:id/status', requireAdmin, validateObjectId, async 
         updateDoc.paymentCollectedMode = 'Pending';
         updateDoc.cancelledBy = 'Admin';
         updateDoc.cancelledAt = new Date();
+      } else if (existingOrder.status === 'Cancelled' && status !== 'Cancelled') {
+        updateDoc.cancelledBy = '';
+        updateDoc.cancelledAt = null;
       }
       if (status === 'Delivered' || status === 'Cancelled') {
         updateDoc.statusSchedule = {
