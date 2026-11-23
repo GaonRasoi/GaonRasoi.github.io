@@ -155,6 +155,10 @@
       border-color: #ea580c !important;
       color: #ffffff !important;
     }
+    html[data-theme="dark"] #menuGrid img.object-contain,
+    html[data-theme="dark"] #pdMediaWrap img.object-contain {
+      background-color: #ffffff !important;
+    }
     html[data-theme="dark"] #floatingCartBar > button {
       background-color: #1e293b !important;
       border: 1px solid #334155 !important;
@@ -198,13 +202,13 @@
         </button>
         <div class="min-w-0">
           <div class="flex items-center gap-1.5 flex-wrap">
-            <h1 id="headerShopName" class="text-sm sm:text-lg font-extrabold text-slate-900 truncate">गाँव रसोई</h1>
-            <span id="headerStatusBadge" class="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-emerald-100 text-emerald-800">
+            <h1 id="headerShopName" class="text-[13px] sm:text-lg font-extrabold text-slate-900 leading-tight">गाँव रसोई</h1>
+            <span id="headerStatusBadge" class="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-emerald-100 text-emerald-800 shrink-0">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
               <span id="headerStatusText">खुला है</span>
             </span>
           </div>
-          <p id="headerTagline" class="text-[10px] sm:text-xs text-slate-500 truncate">ताज़ा खाना • ₹199+ पर फ़्री डिलीवरी • न्यूनतम ₹60</p>
+          <p id="headerTagline" class="text-[10px] sm:text-xs text-slate-500 leading-snug line-clamp-2 sm:line-clamp-1">ताज़ा खाना • ₹199+ पर फ़्री डिलीवरी • न्यूनतम ₹60</p>
         </div>
       </div>
 
@@ -634,7 +638,7 @@
   <div id="productDetailModal" class="hidden fixed inset-0 z-40 bg-slate-900/65 backdrop-blur-sm flex items-end sm:items-center justify-center">
     <div class="bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl max-h-[92vh] max-h-[92dvh] flex flex-col shadow-2xl animate-slide-up overflow-hidden">
       <div class="relative bg-orange-50 shrink-0">
-        <div id="pdMediaWrap" class="w-full h-56 sm:h-64 overflow-hidden bg-orange-50">
+        <div id="pdMediaWrap" class="w-full h-56 sm:h-64 overflow-hidden bg-white border-b border-orange-100">
           <img id="pdImage" src="" alt="" class="w-full h-full object-cover" />
         </div>
         <button id="closeProductDetailBtn" type="button" aria-label="Close" class="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/95 hover:bg-white text-slate-800 font-extrabold shadow-md flex items-center justify-center">✕</button>
@@ -1952,8 +1956,9 @@
     }
 
     function parseImageUrls(rawUrl) {
-      if (typeof rawUrl !== "string" || !rawUrl.trim()) return [FALLBACK_FOOD_IMG];
-      const parts = rawUrl
+      const upgraded = upgradeLegacyMenuImageUrl(rawUrl);
+      if (typeof upgraded !== "string" || !upgraded.trim()) return [FALLBACK_FOOD_IMG];
+      const parts = upgraded
         .split(/\s+\+\s+|\s*\|\s*|,(?=\s*https?:\/\/)|\s+(?=https?:\/\/)/i)
         .map((s) => s.trim())
         .filter(Boolean)
@@ -1962,35 +1967,83 @@
       return parts.length ? parts.slice(0, 4) : [FALLBACK_FOOD_IMG];
     }
 
+    function isPackagedProductImg(url) {
+      return /(?:zeptonow\.com|fetchnbuy\.in|m\.media-amazon\.com|5\.imimg\.com|pexels-photo-2983103|pexels-photo-17220088)/i.test(String(url || ""));
+    }
+
+    const LEGACY_PRODUCT_IMAGE_FIXES = {
+      "https://5.imimg.com/data5/SELLER/Default/2022/7/JB/XD/HL/56167907/mountain-dew-soft-drink-bottle.jpeg":
+        "https://fetchnbuy.in/cdn/shop/products/61b6jrE4fAL._SL1500_ce2895fc-6734-4ea9-a065-e5a70b6fc7fc_grande.jpg?v=1662545035",
+      "https://images.pexels.com/photos/17220088/pexels-photo-17220088.jpeg?auto=compress&cs=tinysrgb&w=600":
+        "https://m.media-amazon.com/images/I/41B81mP+y9L.jpg",
+      "https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80":
+        "https://www.easycookingwithmolly.com/wp-content/uploads/2023/04/indian-style-egg-chow-mein-recipe.jpg",
+      "https://images.pexels.com/photos/2983103/pexels-photo-2983103.jpeg?auto=compress&cs=tinysrgb&w=600":
+        "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1000-1000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/fefaf768-d602-49ef-aa9d-28ea8e917336/Mountain-Dew-Soft-Drink-PET-Carbonated-Beverage.jpeg",
+    };
+
+    function upgradeLegacyMenuImageUrl(rawUrl) {
+      if (typeof rawUrl !== "string" || !rawUrl.trim()) return rawUrl;
+      let out = rawUrl;
+      for (const [oldUrl, newUrl] of Object.entries(LEGACY_PRODUCT_IMAGE_FIXES)) {
+        if (out.includes(oldUrl)) out = out.split(oldUrl).join(newUrl);
+      }
+      return out;
+    }
+
+    function fitProductMediaImg(img) {
+      try {
+        if (!img || !img.naturalWidth || !img.naturalHeight) return;
+        const cw = img.clientWidth || 0;
+        const ch = img.clientHeight || 0;
+        if (!cw || !ch) return;
+        const natRatio = img.naturalWidth / img.naturalHeight;
+        const boxRatio = cw / ch;
+        const distortion = Math.max(natRatio / boxRatio, boxRatio / natRatio);
+        if (distortion > 1.55) {
+          img.classList.remove("object-cover");
+          img.classList.add("object-contain", "p-0.5", "bg-white");
+        }
+      } catch {}
+    }
+    window.fitProductMediaImg = fitProductMediaImg;
+
     function renderItemMediaHtml(rawUrl, altText, opts = {}) {
       const urls = parseImageUrls(rawUrl);
       const lazyAttr = opts.lazy ? ' loading="lazy"' : "";
       const imgIdAttr = opts.singleId ? ` id="${escapeHtml(opts.singleId)}"` : "";
       const safeAlt = escapeHtml(altText || "GaonRasoi");
+      const isModal = Boolean(opts.isModal);
+      const imgCls = (u) => {
+        if (isPackagedProductImg(u)) {
+          return isModal ? "w-full h-full object-contain p-2 bg-white" : "w-full h-full object-contain p-1 bg-white";
+        }
+        return "w-full h-full object-cover";
+      };
       const plusBadge = opts.hidePlus
         ? ""
         : '<span data-combo-plus="1" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-orange-600 text-white border-2 border-white font-black text-xs sm:text-sm leading-none shadow-md flex items-center justify-center pointer-events-none">+</span>';
 
       if (urls.length === 1) {
-        return `<img${imgIdAttr} src="${escapeHtml(urls[0])}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover" />`;
+        return `<img${imgIdAttr} src="${escapeHtml(urls[0])}" alt="${safeAlt}"${lazyAttr} onload="fitProductMediaImg(this)" onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="${imgCls(urls[0])}" />`;
       }
       if (urls.length === 2) {
         return `<div class="w-full h-full grid grid-cols-2 gap-[2px] bg-white relative">
-          <img src="${escapeHtml(urls[0])}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover" />
-          <img src="${escapeHtml(urls[1])}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover" />
+          <img src="${escapeHtml(urls[0])}" alt="${safeAlt}"${lazyAttr} onload="fitProductMediaImg(this)" onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="${imgCls(urls[0])}" />
+          <img src="${escapeHtml(urls[1])}" alt="${safeAlt}"${lazyAttr} onload="fitProductMediaImg(this)" onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="${imgCls(urls[1])}" />
           ${plusBadge}
         </div>`;
       }
       if (urls.length === 3) {
         return `<div class="w-full h-full grid grid-cols-2 grid-rows-2 gap-[2px] bg-white relative">
-          <img src="${escapeHtml(urls[0])}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover row-span-2" />
-          <img src="${escapeHtml(urls[1])}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover" />
-          <img src="${escapeHtml(urls[2])}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover" />
+          <img src="${escapeHtml(urls[0])}" alt="${safeAlt}"${lazyAttr} onload="fitProductMediaImg(this)" onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="${imgCls(urls[0])} row-span-2" />
+          <img src="${escapeHtml(urls[1])}" alt="${safeAlt}"${lazyAttr} onload="fitProductMediaImg(this)" onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="${imgCls(urls[1])}" />
+          <img src="${escapeHtml(urls[2])}" alt="${safeAlt}"${lazyAttr} onload="fitProductMediaImg(this)" onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="${imgCls(urls[2])}" />
           ${plusBadge}
         </div>`;
       }
       return `<div class="w-full h-full grid grid-cols-2 grid-rows-2 gap-[2px] bg-white relative">
-        ${urls.map((u) => `<img src="${escapeHtml(u)}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover" />`).join("")}
+        ${urls.map((u) => `<img src="${escapeHtml(u)}" alt="${safeAlt}"${lazyAttr} onload="fitProductMediaImg(this)" onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="${imgCls(u)}" />`).join("")}
         ${plusBadge}
       </div>`;
     }
@@ -3266,6 +3319,9 @@
 
       const sortBucket = (arr) =>
         [...arr].sort((a, b) => {
+          const pa = a.isPopular ? 0 : 1;
+          const pb = b.isPopular ? 0 : 1;
+          if (pa !== pb) return pa - pb;
           const ka = getDiscoveryItemKey(a);
           const kb = getDiscoveryItemKey(b);
           const sa = lastSeen.has(ka) ? 1 : 0;
@@ -3285,22 +3341,37 @@
         buckets.get(cat).push(item);
       }
 
-      const catOrder = [...buckets.keys()].sort(
-        (ca, cb) => hashStrWithSeed(`cat:${ca}`, seed) - hashStrWithSeed(`cat:${cb}`, seed)
-      );
+      const CORE_FOOD_CATS = new Set(["Snacks", "Fast Food", "Chinese", "Meals"]);
+      const coreCats = [...buckets.keys()]
+        .filter((c) => CORE_FOOD_CATS.has(c))
+        .sort((ca, cb) => hashStrWithSeed(`cat:${ca}`, seed) - hashStrWithSeed(`cat:${cb}`, seed));
+      const secondaryCats = [...buckets.keys()]
+        .filter((c) => !CORE_FOOD_CATS.has(c))
+        .sort((ca, cb) => hashStrWithSeed(`cat:${ca}`, seed) - hashStrWithSeed(`cat:${cb}`, seed));
+      const catOrder = [...coreCats, ...secondaryCats];
       for (const cat of catOrder) {
         buckets.set(cat, sortBucket(buckets.get(cat)));
       }
 
+      // Lead with popular hot fresh food items first, then interleave remaining categories
       const interleaved = [];
+      const primaryFoodLimit = 2;
+      for (let round = 0; round < primaryFoodLimit; round++) {
+        for (const cat of coreCats) {
+          const arr = buckets.get(cat);
+          if (round < arr.length) interleaved.push(arr[round]);
+        }
+      }
       let round = 0;
       let added = true;
       while (added) {
         added = false;
         for (const cat of catOrder) {
+          const startOffset = CORE_FOOD_CATS.has(cat) ? primaryFoodLimit : 0;
           const arr = buckets.get(cat);
-          if (round < arr.length) {
-            interleaved.push(arr[round]);
+          const idx = startOffset + round;
+          if (idx < arr.length) {
+            interleaved.push(arr[idx]);
             added = true;
           }
         }
@@ -3420,7 +3491,7 @@
 
       const pdMediaWrap = document.getElementById("pdMediaWrap");
       if (pdMediaWrap) {
-        pdMediaWrap.innerHTML = renderItemMediaHtml(item.imageUrl, primaryName, { singleId: "pdImage" });
+        pdMediaWrap.innerHTML = renderItemMediaHtml(item.imageUrl, primaryName, { singleId: "pdImage", isModal: true });
       }
 
       const popEl = document.getElementById("pdPopularBadge");
@@ -3641,20 +3712,22 @@
           }
 
           return `<div data-open-item="${item._id}" role="button" tabindex="0"
-            class="bg-white rounded-2xl p-3 border border-orange-100/80 hover:border-orange-300 shadow-sm flex gap-3 items-stretch cursor-pointer transition ${
+            class="bg-white rounded-2xl p-3 border border-orange-100/80 hover:border-orange-300 shadow-sm flex gap-3 items-start cursor-pointer transition ${
             !item.inStock ? "opacity-65" : ""
           }">
-            <div class="w-24 h-24 rounded-xl overflow-hidden bg-orange-50 shrink-0 relative">
+            <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-white border border-orange-100/80 shrink-0 relative">
               ${mediaHtml}
-              ${item.isPopular ? `<span class="absolute top-1 left-1 z-10 bg-amber-400 text-slate-900 text-[9px] font-extrabold px-1.5 py-0.5 rounded-md shadow">${escapeHtml(t("popularBadge"))}</span>` : ""}
             </div>
-            <div class="flex-1 min-w-0 flex flex-col justify-between">
+            <div class="flex-1 min-w-0 flex flex-col justify-between self-stretch">
               <div>
-                <div class="flex items-center gap-1.5">
-                  ${vegDot}
-                  <h4 class="font-extrabold text-slate-900 text-sm sm:text-base leading-tight truncate">${escapeHtml(primaryName)}</h4>
+                <div class="flex items-start gap-1.5">
+                  <span class="mt-1 shrink-0">${vegDot}</span>
+                  <h4 class="font-extrabold text-slate-900 text-sm sm:text-base leading-snug break-words flex-1">${escapeHtml(primaryName)}</h4>
                 </div>
-                <p class="text-[11px] font-semibold text-slate-400 truncate mt-0.5">${escapeHtml(secondaryName)}</p>
+                <div class="flex items-center gap-1.5 flex-wrap mt-0.5">
+                  <p class="text-[11px] font-semibold text-slate-400 leading-snug break-words">${escapeHtml(secondaryName)}</p>
+                  ${item.isPopular ? `<span class="inline-flex items-center bg-amber-100 text-amber-900 border border-amber-300 text-[9px] font-extrabold px-1.5 py-0.5 rounded-md shrink-0">${escapeHtml(t("popularBadge"))}</span>` : ""}
+                </div>
                 ${desc ? `<p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-snug">${escapeHtml(desc)}</p>` : ""}
               </div>
               <div class="flex items-center justify-between gap-2 mt-2 pt-1">
@@ -4550,10 +4623,12 @@
           const badge = formatCouponBadgeText(c);
           const customTitle = (state.lang === "hi" ? c.titleHi : c.titleEn) || c.titleHi || c.titleEn || "";
           const minPart = c.minOrderAmount > 0 ? `Min ₹${c.minOrderAmount}` : "All Orders";
-          const catTag =
-            Array.isArray(c.applicableCategories) && c.applicableCategories.length > 0
-              ? ` • ${c.applicableCategories.join("/")}`
-              : "";
+          const catArr = Array.isArray(c.applicableCategories) ? c.applicableCategories.filter(Boolean) : [];
+          const catLabel =
+            catArr.length >= 6
+              ? (state.lang === "hi" ? "सभी आइटम" : "All items")
+              : catArr.map((cat) => getCategoryLabel(cat)).join(" / ");
+          const catTag = catLabel ? ` • ${catLabel}` : "";
           const firstTag = c.firstOrderOnly ? ` • ${t("couponFirstOrderBadge")}` : "";
           return `<button type="button" data-sf-coupon="${escapeHtml(c.code)}"
             class="shrink-0 text-left rounded-2xl bg-gradient-to-r from-orange-50 to-amber-50 hover:from-orange-100 hover:to-amber-100 border border-orange-200 px-3 py-2 shadow-sm transition active:scale-95">
@@ -4561,7 +4636,7 @@
               <span class="px-1.5 py-0.5 rounded-md bg-orange-600 text-white text-[10px] font-black tracking-wide">${escapeHtml(c.code)}</span>
               <span class="text-xs font-extrabold text-orange-900">${escapeHtml(badge)}</span>
             </div>
-            <div class="text-[10px] font-semibold text-slate-600 mt-0.5 truncate max-w-[210px]">
+            <div class="text-[10px] font-semibold text-slate-600 mt-0.5 leading-snug">
               ${escapeHtml(customTitle || minPart)}${customTitle && c.minOrderAmount > 0 ? ` (${minPart})` : ""}${escapeHtml(catTag)}${escapeHtml(firstTag)}
             </div>
           </button>`;
@@ -4613,9 +4688,13 @@
           const ready = diff === 0 && hasMatchingCat;
           const badge = formatCouponBadgeText(c);
           const title = (state.lang === "hi" ? c.titleHi : c.titleEn) || c.titleHi || c.titleEn || "";
+          const catLabel =
+            cats.length >= 6
+              ? (state.lang === "hi" ? "सभी आइटम" : "All items")
+              : cats.map((cat) => getCategoryLabel(cat)).join(" / ");
           const tags = [
             minAmt > 0 ? `Min ₹${minAmt}` : "",
-            cats.length > 0 ? cats.join("/") : "",
+            catLabel,
             c.firstOrderOnly ? t("couponFirstOrderBadge") : "",
             c.perUserLimit > 0 ? t("couponPerUserBadge", c.perUserLimit) : "",
           ]
@@ -5904,7 +5983,7 @@
         category: "Chinese",
         sellingPrice: 60,
         makingCost: 50,
-        imageUrl: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80",
+        imageUrl: "https://www.easycookingwithmolly.com/wp-content/uploads/2023/04/indian-style-egg-chow-mein-recipe.jpg",
         inStock: true,
         isVeg: false,
         isPopular: false,
@@ -6026,7 +6105,7 @@
         category: "Combos",
         sellingPrice: 52,
         makingCost: 42,
-        imageUrl: "https://images.pexels.com/photos/2983103/pexels-photo-2983103.jpeg?auto=compress&cs=tinysrgb&w=600",
+        imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1000-1000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/fefaf768-d602-49ef-aa9d-28ea8e917336/Mountain-Dew-Soft-Drink-PET-Carbonated-Beverage.jpeg",
         inStock: true,
         isVeg: true,
         isPopular: true,
@@ -6071,7 +6150,7 @@
         category: "Combos",
         sellingPrice: 78,
         makingCost: 67,
-        imageUrl: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1321-1321,pr-true,f-auto,q-40,dpr-2/cms/product_variant/382266af-0452-48f6-bfb9-a1e03c6a053a/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg",
+        imageUrl: "https://www.easycookingwithmolly.com/wp-content/uploads/2023/04/indian-style-egg-chow-mein-recipe.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1321-1321,pr-true,f-auto,q-40,dpr-2/cms/product_variant/382266af-0452-48f6-bfb9-a1e03c6a053a/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg",
         inStock: true,
         isVeg: false,
         isPopular: false,
@@ -6131,7 +6210,7 @@
         category: "Combos",
         sellingPrice: 179,
         makingCost: 137,
-        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80 + https://media.istockphoto.com/id/2235590451/photo/traditional-indian-kachori-with-aloo-sabzi-and-chole.jpg?s=612x612&w=0&k=20&c=Yc4eJZiX_Ye7A35TzgDi8LgCerOT2kSSnkg2pS1CSJM= + https://5.imimg.com/data5/SELLER/Default/2022/7/JB/XD/HL/56167907/mountain-dew-soft-drink-bottle.jpeg",
+        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80 + https://media.istockphoto.com/id/2235590451/photo/traditional-indian-kachori-with-aloo-sabzi-and-chole.jpg?s=612x612&w=0&k=20&c=Yc4eJZiX_Ye7A35TzgDi8LgCerOT2kSSnkg2pS1CSJM= + https://fetchnbuy.in/cdn/shop/products/61b6jrE4fAL._SL1500_ce2895fc-6734-4ea9-a065-e5a70b6fc7fc_grande.jpg?v=1662545035",
         inStock: true,
         isVeg: true,
         isPopular: false,
@@ -6223,7 +6302,7 @@
         category: "Cold Drinks",
         sellingPrice: 55,
         makingCost: 47,
-        imageUrl: "https://5.imimg.com/data5/SELLER/Default/2022/7/JB/XD/HL/56167907/mountain-dew-soft-drink-bottle.jpeg",
+        imageUrl: "https://fetchnbuy.in/cdn/shop/products/61b6jrE4fAL._SL1500_ce2895fc-6734-4ea9-a065-e5a70b6fc7fc_grande.jpg?v=1662545035",
         inStock: true,
         isVeg: true,
         isPopular: false,
@@ -6270,7 +6349,7 @@
         category: "Beverages",
         sellingPrice: 125,
         makingCost: 108,
-        imageUrl: "https://images.pexels.com/photos/17220088/pexels-photo-17220088.jpeg?auto=compress&cs=tinysrgb&w=600",
+        imageUrl: "https://m.media-amazon.com/images/I/41B81mP+y9L.jpg",
         inStock: true,
         isVeg: true,
         isPopular: false,
@@ -6424,7 +6503,7 @@
         category: "Combos",
         sellingPrice: 82,
         makingCost: 70,
-        imageUrl: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80 + https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg",
+        imageUrl: "https://www.easycookingwithmolly.com/wp-content/uploads/2023/04/indian-style-egg-chow-mein-recipe.jpg + https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg",
         inStock: true,
         isVeg: false,
         isPopular: false,
@@ -6578,7 +6657,7 @@
         category: "Chinese",
         sellingPrice: 118,
         makingCost: 100,
-        imageUrl: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80",
+        imageUrl: "https://www.easycookingwithmolly.com/wp-content/uploads/2023/04/indian-style-egg-chow-mein-recipe.jpg",
         inStock: true,
         isVeg: false,
         isPopular: false,
@@ -6698,7 +6777,7 @@
         category: "Combos",
         sellingPrice: 169,
         makingCost: 137,
-        imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80 + https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg + https://5.imimg.com/data5/SELLER/Default/2022/7/JB/XD/HL/56167907/mountain-dew-soft-drink-bottle.jpeg",
+        imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80 + https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg + https://fetchnbuy.in/cdn/shop/products/61b6jrE4fAL._SL1500_ce2895fc-6734-4ea9-a065-e5a70b6fc7fc_grande.jpg?v=1662545035",
         inStock: true,
         isVeg: true,
         isPopular: true,
@@ -6745,7 +6824,7 @@
         category: "Chinese",
         sellingPrice: 40,
         makingCost: 30,
-        imageUrl: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80",
+        imageUrl: "https://www.easycookingwithmolly.com/wp-content/uploads/2023/04/indian-style-egg-chow-mein-recipe.jpg",
         inStock: true,
         isVeg: false,
         isPopular: false,
@@ -6820,7 +6899,7 @@
         category: "Combos",
         sellingPrice: 89,
         makingCost: 75,
-        imageUrl: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80 + https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80",
+        imageUrl: "https://www.easycookingwithmolly.com/wp-content/uploads/2023/04/indian-style-egg-chow-mein-recipe.jpg + https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80",
         inStock: true,
         isVeg: false,
         isPopular: false,
@@ -6865,7 +6944,7 @@
         category: "Combos",
         sellingPrice: 78,
         makingCost: 67,
-        imageUrl: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1000-1000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/fefaf768-d602-49ef-aa9d-28ea8e917336/Mountain-Dew-Soft-Drink-PET-Carbonated-Beverage.jpeg",
+        imageUrl: "https://www.easycookingwithmolly.com/wp-content/uploads/2023/04/indian-style-egg-chow-mein-recipe.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1000-1000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/fefaf768-d602-49ef-aa9d-28ea8e917336/Mountain-Dew-Soft-Drink-PET-Carbonated-Beverage.jpeg",
         inStock: true,
         isVeg: false,
         isPopular: false,
@@ -6895,7 +6974,7 @@
         category: "Cold Drinks",
         sellingPrice: 110,
         makingCost: 93,
-        imageUrl: "https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-1500-1500,pr-true,f-auto,q-40,dpr-2/cms/product_variant/a154ec68-0d3a-4f46-b845-8d5a3bea11e1/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg + https://5.imimg.com/data5/SELLER/Default/2022/7/JB/XD/HL/56167907/mountain-dew-soft-drink-bottle.jpeg",
+        imageUrl: "https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-1500-1500,pr-true,f-auto,q-40,dpr-2/cms/product_variant/a154ec68-0d3a-4f46-b845-8d5a3bea11e1/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg + https://fetchnbuy.in/cdn/shop/products/61b6jrE4fAL._SL1500_ce2895fc-6734-4ea9-a065-e5a70b6fc7fc_grande.jpg?v=1662545035",
         inStock: true,
         isVeg: true,
         isPopular: false,
@@ -7077,7 +7156,7 @@
         category: "Combos",
         sellingPrice: 102,
         makingCost: 87,
-        imageUrl: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80 + https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1000-1000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/fefaf768-d602-49ef-aa9d-28ea8e917336/Mountain-Dew-Soft-Drink-PET-Carbonated-Beverage.jpeg",
+        imageUrl: "https://www.easycookingwithmolly.com/wp-content/uploads/2023/04/indian-style-egg-chow-mein-recipe.jpg + https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1000-1000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/fefaf768-d602-49ef-aa9d-28ea8e917336/Mountain-Dew-Soft-Drink-PET-Carbonated-Beverage.jpeg",
         inStock: true,
         isVeg: false,
         isPopular: false,
@@ -7122,7 +7201,7 @@
         category: "Combos",
         sellingPrice: 239,
         makingCost: 187,
-        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80 + https://media.istockphoto.com/id/2235590451/photo/traditional-indian-kachori-with-aloo-sabzi-and-chole.jpg?s=612x612&w=0&k=20&c=Yc4eJZiX_Ye7A35TzgDi8LgCerOT2kSSnkg2pS1CSJM= + https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5tmlghErwH3kgJN2TChV6qrAt0ox0JnRpmfvO9lxPrfVl9KkSo1p14SM&s=10 + https://5.imimg.com/data5/SELLER/Default/2022/7/JB/XD/HL/56167907/mountain-dew-soft-drink-bottle.jpeg",
+        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80 + https://media.istockphoto.com/id/2235590451/photo/traditional-indian-kachori-with-aloo-sabzi-and-chole.jpg?s=612x612&w=0&k=20&c=Yc4eJZiX_Ye7A35TzgDi8LgCerOT2kSSnkg2pS1CSJM= + https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5tmlghErwH3kgJN2TChV6qrAt0ox0JnRpmfvO9lxPrfVl9KkSo1p14SM&s=10 + https://fetchnbuy.in/cdn/shop/products/61b6jrE4fAL._SL1500_ce2895fc-6734-4ea9-a065-e5a70b6fc7fc_grande.jpg?v=1662545035",
         inStock: true,
         isVeg: true,
         isPopular: true,
@@ -7244,7 +7323,7 @@
         category: "Combos",
         sellingPrice: 78,
         makingCost: 66,
-        imageUrl: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/9e8b1724-eaf8-4776-9101-e3921654d47e/Campa-Cola-Soft-Drink-Carbonated-Beverage.jpeg",
+        imageUrl: "https://www.easycookingwithmolly.com/wp-content/uploads/2023/04/indian-style-egg-chow-mein-recipe.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/9e8b1724-eaf8-4776-9101-e3921654d47e/Campa-Cola-Soft-Drink-Carbonated-Beverage.jpeg",
         inStock: true,
         isVeg: false,
         isPopular: false,
@@ -7304,7 +7383,7 @@
         category: "Combos",
         sellingPrice: 215,
         makingCost: 177,
-        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80 + https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80 + https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80 + https://5.imimg.com/data5/SELLER/Default/2022/7/JB/XD/HL/56167907/mountain-dew-soft-drink-bottle.jpeg",
+        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80 + https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80 + https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80 + https://fetchnbuy.in/cdn/shop/products/61b6jrE4fAL._SL1500_ce2895fc-6734-4ea9-a065-e5a70b6fc7fc_grande.jpg?v=1662545035",
         inStock: true,
         isVeg: true,
         isPopular: true,
@@ -8509,5 +8588,5 @@
     renderAll();
     loadStoreData();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5f060ab3f62387e',t:'MTc5NTQzOTA0NA=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5f060ab3f62387e',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5f07e7cecc8dce3',t:'MTc5NTQ0MDI2NQ=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5f07e7cecc8dce3',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

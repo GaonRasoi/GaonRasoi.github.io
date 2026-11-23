@@ -514,7 +514,7 @@ const DEFAULT_MENU_ITEMS = [
     category: 'Chinese',
     sellingPrice: 60,
     makingCost: 50,
-    imageUrl: 'https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80',
+    imageUrl: 'https://www.easycookingwithmolly.com/wp-content/uploads/2023/04/indian-style-egg-chow-mein-recipe.jpg',
     inStock: true,
     stockCount: null,
     isVeg: false,
