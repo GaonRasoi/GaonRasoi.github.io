@@ -250,6 +250,14 @@
       <div id="recentOrderStepper" class="grid grid-cols-4 gap-1 text-center text-[10px] font-bold pt-1"></div>
     </section>
 
+    <!-- Active Public Offers / Coupons Strip -->
+    <section id="storefrontCouponsBar" class="hidden space-y-1.5">
+      <div class="flex items-center justify-between gap-2">
+        <span id="storefrontCouponsHeading" class="text-xs font-extrabold text-orange-800">🎟️ आज के ऑफ़र और कूपन कोड (Tap करें)</span>
+      </div>
+      <div id="storefrontCouponsList" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+    </section>
+
     <!-- Menu Search, Category Filter Pills & Menu Grid -->
     <section class="space-y-3">
       <div class="flex items-center justify-between gap-2">
@@ -351,14 +359,18 @@
       <div class="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1 min-h-0 overscroll-contain">
         <div id="checkoutItemsList" class="space-y-2.5"></div>
 
-        <!-- Coupon Code Input -->
-        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 space-y-2">
+        <!-- Coupon Code Input + Available Coupons Picker -->
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 space-y-2.5">
           <div class="flex gap-2">
-            <input id="couponCodeInput" type="text" maxlength="20" class="flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm uppercase font-bold" placeholder="कूपन कोड (जैसे FIRST20)" />
+            <input id="couponCodeInput" type="text" maxlength="20" class="flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm uppercase font-bold" placeholder="कूपन कोड (जैसे FIRST15)" />
             <button id="applyCouponBtn" type="button" class="px-3.5 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold">लागू करें</button>
             <button id="removeCouponBtn" type="button" class="hidden px-2.5 py-2 rounded-xl bg-red-100 text-red-700 text-xs font-bold">✕</button>
           </div>
           <p id="couponFeedbackMsg" class="hidden text-xs font-semibold"></p>
+          <div id="checkoutAvailableCouponsWrap" class="hidden pt-1 border-t border-slate-200/80 space-y-1.5">
+            <div id="checkoutAvailableCouponsTitle" class="text-[11px] font-extrabold text-slate-600">🎟️ उपलब्ध कूपन (1-क्लिक में लागू करें):</div>
+            <div id="checkoutAvailableCouponsList" class="space-y-1.5 max-h-36 overflow-y-auto"></div>
+          </div>
         </div>
 
         <!-- Bill Summary -->
@@ -781,22 +793,111 @@
         <div id="adminCustomersList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
       </section>
 
-      <!-- TAB 6: COUPONS & PROMO OFFERS -->
+      <!-- TAB 6: CUSTOM COUPONS & PROMO OFFERS BUILDER -->
       <section id="adminTabCoupons" class="hidden space-y-4">
-        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
-          <h3 id="couponFormTitle" class="font-extrabold text-slate-900 text-base">🎟️ नया कूपन कोड बनाएं</h3>
-          <form id="adminCouponForm" class="grid grid-cols-1 sm:grid-cols-5 gap-2.5">
-            <input id="couponCode" type="text" required maxlength="20" placeholder="Code (जैसे FIRST20)" class="rounded-xl border border-slate-300 px-3 py-2 text-sm uppercase font-bold" />
-            <select id="couponType" class="rounded-xl border border-slate-300 px-3 py-2 text-sm bg-white">
-              <option value="FLAT">Flat ₹ Off</option>
-              <option value="PERCENT">Percent % Off</option>
-              <option value="FREE_DELIVERY">Free Delivery</option>
-            </select>
-            <input id="couponValue" type="number" min="0" placeholder="छूट (₹ या %)" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-            <input id="couponMinOrder" type="number" min="0" placeholder="Min Order (₹)" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-            <button type="submit" class="rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs sm:text-sm font-bold py-2 px-4">
-              + <span id="addCouponBtnText">कूपन बनाएं</span>
-            </button>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3.5">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <div>
+              <h3 id="couponFormTitle" class="font-extrabold text-slate-900 text-base">🎟️ अपना खुद का कूपन कोड बनाएं</h3>
+              <p class="text-[11px] text-slate-500 font-medium">कूपन कोड, पेमेंट/छूट, फ़्री डिलीवरी या आइटम्स, और कितने लोग इस्तेमाल कर सकें — सब आप खुद तय करें।</p>
+            </div>
+            <button id="cancelCouponEditBtn" type="button" class="hidden px-3 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold">✕ Edit रद्द करें</button>
+          </div>
+
+          <form id="adminCouponForm" class="space-y-3">
+            <input id="editCouponId" type="hidden" value="" />
+
+            <!-- Step 1: Code & Target (Free Delivery vs Items vs Both) -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">1. आपका कूपन कोड *</label>
+                <input id="couponCode" type="text" required maxlength="20" placeholder="जैसे: HOLI20, RAVI15" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm uppercase font-extrabold" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">2. यह कूपन किसके लिए है? *</label>
+                <select id="couponApplyTarget" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm bg-white font-bold text-slate-800">
+                  <option value="ITEMS">🍔 केवल आइटम्स पर छूट (Items Only)</option>
+                  <option value="FREE_DELIVERY">🛵 केवल फ़्री डिलीवरी (Free Delivery Only)</option>
+                  <option value="BOTH">🎁 आइटम्स छूट + फ़्री डिलीवरी दोनों (Both)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">3. न्यूनतम ऑर्डर पेमेंट (₹) *</label>
+                <input id="couponMinOrder" type="number" min="0" value="0" placeholder="जैसे: 100 (0 = कोई सीमा नहीं)" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold" />
+              </div>
+            </div>
+
+            <!-- Step 2: Payment / Discount Value -->
+            <div id="couponDiscountFieldsRow" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">छूट का तरीका</label>
+                <select id="couponType" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm bg-white font-semibold">
+                  <option value="FLAT">💵 सीधे रुपये कम (Flat ₹ Off)</option>
+                  <option value="PERCENT">📊 प्रतिशत छूट (Percent % Off)</option>
+                </select>
+              </div>
+              <div>
+                <label id="lblCouponValue" class="block text-[11px] font-bold text-slate-700 mb-1">छूट की राशि (₹ या %)</label>
+                <input id="couponValue" type="number" min="0" placeholder="जैसे: 20" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">अधिकतम छूट कैप (₹, 0=बिना कैप)</label>
+                <input id="couponMaxDiscount" type="number" min="0" placeholder="केवल % के लिए, जैसे: 25" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+              </div>
+            </div>
+
+            <!-- Step 3: How many people can use it (Auto-locks when limit reached) -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">4. कुल कितने लोग/बार इस्तेमाल करें?</label>
+                <input id="couponUsageLimit" type="number" min="0" placeholder="जैसे: 10 (पूरे होते ही बंद, 0=असीमित)" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm font-bold" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">एक मोबाइल नंबर कितनी बार?</label>
+                <input id="couponPerUserLimit" type="number" min="0" placeholder="जैसे: 1 बार (0=असीमित)" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm font-bold" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">कब तक वैध (Expiry Date)</label>
+                <input id="couponExpiresAt" type="date" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm" />
+              </div>
+            </div>
+
+            <!-- Step 4: Optional Category Target (All Items vs Selected Categories) -->
+            <div id="couponCategoryTargetWrap" class="rounded-xl bg-slate-50 border border-slate-200 p-3 space-y-1.5">
+              <div class="text-[11px] font-extrabold text-slate-700">5. किन आइटम्स पर लागू हो? (खाली छोड़ें = सभी आइटम्स पर लागू)</div>
+              <div id="couponCatCheckboxes" class="flex flex-wrap gap-2 text-xs font-bold">
+                <label class="inline-flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 py-1 cursor-pointer"><input type="checkbox" value="Snacks" class="cp-cat-cb accent-orange-600" /> Snacks</label>
+                <label class="inline-flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 py-1 cursor-pointer"><input type="checkbox" value="Fast Food" class="cp-cat-cb accent-orange-600" /> Fast Food</label>
+                <label class="inline-flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 py-1 cursor-pointer"><input type="checkbox" value="Chinese" class="cp-cat-cb accent-orange-600" /> Chinese</label>
+                <label class="inline-flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 py-1 cursor-pointer"><input type="checkbox" value="Meals" class="cp-cat-cb accent-orange-600" /> Meals</label>
+                <label class="inline-flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 py-1 cursor-pointer"><input type="checkbox" value="Combos" class="cp-cat-cb accent-orange-600" /> Combos</label>
+                <label class="inline-flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 py-1 cursor-pointer"><input type="checkbox" value="Cold Drinks" class="cp-cat-cb accent-orange-600" /> Cold Drinks</label>
+                <label class="inline-flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 py-1 cursor-pointer"><input type="checkbox" value="Beverages" class="cp-cat-cb accent-orange-600" /> Energy Drinks</label>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <input id="couponTitleHi" type="text" maxlength="80" placeholder="ग्राहक के लिए ऑफ़र लाइन (हिंदी, वैकल्पिक)" class="rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm" />
+              <input id="couponTitleEn" type="text" maxlength="80" placeholder="Offer Tagline (English, optional)" class="rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm" />
+            </div>
+
+            <div id="couponRulePreview" class="rounded-xl bg-orange-50 border border-orange-200 px-3 py-2 text-xs font-bold text-orange-900"></div>
+
+            <div class="flex items-center justify-between gap-3 flex-wrap pt-1">
+              <div class="flex items-center gap-4 flex-wrap text-xs font-bold text-slate-700">
+                <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                  <input id="couponFirstOrderOnly" type="checkbox" class="w-4 h-4 accent-orange-600" />
+                  <span>🎯 केवल पहले ऑर्डर पर</span>
+                </label>
+                <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                  <input id="couponShowOnStorefront" type="checkbox" checked class="w-4 h-4 accent-emerald-600" />
+                  <span>👁️ वेबसाइट पर दिखाएं</span>
+                </label>
+              </div>
+              <button type="submit" class="rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs sm:text-sm font-extrabold py-2.5 px-5 shadow">
+                <span id="addCouponBtnText">✅ कूपन सेव करें</span>
+              </button>
+            </div>
           </form>
         </div>
         <div id="adminCouponsList" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
@@ -1086,11 +1187,21 @@
         itemsSelected: "आइटम चुने गए",
         viewCart: "ऑर्डर देखें",
         checkoutTitle: "आपका कार्ट और चेकआउट",
-        couponPh: "कूपन कोड (जैसे FIRST20)",
+        couponPh: "कूपन कोड (जैसे FIRST15)",
         applyCoupon: "लागू करें",
+        couponAppliedBtn: "लागू ✓",
+        storefrontCouponsHeading: "🎟️ आज के ऑफ़र और कूपन कोड (Tap करें)",
+        checkoutAvailableCouponsTitle: "🎟️ उपलब्ध कूपन (1-क्लिक में लागू करें):",
+        couponSelectedToast: (code) => `🎟️ कूपन ${code} चुना गया — चेकआउट पर लागू हो जाएगा!`,
+        couponPresetFilledToast: (code) => `✅ प्रीसेट ${code} भर दिया गया — 'कूपन बनाएं' दबाकर सेव करें!`,
+        couponNeedMore: (diff) => `₹${diff} और जोड़ें`,
+        couponFirstOrderBadge: "1st Order",
+        couponPerUserBadge: (n) => `${n}x/Mobile`,
         couponAppliedMsg: (code, disc) => `✅ कूपन ${code} लागू! ₹${disc} की बचत हुई।`,
+        couponBothAppliedMsg: (code, disc) => `✅ कूपन ${code} लागू! ₹${disc} आइटम छूट + डिलीवरी फ़्री!`,
         couponFreeDelMsg: (code) => `✅ कूपन ${code} लागू! डिलीवरी फ़्री हो गई।`,
         couponMinFail: (code, min) => `⚠️ कूपन ${code} के लिए न्यूनतम ₹${min} का ऑर्डर ज़रूरी है।`,
+        couponCatFail: (code, cats) => `⚠️ कूपन ${code} केवल (${cats}) आइटम्स पर लागू है।`,
         subtotal: "खाने का कुल मूल्य",
         discountLabel: "कूपन छूट",
         totalCod: "कुल देय राशि (COD)",
@@ -1364,11 +1475,21 @@
         itemsSelected: "items selected",
         viewCart: "View Cart",
         checkoutTitle: "Your Cart & Checkout",
-        couponPh: "Promo code (e.g. FIRST20)",
+        couponPh: "Promo code (e.g. FIRST15)",
         applyCoupon: "Apply",
+        couponAppliedBtn: "Applied ✓",
+        storefrontCouponsHeading: "🎟️ Today's Offers & Coupons (Tap to Use)",
+        checkoutAvailableCouponsTitle: "🎟️ Available Coupons (1-Tap Apply):",
+        couponSelectedToast: (code) => `🎟️ Coupon ${code} selected — it will auto-apply at checkout!`,
+        couponPresetFilledToast: (code) => `✅ Preset ${code} filled — click Create Coupon to save!`,
+        couponNeedMore: (diff) => `Add ₹${diff} more`,
+        couponFirstOrderBadge: "1st Order",
+        couponPerUserBadge: (n) => `${n}x/Mobile`,
         couponAppliedMsg: (code, disc) => `✅ Coupon ${code} applied! You save ₹${disc}.`,
+        couponBothAppliedMsg: (code, disc) => `✅ Coupon ${code} applied! ₹${disc} item discount + FREE delivery!`,
         couponFreeDelMsg: (code) => `✅ Coupon ${code} applied! Delivery is FREE.`,
         couponMinFail: (code, min) => `⚠️ Min order ₹${min} required for coupon ${code}.`,
+        couponCatFail: (code, cats) => `⚠️ Coupon ${code} is valid only on (${cats}) items.`,
         subtotal: "Items Subtotal",
         discountLabel: "Coupon Discount",
         totalCod: "Total Payable (COD)",
@@ -1583,6 +1704,8 @@
       liveTimerInterval: null,
       orderTrackTimerInterval: null,
       menu: [],
+      coupons: [],
+      pendingCouponCode: "",
       menuSearch: "",
       selectedCategory: "All",
       menuVisibleCount: 4,
@@ -1765,14 +1888,35 @@
       if (state.appliedCoupon && totalItems > 0) {
         const cp = state.appliedCoupon;
         if (subtotal >= (cp.minOrderAmount || 0)) {
-          if (cp.discountType === "FREE_DELIVERY") {
-            deliveryCharge = 0;
-          } else if (cp.discountType === "FLAT") {
-            discountAmount = Math.min(subtotal, Math.round(cp.discountValue ?? cp.discountAmount ?? 0));
-          } else if (cp.discountType === "PERCENT") {
-            let calc = Math.round((subtotal * (cp.discountValue || 0)) / 100);
-            if (cp.maxDiscount > 0) calc = Math.min(calc, cp.maxDiscount);
-            discountAmount = Math.min(subtotal, calc);
+          const cats = Array.isArray(cp.applicableCategories) ? cp.applicableCategories.filter(Boolean) : [];
+          let eligibleSubtotal = subtotal;
+          if (cats.length > 0) {
+            eligibleSubtotal = detailedItems.reduce(
+              (sum, { item, qty }) => (cats.includes(item.category || "Snacks") ? sum + item.sellingPrice * qty : sum),
+              0
+            );
+          }
+
+          if (cats.length > 0 && eligibleSubtotal <= 0) {
+            couponWarning = t("couponCatFail", cp.code, cats.join(", "));
+          } else {
+            const target =
+              cp.applyTarget ||
+              (cp.discountType === "FREE_DELIVERY" ? "FREE_DELIVERY" : cp.freeDeliveryIncluded ? "BOTH" : "ITEMS");
+            if (target === "FREE_DELIVERY" || cp.discountType === "FREE_DELIVERY") {
+              deliveryCharge = 0;
+            } else {
+              if (cp.discountType === "FLAT") {
+                discountAmount = Math.min(eligibleSubtotal, Math.round(cp.discountValue ?? cp.discountAmount ?? 0));
+              } else if (cp.discountType === "PERCENT") {
+                let calc = Math.round((eligibleSubtotal * (cp.discountValue || 0)) / 100);
+                if (cp.maxDiscount > 0) calc = Math.min(calc, cp.maxDiscount);
+                discountAmount = Math.min(eligibleSubtotal, calc);
+              }
+              if (target === "BOTH" || cp.freeDeliveryIncluded) {
+                deliveryCharge = 0;
+              }
+            }
           }
         } else {
           couponWarning = t("couponMinFail", cp.code, cp.minOrderAmount);
@@ -1952,6 +2096,7 @@
         }
         state.settings = data.settings;
         state.menu = data.menu || [];
+        state.coupons = data.coupons || [];
 
         const itemMap = new Map(state.menu.map((m) => [m._id, m]));
         for (const id of Object.keys(state.cart)) {
@@ -2048,6 +2193,8 @@
       document.getElementById("refreshMenuText").textContent = t("refresh");
 
       document.getElementById("checkoutTitle").textContent = t("checkoutTitle");
+      document.getElementById("storefrontCouponsHeading").textContent = t("storefrontCouponsHeading");
+      document.getElementById("checkoutAvailableCouponsTitle").textContent = t("checkoutAvailableCouponsTitle");
       document.getElementById("couponCodeInput").placeholder = t("couponPh");
       document.getElementById("applyCouponBtn").textContent = t("applyCoupon");
       document.getElementById("billSubtotalLabel").textContent = t("subtotal");
@@ -2138,8 +2285,10 @@
       document.getElementById("addRiderBtnText").textContent = t("addRiderBtn");
 
       document.getElementById("customersHeading").textContent = t("customersHeading");
-      document.getElementById("couponFormTitle").textContent = t("couponFormTitle");
-      document.getElementById("addCouponBtnText").textContent = t("addCouponBtn");
+      if (!document.getElementById("editCouponId")?.value) {
+        document.getElementById("couponFormTitle").textContent = t("couponFormTitle");
+        document.getElementById("addCouponBtnText").textContent = t("addCouponBtn");
+      }
 
       document.getElementById("settingsFormTitle").textContent = t("settingsFormTitle");
       document.getElementById("lblShopOpenToggle").textContent = t("lblShopOpenToggle");
@@ -2541,10 +2690,7 @@
         document.getElementById("pdIncBtn").addEventListener("click", () => updateCartQty(item._id, 1));
         document.getElementById("pdViewCartBtn").addEventListener("click", () => {
           modal.classList.add("hidden");
-          document.getElementById("checkoutErrorBox").classList.add("hidden");
-          document.getElementById("phoneErrorMsg").classList.add("hidden");
-          renderCheckoutDrawer();
-          document.getElementById("checkoutModal").classList.remove("hidden");
+          openCheckoutModalFromHeaderOrBar();
         });
       }
     }
@@ -3149,9 +3295,18 @@
           cpMsgEl.className = "text-xs font-semibold text-amber-700";
           cpMsgEl.classList.remove("hidden");
         } else {
+          const target =
+            state.appliedCoupon.applyTarget ||
+            (state.appliedCoupon.discountType === "FREE_DELIVERY"
+              ? "FREE_DELIVERY"
+              : state.appliedCoupon.freeDeliveryIncluded
+              ? "BOTH"
+              : "ITEMS");
           cpMsgEl.textContent =
-            state.appliedCoupon.discountType === "FREE_DELIVERY"
+            target === "FREE_DELIVERY"
               ? t("couponFreeDelMsg", state.appliedCoupon.code)
+              : target === "BOTH"
+              ? t("couponBothAppliedMsg", state.appliedCoupon.code, discountAmount)
               : t("couponAppliedMsg", state.appliedCoupon.code, discountAmount);
           cpMsgEl.className = "text-xs font-semibold text-emerald-700";
           cpMsgEl.classList.remove("hidden");
@@ -3170,6 +3325,7 @@
       document.getElementById("billDeliveryVal").textContent =
         deliveryCharge === 0 ? t("freeDeliveryApplied") : `₹${deliveryCharge}`;
       document.getElementById("billTotalVal").textContent = `₹${total}`;
+      renderCheckoutAvailableCoupons(subtotal);
 
       const minWarn = document.getElementById("minOrderWarning");
       const submitBtn = document.getElementById("placeOrderBtn");
@@ -3193,9 +3349,198 @@
       }
     }
 
+    function formatCouponBadgeText(c) {
+      if (!c) return "";
+      const target =
+        c.applyTarget ||
+        (c.discountType === "FREE_DELIVERY" ? "FREE_DELIVERY" : c.freeDeliveryIncluded ? "BOTH" : "ITEMS");
+      if (target === "FREE_DELIVERY" || c.discountType === "FREE_DELIVERY") return t("freeDeliveryApplied");
+      let discLabel = "";
+      if (c.discountType === "PERCENT") {
+        const cap = c.maxDiscount > 0 ? ` (Max ₹${c.maxDiscount})` : "";
+        discLabel = `${c.discountValue}% OFF${cap}`;
+      } else {
+        discLabel = `₹${c.discountValue} OFF`;
+      }
+      return target === "BOTH" ? `${discLabel} + Free Delivery` : discLabel;
+    }
+
+    function renderStorefrontCoupons() {
+      const bar = document.getElementById("storefrontCouponsBar");
+      const list = document.getElementById("storefrontCouponsList");
+      if (!bar || !list) return;
+      const coupons = state.coupons || [];
+      if (coupons.length === 0) {
+        bar.classList.add("hidden");
+        return;
+      }
+      list.innerHTML = coupons
+        .map((c) => {
+          const badge = formatCouponBadgeText(c);
+          const customTitle = (state.lang === "hi" ? c.titleHi : c.titleEn) || c.titleHi || c.titleEn || "";
+          const minPart = c.minOrderAmount > 0 ? `Min ₹${c.minOrderAmount}` : "All Orders";
+          const catTag =
+            Array.isArray(c.applicableCategories) && c.applicableCategories.length > 0
+              ? ` • ${c.applicableCategories.join("/")}`
+              : "";
+          const firstTag = c.firstOrderOnly ? ` • ${t("couponFirstOrderBadge")}` : "";
+          return `<button type="button" data-sf-coupon="${escapeHtml(c.code)}"
+            class="shrink-0 text-left rounded-2xl bg-gradient-to-r from-orange-50 to-amber-50 hover:from-orange-100 hover:to-amber-100 border border-orange-200 px-3 py-2 shadow-sm transition active:scale-95">
+            <div class="flex items-center gap-1.5">
+              <span class="px-1.5 py-0.5 rounded-md bg-orange-600 text-white text-[10px] font-black tracking-wide">${escapeHtml(c.code)}</span>
+              <span class="text-xs font-extrabold text-orange-900">${escapeHtml(badge)}</span>
+            </div>
+            <div class="text-[10px] font-semibold text-slate-600 mt-0.5 truncate max-w-[210px]">
+              ${escapeHtml(customTitle || minPart)}${customTitle && c.minOrderAmount > 0 ? ` (${minPart})` : ""}${escapeHtml(catTag)}${escapeHtml(firstTag)}
+            </div>
+          </button>`;
+        })
+        .join("");
+      bar.classList.remove("hidden");
+
+      list.querySelectorAll("[data-sf-coupon]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const code = btn.dataset.sfCoupon;
+          state.pendingCouponCode = code;
+          const inp = document.getElementById("couponCodeInput");
+          if (inp) inp.value = code;
+          const { totalItems } = getCartSummary();
+          if (totalItems > 0) {
+            openCheckoutModalFromHeaderOrBar();
+          } else {
+            showToast(t("couponSelectedToast", code), "info");
+          }
+        });
+      });
+    }
+
+    function renderCheckoutAvailableCoupons(subtotal) {
+      const wrap = document.getElementById("checkoutAvailableCouponsWrap");
+      const list = document.getElementById("checkoutAvailableCouponsList");
+      if (!wrap || !list) return;
+      const coupons = state.coupons || [];
+      if (coupons.length === 0) {
+        wrap.classList.add("hidden");
+        return;
+      }
+      const { detailedItems } = getCartSummary();
+      wrap.classList.remove("hidden");
+      list.innerHTML = coupons
+        .map((c) => {
+          const isApplied = state.appliedCoupon && state.appliedCoupon.code === c.code;
+          const minAmt = c.minOrderAmount || 0;
+          const diff = Math.max(0, minAmt - subtotal);
+          const cats = Array.isArray(c.applicableCategories) ? c.applicableCategories.filter(Boolean) : [];
+          const hasMatchingCat =
+            cats.length === 0 || detailedItems.some(({ item }) => cats.includes(item.category || "Snacks"));
+          const ready = diff === 0 && hasMatchingCat;
+          const badge = formatCouponBadgeText(c);
+          const title = (state.lang === "hi" ? c.titleHi : c.titleEn) || c.titleHi || c.titleEn || "";
+          const tags = [
+            minAmt > 0 ? `Min ₹${minAmt}` : "",
+            cats.length > 0 ? cats.join("/") : "",
+            c.firstOrderOnly ? t("couponFirstOrderBadge") : "",
+            c.perUserLimit > 0 ? t("couponPerUserBadge", c.perUserLimit) : "",
+          ]
+            .filter(Boolean)
+            .join(" • ");
+          const btnLabel = isApplied
+            ? t("couponAppliedBtn")
+            : !hasMatchingCat
+            ? cats[0]
+            : ready
+            ? t("applyCoupon")
+            : t("couponNeedMore", diff);
+
+          return `<div class="flex items-center justify-between gap-2 rounded-xl bg-white border ${
+            isApplied ? "border-emerald-400 bg-emerald-50/40" : "border-slate-200"
+          } px-2.5 py-2">
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="px-1.5 py-0.5 rounded bg-orange-100 text-orange-800 text-[10px] font-black">${escapeHtml(c.code)}</span>
+                <span class="text-xs font-extrabold text-slate-900">${escapeHtml(badge)}</span>
+              </div>
+              <div class="text-[10px] text-slate-500 font-semibold truncate mt-0.5">
+                ${escapeHtml(title ? `${title}${tags ? ` • ${tags}` : ""}` : tags || "Special Offer")}
+              </div>
+            </div>
+            <button type="button" data-pick-coupon="${escapeHtml(c.code)}" ${!ready && !isApplied ? "disabled" : ""}
+              class="shrink-0 px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition ${
+                isApplied
+                  ? "bg-emerald-600 text-white"
+                  : ready
+                  ? "bg-slate-900 hover:bg-slate-800 text-white"
+                  : "bg-slate-100 text-slate-400 cursor-not-allowed"
+              }">
+              ${escapeHtml(btnLabel)}
+            </button>
+          </div>`;
+        })
+        .join("");
+
+      list.querySelectorAll("[data-pick-coupon]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const code = btn.dataset.pickCoupon;
+          if (state.appliedCoupon && state.appliedCoupon.code === code) {
+            document.getElementById("removeCouponBtn").click();
+            return;
+          }
+          document.getElementById("couponCodeInput").value = code;
+          applyCouponCode(code);
+        });
+      });
+    }
+
+    async function applyCouponCode(rawCode) {
+      const btn = document.getElementById("applyCouponBtn");
+      const code = String(rawCode || document.getElementById("couponCodeInput").value || "")
+        .trim()
+        .toUpperCase();
+      const msgEl = document.getElementById("couponFeedbackMsg");
+      if (!code) return;
+      const { subtotal, detailedItems } = getCartSummary();
+      const itemsPayload = detailedItems.map(({ item, qty }) => ({ menuItemId: item._id, quantity: qty }));
+      const phoneInput = document.getElementById("custPhone");
+      const cleanPhone = normalizeIndianPhone(phoneInput ? phoneInput.value : "");
+
+      btn.disabled = true;
+      try {
+        const res = await apiFetch("/api/coupons/validate", {
+          method: "POST",
+          body: JSON.stringify({ code, subtotal, phone: cleanPhone, items: itemsPayload }),
+        });
+        state.appliedCoupon = res;
+        state.pendingCouponCode = "";
+        document.getElementById("couponCodeInput").value = res.code;
+        const target =
+          res.applyTarget ||
+          (res.discountType === "FREE_DELIVERY" ? "FREE_DELIVERY" : res.freeDeliveryIncluded ? "BOTH" : "ITEMS");
+        msgEl.textContent =
+          target === "FREE_DELIVERY"
+            ? t("couponFreeDelMsg", res.code)
+            : target === "BOTH"
+            ? t("couponBothAppliedMsg", res.code, res.discountAmount)
+            : t("couponAppliedMsg", res.code, res.discountAmount);
+        msgEl.className = "text-xs font-semibold text-emerald-700";
+        msgEl.classList.remove("hidden");
+        document.getElementById("removeCouponBtn").classList.remove("hidden");
+        renderCheckoutDrawer();
+      } catch (err) {
+        state.appliedCoupon = null;
+        msgEl.textContent = err.message;
+        msgEl.className = "text-xs font-semibold text-red-600";
+        msgEl.classList.remove("hidden");
+        document.getElementById("removeCouponBtn").classList.add("hidden");
+        renderCheckoutDrawer();
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
     function renderAll() {
       applyStaticTranslations();
       renderCategoryPills();
+      renderStorefrontCoupons();
       renderMenuGrid();
       renderFloatingCart();
       renderRecentOrderCard();
@@ -3218,41 +3563,11 @@
     }
 
     // Coupon Apply / Remove
-    document.getElementById("applyCouponBtn").addEventListener("click", async () => {
-      const btn = document.getElementById("applyCouponBtn");
-      const code = document.getElementById("couponCodeInput").value.trim().toUpperCase();
-      const msgEl = document.getElementById("couponFeedbackMsg");
-      if (!code) return;
-      const { subtotal } = getCartSummary();
-
-      btn.disabled = true;
-      try {
-        const res = await apiFetch("/api/coupons/validate", {
-          method: "POST",
-          body: JSON.stringify({ code, subtotal }),
-        });
-        state.appliedCoupon = res;
-        msgEl.textContent =
-          res.discountType === "FREE_DELIVERY"
-            ? t("couponFreeDelMsg", res.code)
-            : t("couponAppliedMsg", res.code, res.discountAmount);
-        msgEl.className = "text-xs font-semibold text-emerald-700";
-        msgEl.classList.remove("hidden");
-        document.getElementById("removeCouponBtn").classList.remove("hidden");
-        renderCheckoutDrawer();
-      } catch (err) {
-        state.appliedCoupon = null;
-        msgEl.textContent = err.message;
-        msgEl.className = "text-xs font-semibold text-red-600";
-        msgEl.classList.remove("hidden");
-        renderCheckoutDrawer();
-      } finally {
-        btn.disabled = false;
-      }
-    });
+    document.getElementById("applyCouponBtn").addEventListener("click", () => applyCouponCode());
 
     document.getElementById("removeCouponBtn").addEventListener("click", () => {
       state.appliedCoupon = null;
+      state.pendingCouponCode = "";
       document.getElementById("couponCodeInput").value = "";
       document.getElementById("couponFeedbackMsg").classList.add("hidden");
       document.getElementById("removeCouponBtn").classList.add("hidden");
@@ -3329,8 +3644,13 @@
         return;
       }
 
-      const { detailedItems } = getCartSummary();
+      const { detailedItems, couponWarning } = getCartSummary();
       if (detailedItems.length === 0) return;
+      if (state.appliedCoupon && couponWarning) {
+        errBox.textContent = couponWarning;
+        errBox.classList.remove("hidden");
+        return;
+      }
 
       const btn = document.getElementById("placeOrderBtn");
       const btnText = document.getElementById("placeOrderBtnText");
@@ -3413,6 +3733,18 @@
           loadStoreData();
         } else if (err.code === "OUT_OF_STOCK" || err.code === "INSUFFICIENT_STOCK") {
           errBox.textContent = err.message || t("serverError");
+          loadStoreData();
+        } else if (
+          err.code === "INVALID_COUPON" ||
+          err.code === "COUPON_LIMIT_REACHED" ||
+          err.code === "COUPON_EXPIRED" ||
+          (err.code && err.code.startsWith("COUPON_"))
+        ) {
+          errBox.textContent = err.message || t("serverError");
+          if (err.code === "INVALID_COUPON" || err.code === "COUPON_LIMIT_REACHED" || err.code === "COUPON_EXPIRED") {
+            state.appliedCoupon = null;
+            renderCheckoutDrawer();
+          }
           loadStoreData();
         } else errBox.textContent = err.message || t("serverError");
         errBox.classList.remove("hidden");
@@ -5656,7 +5988,84 @@
         .join("");
     }
 
-    // --- ADMIN TAB 6: COUPONS MANAGER ---
+    // --- ADMIN TAB 6: CUSTOM COUPONS BUILDER & MANAGER ---
+    function syncCouponBuilderUI() {
+      const target = document.getElementById("couponApplyTarget")?.value || "ITEMS";
+      const typeEl = document.getElementById("couponType");
+      const valEl = document.getElementById("couponValue");
+      const maxEl = document.getElementById("couponMaxDiscount");
+      const discountRow = document.getElementById("couponDiscountFieldsRow");
+      const catWrap = document.getElementById("couponCategoryTargetWrap");
+
+      if (target === "FREE_DELIVERY") {
+        if (discountRow) discountRow.classList.add("opacity-45");
+        if (typeEl) typeEl.disabled = true;
+        if (valEl) {
+          valEl.value = "";
+          valEl.disabled = true;
+        }
+        if (maxEl) {
+          maxEl.value = "";
+          maxEl.disabled = true;
+        }
+        if (catWrap) catWrap.classList.add("opacity-65");
+      } else {
+        if (discountRow) discountRow.classList.remove("opacity-45");
+        if (typeEl) typeEl.disabled = false;
+        if (valEl) valEl.disabled = false;
+        if (maxEl) {
+          if (typeEl && typeEl.value === "FLAT") {
+            maxEl.value = "";
+            maxEl.disabled = true;
+          } else {
+            maxEl.disabled = false;
+          }
+        }
+        if (catWrap) catWrap.classList.remove("opacity-65");
+      }
+      updateCouponRulePreview();
+    }
+
+    function updateCouponRulePreview() {
+      const prevEl = document.getElementById("couponRulePreview");
+      if (!prevEl) return;
+      const code = (document.getElementById("couponCode")?.value || "").trim().toUpperCase() || "CODE";
+      const target = document.getElementById("couponApplyTarget")?.value || "ITEMS";
+      const type = document.getElementById("couponType")?.value || "FLAT";
+      const val = Number(document.getElementById("couponValue")?.value || 0);
+      const maxD = Number(document.getElementById("couponMaxDiscount")?.value || 0);
+      const minOrd = Number(document.getElementById("couponMinOrder")?.value || 0);
+      const totalLim = Number(document.getElementById("couponUsageLimit")?.value || 0);
+      const userLim = Number(document.getElementById("couponPerUserLimit")?.value || 0);
+      const cats = Array.from(document.querySelectorAll(".cp-cat-cb:checked")).map((cb) => cb.value);
+
+      let benefitTxt = "फ़्री डिलीवरी";
+      if (target !== "FREE_DELIVERY") {
+        const discPart = type === "PERCENT" ? `${val}% छूट${maxD > 0 ? ` (अधिकतम ₹${maxD})` : ""}` : `₹${val} छूट`;
+        benefitTxt = target === "BOTH" ? `${discPart} + फ़्री डिलीवरी दोनों` : `${discPart} (केवल आइटम्स पर)`;
+      }
+      const minTxt = minOrd > 0 ? `₹${minOrd}+ ऑर्डर पर` : "किसी भी ऑर्डर पर";
+      const catTxt = cats.length > 0 ? ` • केवल (${cats.join(", ")}) आइटम्स पर` : " • सभी आइटम्स पर";
+      const capTxt =
+        totalLim > 0
+          ? ` • कुल ${totalLim} बार के बाद अपने-आप बंद हो जाएगा`
+          : " • कुल उपयोग: असीमित";
+      const userTxt = userLim > 0 ? ` • 1 नंबर: ${userLim} बार` : "";
+      prevEl.textContent = `📋 नियम सारांश: कोड ${code} → ${minTxt} ${benefitTxt}${catTxt}${capTxt}${userTxt}`;
+    }
+
+    function resetAdminCouponForm() {
+      const form = document.getElementById("adminCouponForm");
+      if (form) form.reset();
+      document.getElementById("editCouponId").value = "";
+      document.getElementById("couponFormTitle").textContent = "🎟️ अपना खुद का कूपन कोड बनाएं";
+      document.getElementById("addCouponBtnText").textContent = "✅ कूपन सेव करें";
+      document.getElementById("cancelCouponEditBtn").classList.add("hidden");
+      document.getElementById("couponShowOnStorefront").checked = true;
+      document.querySelectorAll(".cp-cat-cb").forEach((cb) => (cb.checked = false));
+      syncCouponBuilderUI();
+    }
+
     function renderAdminCoupons() {
       const list = document.getElementById("adminCouponsList");
       if (state.adminCoupons.length === 0) {
@@ -5667,34 +6076,108 @@
       }
       list.innerHTML = state.adminCoupons
         .map((c) => {
-          const desc =
-            c.discountType === "FREE_DELIVERY"
-              ? t("freeDeliveryApplied")
-              : c.discountType === "PERCENT"
-              ? `${c.discountValue}% OFF`
-              : `₹${c.discountValue} OFF`;
-          return `<div class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-sm flex items-center justify-between gap-2">
-            <div>
-              <div class="flex items-center gap-2">
+          const desc = formatCouponBadgeText(c);
+          const isExpired = c.expiresAt && new Date(c.expiresAt) < new Date();
+          const isLimitFull = c.usageLimit > 0 && (c.usedCount || 0) >= c.usageLimit;
+          const usageStr = c.usageLimit > 0 ? `${c.usedCount || 0} / ${c.usageLimit}` : `${c.usedCount || 0} / ∞`;
+          const cats = Array.isArray(c.applicableCategories) ? c.applicableCategories.filter(Boolean) : [];
+          const tags = [
+            `${t("minOrderShort")}: ₹${c.minOrderAmount || 0}`,
+            `${t("usedShort")}: ${usageStr}`,
+            c.perUserLimit > 0 ? `${c.perUserLimit}x/Mob` : "",
+            cats.length > 0 ? `🏷️ ${cats.join(", ")}` : "All Items",
+            c.firstOrderOnly ? "🎯 1st Order" : "",
+            c.expiresAt ? `⏳ ${new Date(c.expiresAt).toLocaleDateString("en-IN")}${isExpired ? " (Expired)" : ""}` : "",
+          ]
+            .filter(Boolean)
+            .join(" • ");
+          const tagline = (state.lang === "hi" ? c.titleHi : c.titleEn) || c.titleHi || c.titleEn || "";
+
+          return `<div class="bg-white rounded-2xl border ${
+            isExpired || isLimitFull ? "border-red-300 bg-red-50/30" : "border-slate-200"
+          } p-3.5 shadow-sm flex items-start justify-between gap-2">
+            <div class="min-w-0 space-y-1">
+              <div class="flex items-center gap-1.5 flex-wrap">
                 <span class="font-extrabold text-orange-600 text-sm">${escapeHtml(c.code)}</span>
                 <span class="px-2 py-0.5 rounded bg-slate-100 text-xs font-bold">${escapeHtml(desc)}</span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                  c.showOnStorefront !== false ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"
+                }">${c.showOnStorefront !== false ? "👁️ Public" : "🔒 Secret"}</span>
+                ${
+                  isLimitFull
+                    ? `<span class="px-1.5 py-0.5 rounded bg-red-100 text-red-700 text-[10px] font-black">🔴 सीमा पूरी — बंद</span>`
+                    : ""
+                }
               </div>
-              <div class="text-xs text-slate-500 mt-0.5">${escapeHtml(t("minOrderShort"))}: ₹${c.minOrderAmount || 0} • ${escapeHtml(
-            t("usedShort")
-          )}: ${c.usedCount || 0}</div>
+              ${tagline ? `<div class="text-xs font-semibold text-slate-700 truncate">${escapeHtml(tagline)}</div>` : ""}
+              <div class="text-[11px] text-slate-500">${escapeHtml(tags)}</div>
             </div>
-            <div class="flex items-center gap-2">
-              <input type="checkbox" data-toggle-cp="${c._id}" ${c.isActive ? "checked" : ""} class="w-4 h-4 accent-emerald-600 cursor-pointer" />
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button type="button" data-edit-cp="${c._id}" title="Edit Coupon" class="px-2 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold">✏️</button>
+              <button type="button" data-toggle-cp-pub="${c._id}" data-pub="${c.showOnStorefront !== false ? "1" : "0"}" title="Toggle Public/Secret" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-bold">
+                ${c.showOnStorefront !== false ? "👁️" : "🔒"}
+              </button>
+              <input type="checkbox" data-toggle-cp="${c._id}" ${c.isActive ? "checked" : ""} title="Active / Paused" class="w-4 h-4 accent-emerald-600 cursor-pointer" />
               <button type="button" data-del-cp="${c._id}" class="px-2 py-1 rounded-lg bg-red-50 text-red-700 text-xs font-bold">🗑️</button>
             </div>
           </div>`;
         })
         .join("");
 
+      list.querySelectorAll("[data-edit-cp]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const c = state.adminCoupons.find((x) => x._id === btn.dataset.editCp);
+          if (!c) return;
+          document.getElementById("editCouponId").value = c._id;
+          document.getElementById("couponCode").value = c.code || "";
+          const target =
+            c.applyTarget ||
+            (c.discountType === "FREE_DELIVERY" ? "FREE_DELIVERY" : c.freeDeliveryIncluded ? "BOTH" : "ITEMS");
+          document.getElementById("couponApplyTarget").value = target;
+          document.getElementById("couponType").value = c.discountType === "PERCENT" ? "PERCENT" : "FLAT";
+          document.getElementById("couponValue").value = c.discountValue || "";
+          document.getElementById("couponMaxDiscount").value = c.maxDiscount || "";
+          document.getElementById("couponMinOrder").value = c.minOrderAmount || 0;
+          document.getElementById("couponUsageLimit").value = c.usageLimit || "";
+          document.getElementById("couponPerUserLimit").value = c.perUserLimit || "";
+          document.getElementById("couponExpiresAt").value = c.expiresAt
+            ? new Date(c.expiresAt).toISOString().slice(0, 10)
+            : "";
+          document.getElementById("couponTitleHi").value = c.titleHi || "";
+          document.getElementById("couponTitleEn").value = c.titleEn || "";
+          document.getElementById("couponFirstOrderOnly").checked = Boolean(c.firstOrderOnly);
+          document.getElementById("couponShowOnStorefront").checked = c.showOnStorefront !== false;
+          const cats = Array.isArray(c.applicableCategories) ? c.applicableCategories : [];
+          document.querySelectorAll(".cp-cat-cb").forEach((cb) => {
+            cb.checked = cats.includes(cb.value);
+          });
+          document.getElementById("couponFormTitle").textContent = `✏️ कूपन संपादित करें: ${c.code}`;
+          document.getElementById("addCouponBtnText").textContent = "💾 बदलाव सेव करें";
+          document.getElementById("cancelCouponEditBtn").classList.remove("hidden");
+          syncCouponBuilderUI();
+          document.getElementById("adminTabCoupons").scrollIntoView({ behavior: "smooth" });
+        });
+      });
+
       list.querySelectorAll("[data-toggle-cp]").forEach((cb) => {
         cb.addEventListener("change", async () => {
           try {
             await apiFetch(`/api/admin/coupons/${cb.dataset.toggleCp}`, { method: "PUT", body: JSON.stringify({ isActive: cb.checked }) }, true);
+            await refreshAdminData();
+            await loadStoreData();
+          } catch (err) {
+            showToast(err.message, true);
+          }
+        });
+      });
+
+      list.querySelectorAll("[data-toggle-cp-pub]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const nextPub = btn.dataset.pub !== "1";
+          try {
+            await apiFetch(`/api/admin/coupons/${btn.dataset.toggleCpPub}`, { method: "PUT", body: JSON.stringify({ showOnStorefront: nextPub }) }, true);
+            await refreshAdminData();
+            await loadStoreData();
           } catch (err) {
             showToast(err.message, true);
           }
@@ -5706,6 +6189,7 @@
           try {
             await apiFetch(`/api/admin/coupons/${btn.dataset.delCp}`, { method: "DELETE" }, true);
             await refreshAdminData();
+            await loadStoreData();
           } catch (err) {
             showToast(err.message, true);
           }
@@ -5713,18 +6197,57 @@
       });
     }
 
+    document.getElementById("cancelCouponEditBtn").addEventListener("click", resetAdminCouponForm);
+    document.getElementById("couponApplyTarget").addEventListener("change", syncCouponBuilderUI);
+    document.getElementById("couponType").addEventListener("change", syncCouponBuilderUI);
+    ["couponCode", "couponValue", "couponMaxDiscount", "couponMinOrder", "couponUsageLimit", "couponPerUserLimit"].forEach(
+      (id) => {
+        document.getElementById(id)?.addEventListener("input", updateCouponRulePreview);
+      }
+    );
+    document.querySelectorAll(".cp-cat-cb").forEach((cb) => {
+      cb.addEventListener("change", updateCouponRulePreview);
+    });
+    updateCouponRulePreview();
+
     document.getElementById("adminCouponForm").addEventListener("submit", async (e) => {
       e.preventDefault();
+      const editId = document.getElementById("editCouponId").value.trim();
+      const applyTarget = document.getElementById("couponApplyTarget").value;
+      const rawDiscountType = document.getElementById("couponType").value;
+      const discountType = applyTarget === "FREE_DELIVERY" ? "FREE_DELIVERY" : rawDiscountType;
+      const rawExpiry = document.getElementById("couponExpiresAt").value;
+      const applicableCategories = Array.from(document.querySelectorAll(".cp-cat-cb:checked")).map((cb) => cb.value);
+
       const payload = {
         code: document.getElementById("couponCode").value.trim().toUpperCase(),
-        discountType: document.getElementById("couponType").value,
-        discountValue: Number(document.getElementById("couponValue").value || 0),
+        applyTarget,
+        discountType,
+        freeDeliveryIncluded: applyTarget === "BOTH" || applyTarget === "FREE_DELIVERY",
+        discountValue: applyTarget === "FREE_DELIVERY" ? 0 : Number(document.getElementById("couponValue").value || 0),
+        maxDiscount:
+          applyTarget === "FREE_DELIVERY" || rawDiscountType === "FLAT"
+            ? 0
+            : Number(document.getElementById("couponMaxDiscount").value || 0),
         minOrderAmount: Number(document.getElementById("couponMinOrder").value || 0),
+        usageLimit: Number(document.getElementById("couponUsageLimit").value || 0),
+        perUserLimit: Number(document.getElementById("couponPerUserLimit").value || 0),
+        applicableCategories,
+        expiresAt: rawExpiry ? `${rawExpiry}T23:59:59+05:30` : null,
+        titleHi: document.getElementById("couponTitleHi").value.trim(),
+        titleEn: document.getElementById("couponTitleEn").value.trim(),
+        firstOrderOnly: document.getElementById("couponFirstOrderOnly").checked,
+        showOnStorefront: document.getElementById("couponShowOnStorefront").checked,
       };
       try {
-        await apiFetch("/api/admin/coupons", { method: "POST", body: JSON.stringify(payload) }, true);
-        document.getElementById("adminCouponForm").reset();
+        if (editId) {
+          await apiFetch(`/api/admin/coupons/${editId}`, { method: "PUT", body: JSON.stringify(payload) }, true);
+        } else {
+          await apiFetch("/api/admin/coupons", { method: "POST", body: JSON.stringify(payload) }, true);
+        }
+        resetAdminCouponForm();
         await refreshAdminData();
+        await loadStoreData();
       } catch (err) {
         showToast(err.message, true);
       }
@@ -5901,12 +6424,27 @@
       document.getElementById("phoneErrorMsg").classList.add("hidden");
       renderCheckoutDrawer();
       document.getElementById("checkoutModal").classList.remove("hidden");
+      if (state.pendingCouponCode && !state.appliedCoupon) {
+        document.getElementById("couponCodeInput").value = state.pendingCouponCode;
+        applyCouponCode(state.pendingCouponCode);
+      }
     }
 
     document.getElementById("langToggleBtn").addEventListener("click", toggleLanguage);
     document.getElementById("adminLangBtn").addEventListener("click", toggleLanguage);
     document.getElementById("themeToggleBtn").addEventListener("click", cycleTheme);
     document.getElementById("headerCartBtn").addEventListener("click", openCheckoutModalFromHeaderOrBar);
+    document.getElementById("custPhone").addEventListener("input", () => {
+      const clean = normalizeIndianPhone(document.getElementById("custPhone").value);
+      if (
+        clean &&
+        state.appliedCoupon &&
+        (state.appliedCoupon.firstOrderOnly || (state.appliedCoupon.perUserLimit || 0) > 0)
+      ) {
+        applyCouponCode(state.appliedCoupon.code);
+      }
+    });
+    syncCouponBuilderUI();
     document.getElementById("customerMenuSearch").addEventListener("input", (e) => {
       state.menuSearch = e.target.value;
       state.menuVisibleCount = MENU_PAGE_SIZE;
@@ -6046,5 +6584,6 @@
     renderAll();
     loadStoreData();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5ecfe183d858993',t:'MTc5NTQwMzU0OQ=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5ecfe183d858993',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f","spa":2}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5ed2f9028835505',t:'MTc5NTQwNTU3NQ=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5ed2f9028835505',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

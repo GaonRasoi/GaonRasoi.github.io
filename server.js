@@ -305,10 +305,21 @@ const blockedNumberSchema = new mongoose.Schema(
 const couponSchema = new mongoose.Schema(
   {
     code: { type: String, required: true, unique: true, uppercase: true, trim: true },
+    titleHi: { type: String, default: '', trim: true, maxlength: 80 },
+    titleEn: { type: String, default: '', trim: true, maxlength: 80 },
+    applyTarget: { type: String, enum: ['ITEMS', 'FREE_DELIVERY', 'BOTH'], default: 'ITEMS' },
     discountType: { type: String, enum: ['FLAT', 'PERCENT', 'FREE_DELIVERY'], required: true },
     discountValue: { type: Number, default: 0, min: 0 },
     minOrderAmount: { type: Number, default: 0, min: 0 },
     maxDiscount: { type: Number, default: 0, min: 0 },
+    freeDeliveryIncluded: { type: Boolean, default: false },
+    applicableCategories: [{ type: String, trim: true }],
+    applicableItemIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MenuItem' }],
+    usageLimit: { type: Number, default: 0, min: 0 },
+    perUserLimit: { type: Number, default: 0, min: 0 },
+    firstOrderOnly: { type: Boolean, default: false },
+    showOnStorefront: { type: Boolean, default: true },
+    expiresAt: { type: Date, default: null },
     isActive: { type: Boolean, default: true },
     usedCount: { type: Number, default: 0, min: 0 },
   },
@@ -507,7 +518,7 @@ async function getStoreSettings() {
   return settings;
 }
 
-async function evaluateCouponAndTotals(subtotal, settings, rawCouponCode) {
+async function evaluateCouponAndTotals(subtotal, settings, rawCouponCode, rawPhone = '', cartLines = null) {
   let deliveryCharge =
     settings.freeDeliveryAbove > 0 && subtotal >= settings.freeDeliveryAbove
       ? 0
@@ -521,6 +532,12 @@ async function evaluateCouponAndTotals(subtotal, settings, rawCouponCode) {
     if (!coupon) {
       return { errorCode: 'INVALID_COUPON', error: 'Invalid or inactive coupon code.' };
     }
+    if (coupon.expiresAt && new Date() > new Date(coupon.expiresAt)) {
+      return { errorCode: 'COUPON_EXPIRED', error: `Coupon ${coupon.code} has expired.` };
+    }
+    if (coupon.usageLimit > 0 && (coupon.usedCount || 0) >= coupon.usageLimit) {
+      return { errorCode: 'COUPON_LIMIT_REACHED', error: `Coupon ${coupon.code} usage limit (${coupon.usageLimit}) is full and can no longer be applied.` };
+    }
     if (subtotal < (coupon.minOrderAmount || 0)) {
       return {
         errorCode: 'COUPON_MIN_ORDER',
@@ -529,14 +546,73 @@ async function evaluateCouponAndTotals(subtotal, settings, rawCouponCode) {
       };
     }
 
-    if (coupon.discountType === 'FLAT') {
-      discountAmount = Math.min(subtotal, Math.round(coupon.discountValue));
-    } else if (coupon.discountType === 'PERCENT') {
-      let calc = Math.round((subtotal * coupon.discountValue) / 100);
-      if (coupon.maxDiscount > 0) calc = Math.min(calc, coupon.maxDiscount);
-      discountAmount = Math.min(subtotal, calc);
-    } else if (coupon.discountType === 'FREE_DELIVERY') {
+    const cleanPhone = normalizeIndianPhone(rawPhone || '');
+    if (cleanPhone) {
+      if (coupon.firstOrderOnly) {
+        const priorOrders = await Order.countDocuments({
+          phone: cleanPhone,
+          status: { $ne: 'Cancelled' },
+        });
+        if (priorOrders > 0) {
+          return {
+            errorCode: 'COUPON_FIRST_ORDER_ONLY',
+            error: `Coupon ${coupon.code} is valid only on your first order.`,
+          };
+        }
+      }
+      if (coupon.perUserLimit > 0) {
+        const userUsed = await Order.countDocuments({
+          phone: cleanPhone,
+          couponCode: coupon.code,
+          status: { $ne: 'Cancelled' },
+        });
+        if (userUsed >= coupon.perUserLimit) {
+          return {
+            errorCode: 'COUPON_USER_LIMIT',
+            error: `You have already used coupon ${coupon.code} (${coupon.perUserLimit}x limit per mobile).`,
+          };
+        }
+      }
+    }
+
+    const cats = Array.isArray(coupon.applicableCategories) ? coupon.applicableCategories.filter(Boolean) : [];
+    const itemIds = Array.isArray(coupon.applicableItemIds) ? coupon.applicableItemIds.map((x) => String(x)) : [];
+    let eligibleSubtotal = subtotal;
+
+    if ((cats.length > 0 || itemIds.length > 0) && Array.isArray(cartLines) && cartLines.length > 0) {
+      eligibleSubtotal = 0;
+      for (const line of cartLines) {
+        const matchCat = cats.length > 0 && cats.includes(line.category);
+        const matchItem = itemIds.length > 0 && itemIds.includes(String(line.menuItemId));
+        if (matchCat || matchItem) {
+          eligibleSubtotal += (line.sellingPrice || 0) * (line.quantity || 0);
+        }
+      }
+      if (eligibleSubtotal <= 0) {
+        const targetNames = cats.length > 0 ? cats.join(', ') : 'selected items';
+        return {
+          errorCode: 'COUPON_ITEM_NOT_ELIGIBLE',
+          error: `Coupon ${coupon.code} is valid only on: ${targetNames}.`,
+        };
+      }
+    }
+
+    const effectiveTarget =
+      coupon.applyTarget || (coupon.discountType === 'FREE_DELIVERY' ? 'FREE_DELIVERY' : coupon.freeDeliveryIncluded ? 'BOTH' : 'ITEMS');
+
+    if (effectiveTarget === 'FREE_DELIVERY' || coupon.discountType === 'FREE_DELIVERY') {
       deliveryCharge = 0;
+    } else {
+      if (coupon.discountType === 'FLAT') {
+        discountAmount = Math.min(eligibleSubtotal, Math.round(coupon.discountValue));
+      } else if (coupon.discountType === 'PERCENT') {
+        let calc = Math.round((eligibleSubtotal * coupon.discountValue) / 100);
+        if (coupon.maxDiscount > 0) calc = Math.min(calc, coupon.maxDiscount);
+        discountAmount = Math.min(eligibleSubtotal, calc);
+      }
+      if (effectiveTarget === 'BOTH' || coupon.freeDeliveryIncluded) {
+        deliveryCharge = 0;
+      }
     }
     appliedCoupon = coupon;
   }
@@ -604,6 +680,7 @@ async function prepareOrderItems(rawItems, enforceStock = true) {
       menuItemId: dbItem._id,
       nameHi: dbItem.nameHi,
       nameEn: dbItem.nameEn,
+      category: dbItem.category || 'Snacks',
       quantity: qty,
       sellingPrice: dbItem.sellingPrice,
       makingCost: dbItem.makingCost,
@@ -668,13 +745,24 @@ app.get('/api/health', (req, res) => {
 
 app.get('/api/store', async (req, res) => {
   try {
-    const [settings, menu] = await Promise.all([
+    const now = new Date();
+    const [settings, menu, rawCoupons] = await Promise.all([
       getStoreSettings(),
       MenuItem.find({}).select('-makingCost -__v').sort({ sortOrder: 1, createdAt: 1 }).lean(),
+      Coupon.find({
+        isActive: true,
+        showOnStorefront: true,
+        $or: [{ expiresAt: null }, { expiresAt: { $gt: now } }],
+      })
+        .select('code titleHi titleEn applyTarget discountType discountValue minOrderAmount maxDiscount freeDeliveryIncluded applicableCategories applicableItemIds firstOrderOnly perUserLimit usageLimit usedCount expiresAt')
+        .sort({ minOrderAmount: 1, createdAt: -1 })
+        .lean(),
     ]);
 
+    const coupons = rawCoupons.filter((c) => !c.usageLimit || (c.usedCount || 0) < c.usageLimit);
+
     res.json({
-      serverNow: new Date().toISOString(),
+      serverNow: now.toISOString(),
       settings: {
         shopNameHi: settings.shopNameHi,
         shopNameEn: settings.shopNameEn,
@@ -694,6 +782,7 @@ app.get('/api/store', async (req, res) => {
         timerEndsAt: settings.timerEndsAt || null,
       },
       menu,
+      coupons,
     });
   } catch (err) {
     console.error('GET /api/store error:', err);
@@ -703,20 +792,38 @@ app.get('/api/store', async (req, res) => {
 
 app.post('/api/coupons/validate', async (req, res) => {
   try {
-    const { code, subtotal } = req.body || {};
-    const numSub = Number(subtotal) || 0;
+    const { code, subtotal, phone, items } = req.body || {};
+    let numSub = Number(subtotal) || 0;
+    let cartLines = null;
+    if (Array.isArray(items) && items.length > 0) {
+      const itemRes = await prepareOrderItems(items, false);
+      if (!itemRes.error) {
+        numSub = itemRes.subtotal;
+        cartLines = itemRes.orderItems;
+      }
+    }
     const settings = await getStoreSettings();
-    const result = await evaluateCouponAndTotals(numSub, settings, code);
+    const result = await evaluateCouponAndTotals(numSub, settings, code, phone || '', cartLines);
     if (result.error) {
       return res.status(400).json({ code: result.errorCode, error: result.error, minOrderAmount: result.minOrderAmount });
     }
     res.json({
       valid: true,
       code: result.couponCode,
+      titleHi: result.appliedCoupon.titleHi || '',
+      titleEn: result.appliedCoupon.titleEn || '',
+      applyTarget: result.appliedCoupon.applyTarget || (result.appliedCoupon.discountType === 'FREE_DELIVERY' ? 'FREE_DELIVERY' : 'ITEMS'),
       discountAmount: result.discountAmount,
       discountValue: result.appliedCoupon.discountValue,
       maxDiscount: result.appliedCoupon.maxDiscount || 0,
       minOrderAmount: result.appliedCoupon.minOrderAmount || 0,
+      freeDeliveryIncluded: Boolean(result.appliedCoupon.freeDeliveryIncluded || result.appliedCoupon.discountType === 'FREE_DELIVERY' || result.appliedCoupon.applyTarget === 'BOTH'),
+      applicableCategories: result.appliedCoupon.applicableCategories || [],
+      applicableItemIds: result.appliedCoupon.applicableItemIds || [],
+      firstOrderOnly: Boolean(result.appliedCoupon.firstOrderOnly),
+      perUserLimit: result.appliedCoupon.perUserLimit || 0,
+      usageLimit: result.appliedCoupon.usageLimit || 0,
+      usedCount: result.appliedCoupon.usedCount || 0,
       deliveryCharge: result.deliveryCharge,
       totalAmount: result.totalAmount,
       discountType: result.appliedCoupon.discountType,
@@ -782,13 +889,37 @@ app.post('/api/orders', async (req, res) => {
       });
     }
 
-    const pricing = await evaluateCouponAndTotals(subtotal, settings, couponCode);
+    const pricing = await evaluateCouponAndTotals(subtotal, settings, couponCode, cleanPhone, orderItems);
     if (pricing.error) {
       return res.status(400).json({ code: pricing.errorCode, error: pricing.error });
     }
 
+    if (pricing.appliedCoupon) {
+      const claimedCoupon = await Coupon.findOneAndUpdate(
+        {
+          _id: pricing.appliedCoupon._id,
+          isActive: true,
+          $or: [{ usageLimit: 0 }, { $expr: { $lt: ['$usedCount', '$usageLimit'] } }],
+        },
+        { $inc: { usedCount: 1 } },
+        { returnDocument: 'after' }
+      ).lean();
+      if (!claimedCoupon) {
+        return res.status(400).json({
+          code: 'COUPON_LIMIT_REACHED',
+          error: `Coupon ${pricing.couponCode} usage limit has just been reached.`,
+        });
+      }
+    }
+
     const stockCommit = await commitStockDecrements(stockDecrements, true);
     if (stockCommit.error) {
+      if (pricing.appliedCoupon) {
+        await Coupon.updateOne(
+          { _id: pricing.appliedCoupon._id, usedCount: { $gt: 0 } },
+          { $inc: { usedCount: -1 } }
+        );
+      }
       return res.status(400).json({ code: stockCommit.errorCode, error: stockCommit.error });
     }
 
@@ -831,10 +962,6 @@ app.post('/api/orders', async (req, res) => {
       status: 'Pending',
       cancelDeadlineAt,
     });
-
-    if (pricing.appliedCoupon) {
-      await Coupon.updateOne({ _id: pricing.appliedCoupon._id }, { $inc: { usedCount: 1 } });
-    }
 
     res.status(201).json({
       message: 'Order placed successfully!',
@@ -1234,6 +1361,14 @@ app.patch('/api/admin/orders/:id/status', requireAdmin, validateObjectId, async 
     const updated = await Order.findByIdAndUpdate(req.params.id, updateDoc, { returnDocument: 'after' }).lean();
     if (!updated) {
       return res.status(404).json({ error: 'Order not found.' });
+    }
+
+    // If Admin cancelled an active order that used a coupon, free up that coupon slot
+    if (status === 'Cancelled' && existingOrder.status !== 'Cancelled' && existingOrder.couponCode) {
+      await Coupon.updateOne(
+        { code: existingOrder.couponCode, usedCount: { $gt: 0 } },
+        { $inc: { usedCount: -1 } }
+      );
     }
 
     res.json({ order: updated });
@@ -1670,7 +1805,25 @@ app.get('/api/admin/coupons', requireAdmin, async (req, res) => {
 
 app.post('/api/admin/coupons', requireAdmin, async (req, res) => {
   try {
-    const { code, discountType, discountValue, minOrderAmount, maxDiscount, isActive } = req.body || {};
+    const {
+      code,
+      titleHi,
+      titleEn,
+      applyTarget,
+      discountType,
+      discountValue,
+      minOrderAmount,
+      maxDiscount,
+      freeDeliveryIncluded,
+      applicableCategories,
+      applicableItemIds,
+      usageLimit,
+      perUserLimit,
+      firstOrderOnly,
+      showOnStorefront,
+      expiresAt,
+      isActive,
+    } = req.body || {};
     const cleanCode = typeof code === 'string' ? code.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '') : '';
     if (cleanCode.length < 3) {
       return res.status(400).json({ error: 'Coupon code must be at least 3 alphanumeric characters.' });
@@ -1679,12 +1832,52 @@ app.post('/api/admin/coupons', requireAdmin, async (req, res) => {
       return res.status(400).json({ error: 'Invalid discount type.' });
     }
 
+    const cleanTarget = ['ITEMS', 'FREE_DELIVERY', 'BOTH'].includes(applyTarget)
+      ? applyTarget
+      : discountType === 'FREE_DELIVERY'
+      ? 'FREE_DELIVERY'
+      : freeDeliveryIncluded
+      ? 'BOTH'
+      : 'ITEMS';
+
+    const numVal = Math.max(0, Number(discountValue) || 0);
+    if (cleanTarget !== 'FREE_DELIVERY' && discountType === 'PERCENT' && (numVal <= 0 || numVal > 100)) {
+      return res.status(400).json({ error: 'Percentage discount must be between 1 and 100.' });
+    }
+
+    let parsedExpiry = null;
+    if (expiresAt) {
+      const dt = new Date(expiresAt);
+      if (Number.isNaN(dt.getTime())) {
+        return res.status(400).json({ error: 'Invalid expiry date.' });
+      }
+      parsedExpiry = dt;
+    }
+
+    const cleanCats = Array.isArray(applicableCategories)
+      ? [...new Set(applicableCategories.map((c) => String(c).trim()).filter(Boolean))]
+      : [];
+    const cleanItemIds = Array.isArray(applicableItemIds)
+      ? applicableItemIds.filter((id) => mongoose.Types.ObjectId.isValid(String(id)))
+      : [];
+
     const coupon = await Coupon.create({
       code: cleanCode,
-      discountType,
-      discountValue: Math.max(0, Number(discountValue) || 0),
+      titleHi: titleHi ? String(titleHi).trim().slice(0, 80) : '',
+      titleEn: titleEn ? String(titleEn).trim().slice(0, 80) : '',
+      applyTarget: cleanTarget,
+      discountType: cleanTarget === 'FREE_DELIVERY' ? 'FREE_DELIVERY' : discountType,
+      discountValue: cleanTarget === 'FREE_DELIVERY' ? 0 : numVal,
       minOrderAmount: Math.max(0, Number(minOrderAmount) || 0),
       maxDiscount: Math.max(0, Number(maxDiscount) || 0),
+      freeDeliveryIncluded: cleanTarget === 'FREE_DELIVERY' || cleanTarget === 'BOTH' || Boolean(freeDeliveryIncluded),
+      applicableCategories: cleanCats,
+      applicableItemIds: cleanItemIds,
+      usageLimit: Math.max(0, parseInt(usageLimit, 10) || 0),
+      perUserLimit: Math.max(0, parseInt(perUserLimit, 10) || 0),
+      firstOrderOnly: Boolean(firstOrderOnly),
+      showOnStorefront: showOnStorefront !== undefined ? Boolean(showOnStorefront) : true,
+      expiresAt: parsedExpiry,
       isActive: isActive !== undefined ? Boolean(isActive) : true,
     });
     res.status(201).json({ coupon });
@@ -1698,13 +1891,47 @@ app.post('/api/admin/coupons', requireAdmin, async (req, res) => {
 app.put('/api/admin/coupons/:id', requireAdmin, validateObjectId, async (req, res) => {
   try {
     const updates = {};
+    if (req.body.code !== undefined) {
+      const cleanCode = String(req.body.code || '').trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+      if (cleanCode.length < 3) {
+        return res.status(400).json({ error: 'Coupon code must be at least 3 alphanumeric characters.' });
+      }
+      updates.code = cleanCode;
+    }
+    if (req.body.applyTarget !== undefined && ['ITEMS', 'FREE_DELIVERY', 'BOTH'].includes(req.body.applyTarget)) {
+      updates.applyTarget = req.body.applyTarget;
+      updates.freeDeliveryIncluded = req.body.applyTarget === 'FREE_DELIVERY' || req.body.applyTarget === 'BOTH';
+    }
+    if (req.body.discountType !== undefined && ['FLAT', 'PERCENT', 'FREE_DELIVERY'].includes(req.body.discountType)) {
+      updates.discountType = req.body.discountType;
+    }
     if (req.body.isActive !== undefined) updates.isActive = Boolean(req.body.isActive);
-    if (req.body.discountValue !== undefined) updates.discountValue = Math.max(0, Number(req.body.discountValue));
-    if (req.body.minOrderAmount !== undefined) updates.minOrderAmount = Math.max(0, Number(req.body.minOrderAmount));
+    if (req.body.showOnStorefront !== undefined) updates.showOnStorefront = Boolean(req.body.showOnStorefront);
+    if (req.body.firstOrderOnly !== undefined) updates.firstOrderOnly = Boolean(req.body.firstOrderOnly);
+    if (req.body.freeDeliveryIncluded !== undefined && req.body.applyTarget === undefined) {
+      updates.freeDeliveryIncluded = Boolean(req.body.freeDeliveryIncluded);
+    }
+    if (req.body.discountValue !== undefined) updates.discountValue = Math.max(0, Number(req.body.discountValue) || 0);
+    if (req.body.minOrderAmount !== undefined) updates.minOrderAmount = Math.max(0, Number(req.body.minOrderAmount) || 0);
+    if (req.body.maxDiscount !== undefined) updates.maxDiscount = Math.max(0, Number(req.body.maxDiscount) || 0);
+    if (req.body.usageLimit !== undefined) updates.usageLimit = Math.max(0, parseInt(req.body.usageLimit, 10) || 0);
+    if (req.body.perUserLimit !== undefined) updates.perUserLimit = Math.max(0, parseInt(req.body.perUserLimit, 10) || 0);
+    if (req.body.titleHi !== undefined) updates.titleHi = String(req.body.titleHi).trim().slice(0, 80);
+    if (req.body.titleEn !== undefined) updates.titleEn = String(req.body.titleEn).trim().slice(0, 80);
+    if (Array.isArray(req.body.applicableCategories)) {
+      updates.applicableCategories = [...new Set(req.body.applicableCategories.map((c) => String(c).trim()).filter(Boolean))];
+    }
+    if (Array.isArray(req.body.applicableItemIds)) {
+      updates.applicableItemIds = req.body.applicableItemIds.filter((id) => mongoose.Types.ObjectId.isValid(String(id)));
+    }
+    if (req.body.expiresAt !== undefined) {
+      updates.expiresAt = req.body.expiresAt ? new Date(req.body.expiresAt) : null;
+    }
     const coupon = await Coupon.findByIdAndUpdate(req.params.id, updates, { returnDocument: 'after' }).lean();
     if (!coupon) return res.status(404).json({ error: 'Coupon not found.' });
     res.json({ coupon });
   } catch (err) {
+    if (err.code === 11000) return res.status(400).json({ error: 'Coupon code already exists.' });
     console.error('PUT /api/admin/coupons/:id error:', err);
     res.status(500).json({ error: 'Failed to update coupon.' });
   }
