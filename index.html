@@ -2661,7 +2661,8 @@
       ["red bull", "redbull", "रेड बुल"],
       ["campa gold", "gold boost", "boost"],
       ["energy", "energy drink", "एनर्जी"],
-      ["combo", "combos", "pack", "offer", "meal", "khana", "bhojan", "lunch", "dinner", "कॉम्बो", "पैक", "भोजन", "खाना"],
+      ["combo", "combos", "pack", "offer", "कॉम्बो", "पैक"],
+      ["meal", "meals", "khana", "bhojan", "lunch", "dinner", "भोजन", "खाना"],
       ["party", "family", "box", "group", "mega", "super", "friends", "dost", "पार्टी", "फैमिली", "बॉक्स", "दोस्त"],
       ["feast", "फ़ीस्ट", "फीस्ट"],
       ["double", "duo", "2 pcs", "2 plates", "डबल"],
@@ -2836,6 +2837,10 @@
     }
 
     const _itemSearchIdxCache = new WeakMap();
+
+    function normalizeMenuName(str) {
+      return normalizeSearchText(str);
+    }
 
     function normalizeTitleForSearch(str) {
       return normalizeSearchText(str)
@@ -8504,5 +8509,5 @@
     renderAll();
     loadStoreData();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5f050c25f2f3a58',t:'MTc5NTQzODM5Mg=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5f050c25f2f3a58',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5f060ab3f62387e',t:'MTc5NTQzOTA0NA=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5f060ab3f62387e',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
