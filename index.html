@@ -1981,7 +1981,7 @@
 
       for (const item of state.menu) {
         const qty = state.cart[item._id] || 0;
-        if (qty > 0 && item.inStock) {
+        if (qty > 0 && item.inStock !== false && item.stockCount !== 0) {
           totalItems += qty;
           subtotal += item.sellingPrice * qty;
           detailedItems.push({ item, qty });
@@ -2000,16 +2000,18 @@
         const cp = state.appliedCoupon;
         if (subtotal >= (cp.minOrderAmount || 0)) {
           const cats = Array.isArray(cp.applicableCategories) ? cp.applicableCategories.filter(Boolean) : [];
+          const itemIds = Array.isArray(cp.applicableItemIds) ? cp.applicableItemIds.map(String).filter(Boolean) : [];
           let eligibleSubtotal = subtotal;
-          if (cats.length > 0) {
-            eligibleSubtotal = detailedItems.reduce(
-              (sum, { item, qty }) => (cats.includes(item.category || "Snacks") ? sum + item.sellingPrice * qty : sum),
-              0
-            );
+          if (cats.length > 0 || itemIds.length > 0) {
+            eligibleSubtotal = detailedItems.reduce((sum, { item, qty }) => {
+              const catOk = cats.length === 0 || cats.includes(item.category || "Snacks");
+              const idOk = itemIds.length === 0 || itemIds.includes(String(item._id));
+              return catOk && idOk ? sum + item.sellingPrice * qty : sum;
+            }, 0);
           }
 
-          if (cats.length > 0 && eligibleSubtotal <= 0) {
-            couponWarning = t("couponCatFail", cp.code, cats.join(", "));
+          if ((cats.length > 0 || itemIds.length > 0) && eligibleSubtotal <= 0) {
+            couponWarning = t("couponCatFail", cp.code, cats.length > 0 ? cats.join(", ") : "Selected Items");
           } else {
             const target =
               cp.applyTarget ||
@@ -2571,7 +2573,10 @@
       ["campa", "kampa", "कैंपा"],
       ["cola", "कोला"],
       ["orange", "santara", "संतरा", "ऑरेंज"],
-      ["hell", "red bull", "redbull", "energy", "boost", "एनर्जी"],
+      ["hell", "हेल"],
+      ["red bull", "redbull", "रेड बुल"],
+      ["campa gold", "gold boost", "boost"],
+      ["energy", "energy drink", "एनर्जी"],
       ["combo", "combos", "pack", "offer", "meal", "कॉम्बो", "पैक"],
       ["party", "family", "box", "group", "mega", "super", "पार्टी", "फैमिली", "बॉक्स"],
       ["feast", "फ़ीस्ट", "फीस्ट"],
@@ -2581,7 +2586,13 @@
       ["large", "full", "big", "बड़ी", "फुल"],
       ["nashta", "breakfast", "snacks", "नाश्ता"],
       ["can", "tin", "कैन"],
-      ["litre", "liter", "1l", "1.25l", "500ml", "400ml", "लीटर"],
+      ["400ml", "400 ml"],
+      ["500ml", "500 ml"],
+      ["250ml", "250 ml"],
+      ["185ml", "185 ml"],
+      ["1l", "1 l", "1 litre", "1 liter", "1ltr"],
+      ["1.25l", "1.25 l", "1.25 litre", "1.25 liter", "1.25ltr"],
+      ["litre", "liter", "लीटर"],
       ["free delivery", "199", "फ्री डिलीवरी"],
     ];
 
@@ -2611,11 +2622,15 @@
       const hi = normalizeSearchText(item.nameHi);
       const en = normalizeSearchText(item.nameEn);
       const titleCombined = `${hi} ${en}`;
-      if (hi === q || en === q) return 100;
+      const wantsCombo = /(\+|combo|pack|box|party|family|feast|कॉम्बो|पैक|बॉक्स|पार्टी|फैमिली)/.test(q);
+      const isSingleCore = !(item.nameEn || "").includes("+") && item.category !== "Combos";
+      const singleBonus = !wantsCombo ? (isSingleCore ? 20 : -10) : 0;
+
+      if (hi === q || en === q) return 100 + singleBonus;
       const expanded = expandSearchTerms(q);
-      if (expanded.some((term) => hi === term || en === term)) return 98;
-      if (hi.startsWith(q) || en.startsWith(q)) return 95;
-      if (hi.includes(q) || en.includes(q)) return 88;
+      if (expanded.some((term) => hi === term || en === term)) return 98 + singleBonus;
+      if (hi.startsWith(q) || en.startsWith(q)) return 95 + singleBonus;
+      if (hi.includes(q) || en.includes(q)) return 88 + singleBonus;
 
       const tokens = q.split(/\s+/).filter(Boolean);
 
@@ -2627,18 +2642,20 @@
         });
         if (allTokensInTitle) {
           const firstTokExp = expandSearchTerms(tokens[0]);
-          if (firstTokExp.some((term) => hi.startsWith(term) || en.startsWith(term))) return 82;
-          return 75;
+          if (firstTokExp.some((term) => hi.startsWith(term) || en.startsWith(term))) return 82 + singleBonus;
+          return 75 + singleBonus;
         }
       }
 
-      if (tokens.length === 1 && expanded.some((term) => hi.startsWith(term) || en.startsWith(term))) return 60;
-      if (expanded.some((term) => titleCombined.includes(term))) return 48;
+      if (tokens.length === 1 && expanded.some((term) => hi.startsWith(term) || en.startsWith(term))) {
+        return 60 + singleBonus;
+      }
+      if (expanded.some((term) => titleCombined.includes(term))) return 48 + singleBonus;
 
       const cat = normalizeSearchText(item.category || "");
       const catLbl = normalizeSearchText(getCategoryLabel(item.category || "Snacks"));
       const catCombined = `${cat} ${catLbl}`;
-      if (catCombined.includes(q) || expanded.some((term) => catCombined.includes(term))) return 35;
+      if (catCombined.includes(q) || expanded.some((term) => catCombined.includes(term))) return 35 + singleBonus;
       return 20;
     }
 
@@ -4096,8 +4113,14 @@
           const minAmt = c.minOrderAmount || 0;
           const diff = Math.max(0, minAmt - subtotal);
           const cats = Array.isArray(c.applicableCategories) ? c.applicableCategories.filter(Boolean) : [];
+          const itemIds = Array.isArray(c.applicableItemIds) ? c.applicableItemIds.map(String).filter(Boolean) : [];
           const hasMatchingCat =
-            cats.length === 0 || detailedItems.some(({ item }) => cats.includes(item.category || "Snacks"));
+            (cats.length === 0 && itemIds.length === 0) ||
+            detailedItems.some(({ item }) => {
+              const catOk = cats.length === 0 || cats.includes(item.category || "Snacks");
+              const idOk = itemIds.length === 0 || itemIds.includes(String(item._id));
+              return catOk && idOk;
+            });
           const ready = diff === 0 && hasMatchingCat;
           const badge = formatCouponBadgeText(c);
           const title = (state.lang === "hi" ? c.titleHi : c.titleEn) || c.titleHi || c.titleEn || "";
@@ -4112,7 +4135,7 @@
           const btnLabel = isApplied
             ? t("couponAppliedBtn")
             : !hasMatchingCat
-            ? cats[0]
+            ? cats[0] || "Items"
             : ready
             ? t("applyCoupon")
             : t("couponNeedMore", diff);
@@ -7897,5 +7920,5 @@
     renderAll();
     loadStoreData();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5ee6b6fca019788',t:'MTc5NTQxODUxMw=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5ee6b6fca019788',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>

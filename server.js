@@ -1436,17 +1436,32 @@ app.patch('/api/admin/orders/:id/status', requireAdmin, validateObjectId, async 
       }
     }
 
-    const updated = await Order.findByIdAndUpdate(req.params.id, updateDoc, { returnDocument: 'after' }).lean();
+    const queryFilter = status === 'Cancelled' ? { _id: req.params.id, status: { $ne: 'Cancelled' } } : { _id: req.params.id };
+    let updated = await Order.findOneAndUpdate(queryFilter, updateDoc, { returnDocument: 'after' }).lean();
     if (!updated) {
-      return res.status(404).json({ error: 'Order not found.' });
+      if (status === 'Cancelled' && existingOrder.status === 'Cancelled') {
+        updated = await Order.findByIdAndUpdate(req.params.id, updateDoc, { returnDocument: 'after' }).lean();
+      } else {
+        return res.status(404).json({ error: 'Order not found.' });
+      }
     }
 
-    // If Admin cancelled an active order that used a coupon, free up that coupon slot
-    if (status === 'Cancelled' && existingOrder.status !== 'Cancelled' && existingOrder.couponCode) {
-      await Coupon.updateOne(
-        { code: existingOrder.couponCode, usedCount: { $gt: 0 } },
-        { $inc: { usedCount: -1 } }
-      );
+    // If Admin cancelled an active order, restore limited-stock counts and free up coupon slot
+    if (status === 'Cancelled' && existingOrder.status !== 'Cancelled') {
+      for (const it of existingOrder.items || []) {
+        if (it.menuItemId && it.quantity > 0) {
+          await MenuItem.updateOne(
+            { _id: it.menuItemId, stockCount: { $ne: null } },
+            { $inc: { stockCount: it.quantity }, $set: { inStock: true } }
+          );
+        }
+      }
+      if (existingOrder.couponCode) {
+        await Coupon.updateOne(
+          { code: existingOrder.couponCode, usedCount: { $gt: 0 } },
+          { $inc: { usedCount: -1 } }
+        );
+      }
     }
 
     res.json({ order: updated });
@@ -1511,7 +1526,13 @@ app.patch('/api/admin/orders/:id/schedule', requireAdmin, validateObjectId, asyn
     const eMin = parseMin(etaInMin);
 
     let nextStatus = existingOrder.status;
-    if (oMin === 0 && (ORDER_STATUS_RANK[nextStatus] ?? 0) < 2) {
+    let nextPaymentMode = existingOrder.paymentCollectedMode;
+    if (dMin === 0 && (ORDER_STATUS_RANK[nextStatus] ?? 0) < 3) {
+      nextStatus = 'Delivered';
+      if (!nextPaymentMode || nextPaymentMode === 'Pending') {
+        nextPaymentMode = 'Cash';
+      }
+    } else if (oMin === 0 && (ORDER_STATUS_RANK[nextStatus] ?? 0) < 2) {
       nextStatus = 'Out for Delivery';
     } else if (cMin === 0 && (ORDER_STATUS_RANK[nextStatus] ?? 0) < 1) {
       nextStatus = 'Cooking';
@@ -1532,19 +1553,30 @@ app.patch('/api/admin/orders/:id/schedule', requireAdmin, validateObjectId, asyn
       etaEndsAt = cookingAt;
     }
 
-    const scheduleObj = {
-      cookingAt,
-      outForDeliveryAt,
-      deliveredAt,
-      etaEndsAt,
-      noteHi: noteHi ? String(noteHi).trim().slice(0, 140) : '',
-      noteEn: noteEn ? String(noteEn).trim().slice(0, 140) : '',
-      updatedAt: new Date(nowMs),
-    };
+    const scheduleObj =
+      nextStatus === 'Delivered'
+        ? {
+            cookingAt: null,
+            outForDeliveryAt: null,
+            deliveredAt: null,
+            etaEndsAt: null,
+            noteHi: '',
+            noteEn: '',
+            updatedAt: null,
+          }
+        : {
+            cookingAt,
+            outForDeliveryAt,
+            deliveredAt,
+            etaEndsAt,
+            noteHi: noteHi ? String(noteHi).trim().slice(0, 140) : '',
+            noteEn: noteEn ? String(noteEn).trim().slice(0, 140) : '',
+            updatedAt: new Date(nowMs),
+          };
 
     const updated = await Order.findByIdAndUpdate(
       req.params.id,
-      { $set: { status: nextStatus, statusSchedule: scheduleObj } },
+      { $set: { status: nextStatus, paymentCollectedMode: nextPaymentMode, statusSchedule: scheduleObj } },
       { returnDocument: 'after' }
     ).lean();
 
@@ -2152,6 +2184,15 @@ app.put('/api/admin/menu/:id', requireAdmin, validateObjectId, async (req, res) 
     if (isVeg !== undefined) updates.isVeg = Boolean(isVeg);
     if (isPopular !== undefined) updates.isPopular = Boolean(isPopular);
     if (sortOrder !== undefined && Number.isFinite(Number(sortOrder))) updates.sortOrder = Number(sortOrder);
+
+    if (updates.stockCount === 0 && inStock === undefined) {
+      updates.inStock = false;
+    } else if (updates.inStock === true && stockCount === undefined) {
+      const existingItem = await MenuItem.findById(req.params.id).select('stockCount').lean();
+      if (existingItem && existingItem.stockCount === 0) {
+        updates.stockCount = null;
+      }
+    }
 
     const item = await MenuItem.findByIdAndUpdate(req.params.id, updates, { returnDocument: 'after' }).lean();
     if (!item) return res.status(404).json({ error: 'Menu item not found.' });
