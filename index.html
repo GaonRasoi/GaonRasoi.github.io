@@ -114,14 +114,14 @@
   <!-- 1. TOP STICKY HEADER                                                  -->
   <!-- ===================================================================== -->
   <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-orange-100 shadow-sm">
-    <div class="max-w-3xl mx-auto px-3.5 py-2.5 flex items-center justify-between gap-2">
+    <div class="max-w-3xl mx-auto px-2.5 sm:px-3.5 py-2 flex items-center justify-between gap-1.5 sm:gap-2">
       <!-- Shop Logo (Tap 5 times in 3 seconds for Secret Admin Login) -->
-      <div class="flex items-center gap-2.5 min-w-0">
+      <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
         <button
           id="shopLogoBtn"
           type="button"
           aria-label="Shop Logo"
-          class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 text-white flex items-center justify-center shadow-md shadow-orange-200 shrink-0 active:scale-95 transition select-none"
+          class="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 text-white flex items-center justify-center shadow-md shadow-orange-200 shrink-0 active:scale-95 transition select-none"
         >
           <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 11h18M5 11a7 7 0 0 0 14 0M12 4v2M8 5l.5 1.5M16 5l-.5 1.5M7 19h10" />
@@ -129,40 +129,51 @@
         </button>
         <div class="min-w-0">
           <div class="flex items-center gap-1.5 flex-wrap">
-            <h1 id="headerShopName" class="text-base sm:text-lg font-extrabold text-slate-900 truncate">गाँव रसोई</h1>
-            <span id="headerStatusBadge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
+            <h1 id="headerShopName" class="text-sm sm:text-lg font-extrabold text-slate-900 truncate">गाँव रसोई</h1>
+            <span id="headerStatusBadge" class="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-emerald-100 text-emerald-800">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
               <span id="headerStatusText">खुला है</span>
             </span>
           </div>
-          <p id="headerTagline" class="text-[11px] sm:text-xs text-slate-500 truncate">ताज़ा खाना • ₹199+ पर फ़्री डिलीवरी • न्यूनतम ₹60</p>
+          <p id="headerTagline" class="text-[10px] sm:text-xs text-slate-500 truncate">ताज़ा खाना • ₹199+ पर फ़्री डिलीवरी • न्यूनतम ₹60</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-1.5 shrink-0">
+      <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
         <a id="headerCallBtn" href="#" class="hidden px-2 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">📞</a>
         <button
           id="themeToggleBtn"
           type="button"
           aria-label="Switch Theme"
           title="Theme: Light / Dark / Warm"
-          class="inline-flex items-center justify-center px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs sm:text-sm font-bold transition active:scale-95"
+          class="inline-flex items-center justify-center px-2 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs sm:text-sm font-bold transition active:scale-95"
         >
           <span id="themeToggleIcon">☀️</span>
+        </button>
+        <button
+          id="headerOrderBtn"
+          type="button"
+          aria-label="Track My Order"
+          title="My Order / Track Order"
+          class="relative inline-flex items-center gap-1 px-2 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs sm:text-sm font-extrabold transition active:scale-95"
+        >
+          <span>📦</span>
+          <span id="headerOrderBadge" class="hidden min-w-[16px] h-[16px] px-1 rounded-full bg-emerald-600 text-white text-[9px] font-black flex items-center justify-center">1</span>
+          <span id="headerOrderPulse" class="hidden absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white animate-pulse"></span>
         </button>
         <button
           id="headerCartBtn"
           type="button"
           aria-label="View Cart"
-          class="relative inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-orange-200 bg-orange-600 hover:bg-orange-700 text-white text-xs sm:text-sm font-extrabold shadow-sm transition active:scale-95"
+          class="relative inline-flex items-center gap-1 px-2 py-1.5 rounded-xl border border-orange-200 bg-orange-600 hover:bg-orange-700 text-white text-xs sm:text-sm font-extrabold shadow-sm transition active:scale-95"
         >
           <span>🛒</span>
-          <span id="headerCartBadge" class="min-w-[18px] h-[18px] px-1 rounded-full bg-white text-orange-700 text-[10px] font-black flex items-center justify-center">0</span>
+          <span id="headerCartBadge" class="min-w-[17px] h-[17px] px-1 rounded-full bg-white text-orange-700 text-[10px] font-black flex items-center justify-center">0</span>
         </button>
         <button
           id="langToggleBtn"
           type="button"
-          class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-orange-800 text-xs sm:text-sm font-bold transition active:scale-95"
+          class="inline-flex items-center gap-0.5 sm:gap-1 px-2 py-1.5 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-orange-800 text-[11px] sm:text-sm font-bold transition active:scale-95"
         >
           <span>🌐</span>
           <span id="langToggleLabel">EN</span>
@@ -196,59 +207,6 @@
     </div>
 
     <div id="freeDeliveryHintBanner" class="hidden rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2 text-center text-xs font-extrabold text-emerald-800"></div>
-
-    <!-- Track Recent Order Card (with Live Stepper & Scheduled Countdown Timer) -->
-    <section id="recentOrderCard" class="hidden rounded-2xl bg-white border border-emerald-200 p-3.5 shadow-sm space-y-2.5">
-      <div class="flex items-center justify-between gap-2 flex-wrap">
-        <div>
-          <div class="flex items-center gap-2 flex-wrap">
-            <span id="recentOrderTitle" class="text-xs font-bold text-slate-500 uppercase tracking-wide">आपका पिछला ऑर्डर</span>
-            <span id="recentOrderNum" class="text-xs font-extrabold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md"></span>
-            <span id="recentOrderCustName" class="hidden text-xs font-bold text-orange-700 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200"></span>
-          </div>
-          <p class="text-sm font-bold text-slate-800 mt-1">
-            <span id="recentOrderStatusLabel">स्थिति:</span>
-            <span id="recentOrderStatusBadge" class="ml-1 inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">Pending</span>
-          </p>
-          <p id="recentOrderEtaLine" class="hidden text-xs font-bold text-emerald-700 mt-0.5">🛵 आपका ऑर्डर 10 से 15 मिनट में डिलीवर कर दिया जाएगा</p>
-          <p id="recentOrderRiderText" class="hidden text-xs text-slate-600 mt-0.5 font-semibold"></p>
-        </div>
-        <div class="flex items-center gap-1.5">
-          <button id="refreshTrackBtn" type="button" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200 transition">
-            🔄 <span id="refreshTrackText">स्थिति देखें</span>
-          </button>
-          <button id="dismissTrackBtn" type="button" aria-label="Dismiss" class="hidden w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold">✕</button>
-        </div>
-      </div>
-
-      <div id="recentOrderTimerBox" class="hidden rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white px-3 py-2 flex items-center justify-between gap-2">
-        <div class="min-w-0">
-          <div id="recentOrderTimerLabel" class="text-xs font-extrabold truncate">⏱️ डिलीवरी अपडेट टाइमर</div>
-          <div id="recentOrderScheduleNote" class="hidden text-[11px] text-orange-50 truncate"></div>
-        </div>
-        <span id="recentOrderTimerClock" class="px-2.5 py-0.5 rounded-lg bg-white/20 font-mono text-sm font-black shrink-0">00:00</span>
-      </div>
-
-      <!-- 5-Minute Customer Cancel Window / Auto-Lock Box -->
-      <div id="recentOrderCancelBox" class="hidden rounded-xl border p-2.5 space-y-2">
-        <div class="flex items-center justify-between gap-2 flex-wrap">
-          <div class="text-xs font-bold leading-snug" id="recentOrderCancelMsg"></div>
-          <span id="recentOrderCancelClock" class="px-2 py-0.5 rounded-lg font-mono text-xs font-black shrink-0"></span>
-        </div>
-        <div id="recentOrderCancelActions" class="flex items-center gap-2 flex-wrap">
-          <button id="recentCancelTriggerBtn" type="button" class="px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-extrabold transition"></button>
-        </div>
-        <div id="recentOrderCancelConfirmBox" class="hidden rounded-xl bg-red-50 border border-red-200 p-2.5 space-y-2">
-          <div id="recentCancelConfirmText" class="text-xs font-bold text-red-800"></div>
-          <div class="flex items-center gap-2">
-            <button id="confirmRecentCancelBtn" type="button" class="flex-1 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold"></button>
-            <button id="abortRecentCancelBtn" type="button" class="flex-1 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-bold"></button>
-          </div>
-        </div>
-      </div>
-
-      <div id="recentOrderStepper" class="grid grid-cols-4 gap-1 text-center text-[10px] font-bold pt-1"></div>
-    </section>
 
     <!-- Active Public Offers / Coupons Strip -->
     <section id="storefrontCouponsBar" class="hidden space-y-1.5">
@@ -357,6 +315,33 @@
       </div>
 
       <div class="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1 min-h-0 overscroll-contain">
+        <!-- Recent / Active Order Quick Strip inside Cart -->
+        <div id="checkoutActiveOrderStrip" class="hidden rounded-2xl bg-emerald-50 border border-emerald-200 p-3 flex items-center justify-between gap-2.5">
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="text-xs font-extrabold text-emerald-900" id="checkoutActiveOrderNum">📦 GR-0000</span>
+              <span id="checkoutActiveOrderBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Pending</span>
+            </div>
+            <p id="checkoutActiveOrderSub" class="text-[11px] font-semibold text-emerald-700 truncate mt-0.5"></p>
+          </div>
+          <button id="checkoutViewOrderBtn" type="button" class="shrink-0 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-sm transition">
+            <span id="checkoutViewOrderBtnText">देखें</span> →
+          </button>
+        </div>
+
+        <!-- Empty Cart State (when Cart has 0 items) -->
+        <div id="checkoutEmptyCartBox" class="hidden py-6 text-center space-y-3">
+          <div class="w-14 h-14 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center text-3xl mx-auto">🛒</div>
+          <div class="space-y-1">
+            <h4 id="emptyCartTitle" class="text-base font-extrabold text-slate-900">आपका कार्ट अभी खाली है</h4>
+            <p id="emptyCartDesc" class="text-xs text-slate-500">मेनू से अपने पसंदीदा आइटम जोड़ें और तुरंत ऑर्डर करें।</p>
+          </div>
+          <button id="emptyCartBrowseBtn" type="button" class="px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs sm:text-sm font-extrabold shadow">
+            🍽️ <span id="emptyCartBrowseBtnText">मेनू देखें</span>
+          </button>
+        </div>
+
+        <div id="checkoutFilledBody" class="space-y-4">
         <div id="checkoutItemsList" class="space-y-2.5"></div>
 
         <!-- Coupon Code Input + Available Coupons Picker -->
@@ -443,6 +428,7 @@
           </button>
           <p id="coldStartHint" class="hidden text-center text-[11px] text-slate-500 animate-pulse"></p>
         </form>
+        </div>
       </div>
     </div>
   </div>
@@ -513,6 +499,94 @@
         <button id="closeSuccessModalBtn" type="button" class="w-full py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-sm">
           <span id="successDoneBtnText">ठीक है / ऑर्डर ट्रैक करें</span>
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5A. ORDER TRACKING DRAWER / MODAL (Opened from Header 📦 Button or Cart) -->
+  <div id="orderTrackModal" class="hidden fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center">
+    <div class="bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl max-h-[92vh] max-h-[92dvh] flex flex-col shadow-2xl animate-slide-up overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+        <h3 id="orderTrackModalTitle" class="text-lg font-extrabold text-slate-900">📦 आपका ऑर्डर और लाइव स्थिति</h3>
+        <button id="closeOrderTrackBtn" type="button" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center">✕</button>
+      </div>
+
+      <div class="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1 min-h-0 overscroll-contain">
+        <!-- Active / Recent Order Card (Live Status, ETA, 5-Min Cancel Box, 4-Step Stepper) -->
+        <section id="recentOrderCard" class="hidden rounded-2xl bg-white border border-emerald-200 p-3.5 shadow-sm space-y-2.5">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span id="recentOrderTitle" class="text-xs font-bold text-slate-500 uppercase tracking-wide">आपका पिछला ऑर्डर</span>
+                <span id="recentOrderNum" class="text-xs font-extrabold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md"></span>
+                <span id="recentOrderCustName" class="hidden text-xs font-bold text-orange-700 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200"></span>
+              </div>
+              <p class="text-sm font-bold text-slate-800 mt-1">
+                <span id="recentOrderStatusLabel">स्थिति:</span>
+                <span id="recentOrderStatusBadge" class="ml-1 inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">Pending</span>
+              </p>
+              <p id="recentOrderEtaLine" class="hidden text-xs font-bold text-emerald-700 mt-0.5">🛵 आपका ऑर्डर 10 से 15 मिनट में डिलीवर कर दिया जाएगा</p>
+              <p id="recentOrderRiderText" class="hidden text-xs text-slate-600 mt-0.5 font-semibold"></p>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button id="refreshTrackBtn" type="button" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200 transition">
+                🔄 <span id="refreshTrackText">स्थिति देखें</span>
+              </button>
+              <button id="dismissTrackBtn" type="button" aria-label="Dismiss" class="hidden w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold">✕</button>
+            </div>
+          </div>
+
+          <div id="trackModalItemsBox" class="hidden rounded-xl bg-slate-50 border border-slate-200/80 px-3 py-2 text-xs space-y-1">
+            <div id="trackModalItemsText" class="font-semibold text-slate-700 leading-relaxed"></div>
+            <div id="trackModalTotalText" class="font-extrabold text-slate-900"></div>
+          </div>
+
+          <div id="recentOrderTimerBox" class="hidden rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white px-3 py-2 flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <div id="recentOrderTimerLabel" class="text-xs font-extrabold truncate">⏱️ डिलीवरी अपडेट टाइमर</div>
+              <div id="recentOrderScheduleNote" class="hidden text-[11px] text-orange-50 truncate"></div>
+            </div>
+            <span id="recentOrderTimerClock" class="px-2.5 py-0.5 rounded-lg bg-white/20 font-mono text-sm font-black shrink-0">00:00</span>
+          </div>
+
+          <!-- 5-Minute Customer Cancel Window / Auto-Lock Box -->
+          <div id="recentOrderCancelBox" class="hidden rounded-xl border p-2.5 space-y-2">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+              <div class="text-xs font-bold leading-snug" id="recentOrderCancelMsg"></div>
+              <span id="recentOrderCancelClock" class="px-2 py-0.5 rounded-lg font-mono text-xs font-black shrink-0"></span>
+            </div>
+            <div id="recentOrderCancelActions" class="flex items-center gap-2 flex-wrap">
+              <button id="recentCancelTriggerBtn" type="button" class="px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-extrabold transition"></button>
+            </div>
+            <div id="recentOrderCancelConfirmBox" class="hidden rounded-xl bg-red-50 border border-red-200 p-2.5 space-y-2">
+              <div id="recentCancelConfirmText" class="text-xs font-bold text-red-800"></div>
+              <div class="flex items-center gap-2">
+                <button id="confirmRecentCancelBtn" type="button" class="flex-1 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold"></button>
+                <button id="abortRecentCancelBtn" type="button" class="flex-1 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-bold"></button>
+              </div>
+            </div>
+          </div>
+
+          <div id="recentOrderStepper" class="grid grid-cols-4 gap-1 text-center text-[10px] font-bold pt-1"></div>
+        </section>
+
+        <!-- Empty State + Quick Order Lookup (when no saved recentOrder on device) -->
+        <div id="orderTrackEmptyBox" class="hidden space-y-4">
+          <div class="text-center py-3 space-y-1.5">
+            <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-2xl mx-auto">📦</div>
+            <p id="orderTrackEmptyMsg" class="text-sm font-bold text-slate-700">अभी कोई सक्रिय ऑर्डर सेव नहीं है।</p>
+            <p id="orderTrackEmptySub" class="text-xs text-slate-500">यदि आपने ऑर्डर किया है तो ऑर्डर नंबर और मोबाइल से लाइव स्थिति देखें:</p>
+          </div>
+          <form id="trackLookupForm" class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-2.5">
+            <div id="trackLookupTitle" class="text-xs font-extrabold text-slate-800">🔍 ऑर्डर नंबर से ट्रैक करें</div>
+            <input id="trackLookupOrderNum" type="text" required maxlength="24" placeholder="ऑर्डर नंबर (जैसे GR-19462443)" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm uppercase font-bold" />
+            <input id="trackLookupPhone" type="tel" inputmode="numeric" required maxlength="14" placeholder="10 अंकों का मोबाइल नंबर" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm" />
+            <p id="trackLookupError" class="hidden text-xs font-semibold text-red-600"></p>
+            <button id="trackLookupSubmitBtn" type="submit" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-extrabold">
+              <span id="trackLookupSubmitText">स्थिति खोजें</span>
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
@@ -1112,6 +1186,17 @@
         freeDeliveryBanner: (amt) => `🎉 ₹${amt} या उससे ऊपर के ऑर्डर पर डिलीवरी बिल्कुल फ़्री!`,
         freeDeliveryApplied: "फ़्री!",
         recentOrderTitle: "आपका पिछला ऑर्डर",
+        orderTrackModalTitle: "📦 आपका ऑर्डर और लाइव स्थिति",
+        emptyCartTitle: "आपका कार्ट अभी खाली है",
+        emptyCartDesc: "मेनू से अपने पसंदीदा आइटम जोड़ें और तुरंत ऑर्डर करें।",
+        emptyCartBrowseBtn: "मेनू देखें",
+        checkoutViewOrderBtn: "देखें",
+        orderTrackEmptyMsg: "अभी कोई सक्रिय ऑर्डर सेव नहीं है।",
+        orderTrackEmptySub: "यदि आपने ऑर्डर किया है तो ऑर्डर नंबर और मोबाइल से लाइव स्थिति देखें:",
+        trackLookupTitle: "🔍 ऑर्डर नंबर से ट्रैक करें",
+        trackLookupOrderPh: "ऑर्डर नंबर (जैसे GR-19462443)",
+        trackLookupPhonePh: "10 अंकों का मोबाइल नंबर",
+        trackLookupBtn: "स्थिति खोजें",
         statusLabel: "स्थिति:",
         riderAssigned: (n, p) => `🛵 राइडर: ${n} (${p})`,
         refreshTrack: "स्थिति देखें",
@@ -1400,6 +1485,17 @@
         freeDeliveryBanner: (amt) => `🎉 FREE Delivery on orders ₹${amt} & above!`,
         freeDeliveryApplied: "FREE!",
         recentOrderTitle: "Your Recent Order",
+        orderTrackModalTitle: "📦 Your Order & Live Status",
+        emptyCartTitle: "Your Cart is Empty",
+        emptyCartDesc: "Add your favourite dishes from the menu to place an order.",
+        emptyCartBrowseBtn: "Browse Menu",
+        checkoutViewOrderBtn: "View",
+        orderTrackEmptyMsg: "No active order saved on this device.",
+        orderTrackEmptySub: "Already placed an order? Track it below with Order ID & Mobile:",
+        trackLookupTitle: "🔍 Track by Order Number",
+        trackLookupOrderPh: "Order ID (e.g. GR-19462443)",
+        trackLookupPhonePh: "10-digit Mobile Number",
+        trackLookupBtn: "Find Order",
         statusLabel: "Status:",
         riderAssigned: (n, p) => `🛵 Rider: ${n} (${p})`,
         refreshTrack: "Check Status",
@@ -2185,6 +2281,17 @@
       }
 
       document.getElementById("recentOrderTitle").textContent = t("recentOrderTitle");
+      document.getElementById("orderTrackModalTitle").textContent = t("orderTrackModalTitle");
+      document.getElementById("emptyCartTitle").textContent = t("emptyCartTitle");
+      document.getElementById("emptyCartDesc").textContent = t("emptyCartDesc");
+      document.getElementById("emptyCartBrowseBtnText").textContent = t("emptyCartBrowseBtn");
+      document.getElementById("checkoutViewOrderBtnText").textContent = t("checkoutViewOrderBtn");
+      document.getElementById("orderTrackEmptyMsg").textContent = t("orderTrackEmptyMsg");
+      document.getElementById("orderTrackEmptySub").textContent = t("orderTrackEmptySub");
+      document.getElementById("trackLookupTitle").textContent = t("trackLookupTitle");
+      document.getElementById("trackLookupOrderNum").placeholder = t("trackLookupOrderPh");
+      document.getElementById("trackLookupPhone").placeholder = t("trackLookupPhonePh");
+      document.getElementById("trackLookupSubmitText").textContent = t("trackLookupBtn");
       document.getElementById("recentOrderStatusLabel").textContent = t("statusLabel");
       document.getElementById("refreshTrackText").textContent = t("refreshTrack");
 
@@ -3143,6 +3250,48 @@
       }
     }
 
+    function updateHeaderOrderBtn() {
+      const btn = document.getElementById("headerOrderBtn");
+      const badge = document.getElementById("headerOrderBadge");
+      const pulse = document.getElementById("headerOrderPulse");
+      if (!btn) return;
+      const ord = state.recentOrder;
+      const st = ord ? ord.status || "Pending" : "";
+      const isActive = ord && ["Pending", "Cooking", "Out for Delivery"].includes(st);
+      if (ord) {
+        if (badge) {
+          badge.textContent = isActive ? "1" : st === "Delivered" ? "✓" : "×";
+          badge.className = `min-w-[16px] h-[16px] px-1 rounded-full text-white text-[9px] font-black flex items-center justify-center ${
+            isActive ? "bg-emerald-600" : st === "Delivered" ? "bg-slate-600" : "bg-red-500"
+          }`;
+          badge.classList.remove("hidden");
+        }
+        if (pulse) pulse.classList.toggle("hidden", !isActive);
+        btn.className = isActive
+          ? "relative inline-flex items-center gap-1 px-2 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs sm:text-sm font-extrabold transition active:scale-95"
+          : "relative inline-flex items-center gap-1 px-2 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs sm:text-sm font-extrabold transition active:scale-95";
+      } else {
+        if (badge) badge.classList.add("hidden");
+        if (pulse) pulse.classList.add("hidden");
+        btn.className =
+          "relative inline-flex items-center gap-1 px-2 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs sm:text-sm font-extrabold transition active:scale-95";
+      }
+    }
+
+    function openOrderTrackModal() {
+      renderRecentOrderCard();
+      const errEl = document.getElementById("trackLookupError");
+      if (errEl) errEl.classList.add("hidden");
+      document.getElementById("orderTrackModal").classList.remove("hidden");
+      startOrderTrackTimerLoop();
+      if (
+        state.recentOrder &&
+        ["Pending", "Cooking", "Out for Delivery"].includes(state.recentOrder.status || "Pending")
+      ) {
+        syncRecentOrderStatus(false);
+      }
+    }
+
     function startOrderTrackTimerLoop() {
       if (state.orderTrackTimerInterval) {
         clearInterval(state.orderTrackTimerInterval);
@@ -3153,8 +3302,9 @@
       const hasActiveOrder =
         state.recentOrder &&
         ["Pending", "Cooking", "Out for Delivery"].includes(state.recentOrder.status || "Pending");
-      const modalOpen = !document.getElementById("orderSuccessModal").classList.contains("hidden");
-      if (hasActiveOrder || modalOpen) {
+      const successOpen = !document.getElementById("orderSuccessModal").classList.contains("hidden");
+      const trackOpen = !document.getElementById("orderTrackModal").classList.contains("hidden");
+      if (hasActiveOrder || successOpen || trackOpen) {
         state.orderTrackTimerInterval = setInterval(() => {
           updateOrderTrackTimerUI();
           updateCancelLockUI();
@@ -3164,14 +3314,21 @@
 
     function renderRecentOrderCard() {
       const card = document.getElementById("recentOrderCard");
+      const emptyBox = document.getElementById("orderTrackEmptyBox");
+      const cartStrip = document.getElementById("checkoutActiveOrderStrip");
+      updateHeaderOrderBtn();
+
       if (!state.recentOrder) {
         card.classList.add("hidden");
+        if (emptyBox) emptyBox.classList.remove("hidden");
+        if (cartStrip) cartStrip.classList.add("hidden");
         if (state.orderTrackTimerInterval) {
           clearInterval(state.orderTrackTimerInterval);
           state.orderTrackTimerInterval = null;
         }
         return;
       }
+      if (emptyBox) emptyBox.classList.add("hidden");
       document.getElementById("recentOrderNum").textContent = state.recentOrder.orderNumber;
       const custBadge = document.getElementById("recentOrderCustName");
       if (custBadge) {
@@ -3204,8 +3361,42 @@
         Delivered: "bg-emerald-100 text-emerald-800",
         Cancelled: "bg-red-100 text-red-800",
       };
+      const stLabel = TRANSLATIONS[state.lang].statuses[st] || st;
       badge.className = `ml-1 inline-block px-2 py-0.5 rounded-full text-xs font-bold ${badgeColors[st] || "bg-amber-100 text-amber-800"}`;
-      badge.textContent = TRANSLATIONS[state.lang].statuses[st] || st;
+      badge.textContent = stLabel;
+
+      // Also sync compact strip inside Cart/Checkout modal
+      if (cartStrip) {
+        document.getElementById("checkoutActiveOrderNum").textContent = `📦 ${state.recentOrder.orderNumber}`;
+        const stripBadge = document.getElementById("checkoutActiveOrderBadge");
+        stripBadge.className = `px-2 py-0.5 rounded-full text-[10px] font-bold ${badgeColors[st] || "bg-amber-100 text-amber-800"}`;
+        stripBadge.textContent = stLabel;
+        const subParts = [];
+        if (state.recentOrder.customerName) subParts.push(state.recentOrder.customerName);
+        if (state.recentOrder.totalAmount !== undefined) subParts.push(`₹${state.recentOrder.totalAmount}`);
+        if (["Pending", "Cooking", "Out for Delivery"].includes(st)) {
+          subParts.push("10–15 min");
+        }
+        document.getElementById("checkoutActiveOrderSub").textContent = subParts.join(" • ");
+        cartStrip.classList.remove("hidden");
+      }
+
+      // Items + Total summary inside Order Track Modal
+      const itemsBox = document.getElementById("trackModalItemsBox");
+      if (itemsBox) {
+        const list = state.recentOrder.items || [];
+        if (list.length > 0 || state.recentOrder.totalAmount !== undefined) {
+          document.getElementById("trackModalItemsText").textContent = list
+            .map((it) => `${state.lang === "hi" ? it.nameHi : it.nameEn} × ${it.quantity}`)
+            .join(", ");
+          document.getElementById("trackModalTotalText").textContent =
+            state.recentOrder.totalAmount !== undefined ? `${t("totalLabel")}: ₹${state.recentOrder.totalAmount} (COD)` : "";
+          itemsBox.classList.remove("hidden");
+        } else {
+          itemsBox.classList.add("hidden");
+        }
+      }
+
       const dismissBtn = document.getElementById("dismissTrackBtn");
       if (dismissBtn) {
         if (st === "Delivered" || st === "Cancelled") {
@@ -3258,11 +3449,16 @@
     function renderCheckoutDrawer() {
       const { totalItems, subtotal, discountAmount, deliveryCharge, total, detailedItems, couponWarning } = getCartSummary();
       const list = document.getElementById("checkoutItemsList");
+      const emptyBox = document.getElementById("checkoutEmptyCartBox");
+      const filledBody = document.getElementById("checkoutFilledBody");
 
       if (totalItems === 0) {
-        document.getElementById("checkoutModal").classList.add("hidden");
+        if (emptyBox) emptyBox.classList.remove("hidden");
+        if (filledBody) filledBody.classList.add("hidden");
         return;
       }
+      if (emptyBox) emptyBox.classList.add("hidden");
+      if (filledBody) filledBody.classList.remove("hidden");
 
       list.innerHTML = detailedItems
         .map(({ item, qty }) => {
@@ -6408,23 +6604,13 @@
     }
 
     function openCheckoutModalFromHeaderOrBar() {
-      const { totalItems } = getCartSummary();
-      if (totalItems === 0) {
-        showToast(
-          state.lang === "hi"
-            ? "🛒 आपका कार्ट खाली है — पहले मेनू से आइटम जोड़ें!"
-            : "🛒 Your cart is empty — add items from the menu first!",
-          "info"
-        );
-        const menuEl = document.getElementById("menuGrid");
-        if (menuEl) menuEl.scrollIntoView({ behavior: "smooth", block: "start" });
-        return;
-      }
+      renderRecentOrderCard();
       document.getElementById("checkoutErrorBox").classList.add("hidden");
       document.getElementById("phoneErrorMsg").classList.add("hidden");
       renderCheckoutDrawer();
       document.getElementById("checkoutModal").classList.remove("hidden");
-      if (state.pendingCouponCode && !state.appliedCoupon) {
+      const { totalItems } = getCartSummary();
+      if (totalItems > 0 && state.pendingCouponCode && !state.appliedCoupon) {
         document.getElementById("couponCodeInput").value = state.pendingCouponCode;
         applyCouponCode(state.pendingCouponCode);
       }
@@ -6433,6 +6619,62 @@
     document.getElementById("langToggleBtn").addEventListener("click", toggleLanguage);
     document.getElementById("adminLangBtn").addEventListener("click", toggleLanguage);
     document.getElementById("themeToggleBtn").addEventListener("click", cycleTheme);
+    document.getElementById("headerOrderBtn").addEventListener("click", openOrderTrackModal);
+    document.getElementById("closeOrderTrackBtn").addEventListener("click", () => {
+      document.getElementById("orderTrackModal").classList.add("hidden");
+    });
+    document.getElementById("checkoutViewOrderBtn").addEventListener("click", () => {
+      document.getElementById("checkoutModal").classList.add("hidden");
+      openOrderTrackModal();
+    });
+    document.getElementById("emptyCartBrowseBtn").addEventListener("click", () => {
+      document.getElementById("checkoutModal").classList.add("hidden");
+      const menuEl = document.getElementById("menuGrid");
+      if (menuEl) menuEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    document.getElementById("trackLookupForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const errEl = document.getElementById("trackLookupError");
+      const submitBtn = document.getElementById("trackLookupSubmitBtn");
+      const orderNum = (document.getElementById("trackLookupOrderNum").value || "").trim().toUpperCase();
+      const cleanPhone = normalizeIndianPhone(document.getElementById("trackLookupPhone").value);
+      errEl.classList.add("hidden");
+      if (!orderNum || !cleanPhone) {
+        errEl.textContent = t("errInvalidPhone");
+        errEl.classList.remove("hidden");
+        return;
+      }
+      submitBtn.disabled = true;
+      try {
+        const res = await apiFetch(
+          `/api/orders/track/${encodeURIComponent(orderNum)}?phone=${encodeURIComponent(cleanPhone)}`
+        );
+        if (res.serverNow) {
+          state.clockOffsetMs = Date.now() - new Date(res.serverNow).getTime();
+        }
+        state.recentOrder = {
+          orderNumber: res.order.orderNumber,
+          customerName: res.order.customerName || "",
+          phone: cleanPhone,
+          address: res.order.address || "",
+          totalAmount: res.order.totalAmount,
+          items: res.order.items || [],
+          status: res.order.status,
+          cancelDeadlineAt: res.order.cancelDeadlineAt || null,
+          cancelledBy: res.order.cancelledBy || "",
+          createdAt: res.order.createdAt || null,
+          assignedRider: res.order.assignedRider || null,
+          statusSchedule: res.order.statusSchedule || null,
+        };
+        localStorage.setItem("gr_recent_order", JSON.stringify(state.recentOrder));
+        renderRecentOrderCard();
+      } catch (err) {
+        errEl.textContent = (err && err.message) || t("trackNotFoundToast");
+        errEl.classList.remove("hidden");
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
     document.getElementById("headerCartBtn").addEventListener("click", openCheckoutModalFromHeaderOrBar);
     document.getElementById("custPhone").addEventListener("input", () => {
       const clean = normalizeIndianPhone(document.getElementById("custPhone").value);
@@ -6545,7 +6787,7 @@
       { passive: true }
     );
 
-    ["checkoutModal", "orderSuccessModal", "productDetailModal", "adminLoginModal", "manualOrderModal", "receiptModal"].forEach((modalId) => {
+    ["checkoutModal", "orderSuccessModal", "orderTrackModal", "productDetailModal", "adminLoginModal", "manualOrderModal", "receiptModal"].forEach((modalId) => {
       const mEl = document.getElementById(modalId);
       mEl.addEventListener("click", (e) => {
         if (e.target === mEl) mEl.classList.add("hidden");
@@ -6584,6 +6826,5 @@
     renderAll();
     loadStoreData();
   </script>
-<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f","spa":2}' crossorigin="anonymous"></script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5ed2f9028835505',t:'MTc5NTQwNTU3NQ=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5ed2f9028835505',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
