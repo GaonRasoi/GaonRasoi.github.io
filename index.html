@@ -22,8 +22,22 @@
     .animate-slide-up { animation: slideUp 0.22s ease-out forwards; }
     @media print {
       body * { visibility: hidden !important; }
-      #receiptPrintArea, #receiptPrintArea * { visibility: visible !important; }
-      #receiptPrintArea { position: fixed; left: 0; top: 0; width: 100%; background: white; padding: 16px; }
+      #receiptPrintArea, #receiptPrintArea * { visibility: visible !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      #receiptPrintArea { position: fixed; left: 0; top: 0; width: 100%; background: #ffffff !important; color: #0f172a !important; padding: 16px; overflow: visible !important; max-height: none !important; }
+    }
+    html[data-theme="dark"] #receiptPrintArea,
+    html[data-theme="warm"] #receiptPrintArea {
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+    }
+    html[data-theme="dark"] #receiptPrintArea .text-slate-900,
+    html[data-theme="dark"] #receiptPrintArea .text-slate-800 {
+      color: #0f172a !important;
+    }
+    html[data-theme="dark"] #receiptPrintArea .text-slate-700,
+    html[data-theme="dark"] #receiptPrintArea .text-slate-600,
+    html[data-theme="dark"] #receiptPrintArea .text-slate-500 {
+      color: #475569 !important;
     }
 
     /* Multi-Theme Support: Light (default), Dark (🌙), Warm Evening (🌅) */
@@ -235,7 +249,9 @@
         <button id="clearMenuSearchBtn" type="button" aria-label="Clear search" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-extrabold flex items-center justify-center">✕</button>
       </div>
 
+      <div id="quickSearchChips" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5"></div>
       <div id="categoryPills" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+      <div id="searchResultCountBadge" class="hidden text-[11px] font-bold text-slate-600"></div>
       <div id="searchCrossCatHint" class="hidden text-[11px] font-bold text-orange-700 bg-orange-50 border border-orange-200 rounded-xl px-3 py-1.5"></div>
 
       <div id="menuLoader" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1103,10 +1119,10 @@
   <!-- ===================================================================== -->
   <!-- 9. PRINTABLE BILL / KOT RECEIPT MODAL                                 -->
   <!-- ===================================================================== -->
-  <div id="receiptModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl">
-      <div id="receiptPrintArea" class="p-5 font-mono text-xs text-slate-900 space-y-2"></div>
-      <div class="p-3 bg-slate-50 border-t border-slate-200 flex gap-2">
+  <div id="receiptModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full max-h-[92vh] max-h-[92dvh] flex flex-col overflow-hidden shadow-2xl">
+      <div id="receiptPrintArea" class="relative overflow-y-auto flex-1 min-h-0 bg-white p-5 font-mono text-xs text-slate-900"></div>
+      <div class="p-3 bg-slate-50 border-t border-slate-200 flex gap-2 shrink-0">
         <button id="printReceiptBtn" type="button" class="flex-1 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs">🖨️ Print</button>
         <button id="copyReceiptBtn" type="button" class="flex-1 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs">📋 Copy</button>
         <button id="closeReceiptBtn" type="button" class="px-3 py-2 rounded-xl bg-slate-200 text-slate-800 font-bold text-xs">✕</button>
@@ -1300,6 +1316,9 @@
         serverWaking: "⏳ दुकान का सर्वर शुरू हो रहा है, कृपया कुछ सेकंड प्रतीक्षा करें...",
         serverError: "⚠️ सर्वर से संपर्क नहीं हो पा रहा है। कृपया कुछ देर बाद रिफ्रेश करें।",
         noMenuMatch: "इस खोज के अनुसार कोई आइटम नहीं मिला।",
+        noMatchTryPopular: "इनमें से कुछ ट्राई करें:",
+        noMatchResetBtn: "सभी आइटम देखें",
+        searchCountBadge: (n, q) => `🔍 "${q}" के लिए ${n} आइटम मिले`,
         copiedToast: "✅ कॉपी हो गया!",
         successTitle: "ऑर्डर कन्फर्म हो गया!",
         successCancelledTitle: "ऑर्डर कैंसल कर दिया गया",
@@ -1361,8 +1380,8 @@
         callCustomer: "कॉल",
         whatsappCustomer: "WhatsApp",
         openMap: "GPS मैप",
-        kotBtn: "KOT",
-        billBtn: "बिल",
+        kotBtn: "बिल + KOT",
+        billBtn: "बिल + KOT",
         assignRiderOpt: "-- राइडर चुनें --",
         blockNumber: "ब्लॉक",
         alreadyBlocked: "ब्लॉक है",
@@ -1613,6 +1632,9 @@
         serverWaking: "⏳ Waking up shop server, please wait a few seconds...",
         serverError: "⚠️ Unable to reach shop server. Please refresh in a moment.",
         noMenuMatch: "No menu items match your search.",
+        noMatchTryPopular: "Try one of these popular searches:",
+        noMatchResetBtn: "Show All Menu Items",
+        searchCountBadge: (n, q) => `🔍 Found ${n} item${n === 1 ? "" : "s"} for "${q}"`,
         copiedToast: "✅ Copied!",
         successTitle: "Order Confirmed!",
         successCancelledTitle: "Order Cancelled",
@@ -1674,8 +1696,8 @@
         callCustomer: "Call",
         whatsappCustomer: "WhatsApp",
         openMap: "GPS Map",
-        kotBtn: "KOT",
-        billBtn: "Bill",
+        kotBtn: "Bill + KOT",
+        billBtn: "Bill + KOT",
         assignRiderOpt: "-- Assign Rider --",
         blockNumber: "Block",
         alreadyBlocked: "Blocked",
@@ -2565,50 +2587,47 @@
     };
 
     const SEARCH_SYNONYM_GROUPS = [
-      ["samosa", "samose", "samosas", "smosa", "samosha", "समोसा", "समौसा", "समोसे"],
-      ["patties", "paties", "patis", "petis", "patty", "pattice", "patti", "pettij", "petij", "पैटीज", "पेटीज", "पेटिज", "पैटी"],
-      ["burger", "barger", "burgar", "बर्गर"],
-      ["chowmein", "chowmin", "chawmin", "chaumin", "chaumeen", "chomin", "noodles", "चाउमीन", "चाउमिन", "चाऊमीन"],
+      ["samosa", "samose", "samosas", "smosa", "samosha", "samoosa", "samsa", "समोसा", "समौसा", "समोसे"],
+      ["patties", "paties", "patis", "petis", "patty", "pattice", "patti", "pettij", "petij", "पफ", "पैटीज", "पेटीज", "पेटिज", "पैटी"],
+      ["burger", "barger", "burgar", "burgur", "tikki", "टिक्की", "बर्गर"],
+      ["chowmein", "chowmin", "chawmin", "chaumin", "chaumeen", "chomin", "chowmen", "noodles", "चाउमीन", "चाउमिन", "चाऊमीन", "नूडल्स"],
       ["egg", "anda", "ande", "non veg", "nonveg", "अंडा", "अंडे", "एग"],
-      ["momos", "momo", "momoz", "dumpling", "dumplings", "मोमोज", "मोमो", "मॉमोज", "मॉमो"],
+      ["momos", "momo", "momoz", "momose", "dumpling", "dumplings", "steamed", "मोमोज", "मोमो", "मॉमोज", "मॉमो"],
       ["kachori", "kachodi", "kachaudi", "kachauri", "sabzi", "sabji", "कचौड़ी", "कचौरी", "कचोरी", "सब्जी"],
-      ["bread", "bred", "pakora", "pakoda", "pakode", "ब्रेड", "पकौड़ा", "पकोड़ा", "पकोडा", "पकौड़े"],
+      ["bread", "bred", "pakora", "pakoda", "pakode", "pkoda", "pkora", "pakoura", "ब्रेड", "पकौड़ा", "पकोड़ा", "पकोडा", "पकौड़े"],
       ["aloo", "alu", "aalu", "aaloo", "आलू"],
-      ["cold drink", "colddrink", "cold drinks", "soft drink", "softdrink", "drink", "thanda", "bottle", "कोल्ड ड्रिंक", "कोल्ड ड्रिंक्स", "पेय", "ठंडा"],
-      ["pepsi", "पेप्सी"],
-      ["mountain dew", "dew", "due", "dyu", "माउंटेन ड्यू", "ड्यू"],
+      ["cold drink", "colddrink", "cold drinks", "soft drink", "softdrink", "thanda", "bottle", "botal", "कोल्ड ड्रिंक", "कोल्ड ड्रिंक्स", "पेय", "ठंडा", "बोतल"],
+      ["pepsi", "papsi", "pepsy", "पेप्सी"],
+      ["mountain dew", "dew", "due", "dyu", "mountan", "माउंटेन ड्यू", "ड्यू"],
       ["campa", "kampa", "कैंपा"],
-      ["cola", "कोला"],
-      ["orange", "santara", "santra", "संतरा", "ऑरेंज"],
+      ["cola", "kola", "कोला"],
+      ["orange", "santara", "santra", "orenge", "संतरा", "ऑरेंज"],
       ["hell", "हेल"],
       ["red bull", "redbull", "रेड बुल"],
       ["campa gold", "gold boost", "boost"],
       ["energy", "energy drink", "एनर्जी"],
-      ["combo", "combos", "pack", "offer", "meal", "कॉम्बो", "पैक"],
-      ["party", "family", "box", "group", "mega", "super", "पार्टी", "फैमिली", "बॉक्स"],
+      ["combo", "combos", "pack", "offer", "meal", "khana", "bhojan", "lunch", "dinner", "कॉम्बो", "पैक", "भोजन", "खाना"],
+      ["party", "family", "box", "group", "mega", "super", "friends", "dost", "पार्टी", "फैमिली", "बॉक्स", "दोस्त"],
       ["feast", "फ़ीस्ट", "फीस्ट"],
       ["double", "duo", "2 pcs", "2 plates", "डबल"],
       ["jumbo", "3 pcs", "4 pcs", "जंबो"],
-      ["small", "half", "chhoti", "choti", "छोटी", "हाफ"],
-      ["large", "full", "big", "badi", "बड़ी", "फुल"],
-      ["nashta", "breakfast", "snacks", "नाश्ता"],
+      ["half", "haf", "small", "हाफ"],
+      ["small", "chhoti", "choti", "chota", "छोटी", "छोटा"],
+      ["large", "full", "ful", "big", "badi", "bada", "बड़ी", "बड़ा", "फुल"],
+      ["nashta", "nasta", "breakfast", "snacks", "नाश्ता"],
+      ["spicy", "chatpata", "teekha", "masala", "चटपटा", "तीखा", "मसाला"],
+      ["chutney", "chatni", "चटनी"],
+      ["garam", "hot", "गरम", "ताजा"],
       ["can", "tin", "कैन"],
       ["400ml", "400 ml"],
       ["500ml", "500 ml"],
       ["250ml", "250 ml"],
       ["185ml", "185 ml"],
-      ["1l", "1 l", "1 litre", "1 liter", "1ltr"],
-      ["1.25l", "1.25 l", "1.25 litre", "1.25 liter", "1.25ltr"],
-      ["litre", "liter", "लीटर"],
-      ["free delivery", "199", "फ्री डिलीवरी"],
+      ["1l", "1 l", "1 litre", "1 liter", "1ltr", "1 ltr"],
+      ["1.25l", "1.25 l", "1.25 litre", "1.25 liter", "1.25ltr", "1.25 ltr"],
+      ["litre", "liter", "ltr", "लीटर"],
+      ["free delivery", "bina delivery", "199", "फ्री डिलीवरी"],
     ];
-
-    function normalizeSearchQueryAliases(rawQuery) {
-      return normalizeSearchText(rawQuery)
-        .replace(/\b(aloo|alu|aalu|aaloo|आलू)\s+(patties|paties|patis|petis|patty|patti|pettij|petij|पैटीज|पेटीज|पैटी)\b/g, "$2")
-        .replace(/\bnon[\s-]+veg\b/g, "non veg")
-        .trim();
-    }
 
     function normalizeSearchText(str) {
       return String(str || "")
@@ -2619,6 +2638,49 @@
         .replace(/\u0911/g, "\u0913") // ऑ -> ओ
         .replace(/\u0949/g, "\u094b") // ॉ -> ो
         .replace(/\u0901/g, "\u0902") // ँ -> ं
+        .replace(/(\d)\.(\d)/g, "$1__DOT__$2")
+        .replace(/[₹()\[\]+\-_/.,!?;:'"`|]+/g, " ")
+        .replace(/__DOT__/g, ".")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function normalizeSearchQueryAliases(rawQuery) {
+      return normalizeSearchText(rawQuery)
+        .replace(/\bvegmomos\b/g, "veg momos")
+        .replace(/\bvegmomo\b/g, "veg momos")
+        .replace(/\bvegburger\b/g, "veg burger")
+        .replace(/\baluburger\b/g, "veg burger")
+        .replace(/\balooburger\b/g, "veg burger")
+        .replace(/\bvegchowmein\b/g, "veg chowmein")
+        .replace(/\bchow\s+mein\b/g, "chowmein")
+        .replace(/\bcha[uw]\s*m[ei]{1,2}n\b/g, "chowmein")
+        .replace(/\bmo\s+mo[sz]?\b/g, "momos")
+        .replace(/\beggchowmein\b/g, "egg chowmein")
+        .replace(/\bandachowmein\b/g, "egg chowmein")
+        .replace(/\balo?o?\s*patties\b/g, "patties")
+        .replace(/\b(aalu|alu)\s+(patties|paties|patis|petis|patty|patti|pettij|petij)\b/g, "$2")
+        .replace(/\b(aloopatties|alupatties|aloopetis)\b/g, "patties")
+        .replace(/\bbred\s*pkod[ae]\b/g, "bread pakora")
+        .replace(/\bbread\s*pkor[ae]\b/g, "bread pakora")
+        .replace(/\bbreadpakor[ae]\b/g, "bread pakora")
+        .replace(/\bkachori\s*sab[jz]i\b/g, "kachori sabzi")
+        .replace(/\bkachorisab[jz]i\b/g, "kachori sabzi")
+        .replace(/\bcold\s*drinks?\b/g, "cold drink")
+        .replace(/\bcoldrinks?\b/g, "cold drink")
+        .replace(/\bsoft\s*drinks?\b/g, "soft drink")
+        .replace(/\bsoftdrinks?\b/g, "soft drink")
+        .replace(/\bkampa\s*kola\b/g, "campa cola")
+        .replace(/\bcampakola\b/g, "campa cola")
+        .replace(/\bmountaindew\b/g, "mountain dew")
+        .replace(/\bredbull\b/g, "red bull")
+        .replace(/\bgoldboost\b/g, "gold boost")
+        .replace(/\bnon\s+veg\b/g, "nonveg")
+        .replace(/\bpure\s+veg\b/g, "veg")
+        .replace(/\b1\.25\s*(ltr|litre|liter|l)\b/g, "1.25l")
+        .replace(/\b1\s*(ltr|litre|liter|l)\b/g, "1l")
+        .replace(/\b(\d+)\s*ml\b/g, "$1ml")
+        .replace(/\bbina\s+delivery(\s+charge)?\b/g, "free delivery")
         .replace(/\s+/g, " ")
         .trim();
     }
@@ -2627,56 +2689,167 @@
       ...new Set(group.map((kw) => normalizeSearchText(kw)).filter(Boolean)),
     ]);
 
+    const SMALL_BOTTLE_HINTS = new Set(["small", "chhoti", "choti", "chota", "छोटी", "छोटा"]);
+    const LARGE_BOTTLE_HINTS = new Set(["large", "big", "badi", "bada", "family", "बड़ी", "बड़ा"]);
+    const DRINK_BRAND_HINTS = new Set(["pepsi", "papsi", "pepsy", "dew", "due", "dyu", "mountain", "campa", "kampa", "cola", "kola", "orange", "santara", "santra", "cold", "soft", "thanda", "bottle", "botal"]);
+
+    function damerauLevenshtein(a, b, maxDist = 2) {
+      const m = a.length;
+      const n = b.length;
+      if (Math.abs(m - n) > maxDist) return maxDist + 1;
+      const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+      for (let i = 0; i <= m; i++) dp[i][0] = i;
+      for (let j = 0; j <= n; j++) dp[0][j] = j;
+      for (let i = 1; i <= m; i++) {
+        let rowMin = maxDist + 1;
+        for (let j = 1; j <= n; j++) {
+          const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+          let val = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
+          if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+            val = Math.min(val, dp[i - 2][j - 2] + cost);
+          }
+          dp[i][j] = val;
+          if (val < rowMin) rowMin = val;
+        }
+        if (rowMin > maxDist) return maxDist + 1;
+      }
+      return dp[m][n];
+    }
+
+    function isFuzzyTokenMatch(tok, targetWord) {
+      if (!tok || !targetWord) return false;
+      if (tok === targetWord) return true;
+      if (/^\d/.test(tok) || /^\d/.test(targetWord)) return false;
+      if (tok.length >= 3 && targetWord.startsWith(tok)) return true;
+      if (tok.length < 4 || targetWord.length < 4) return false;
+      const maxDist = tok.length >= 7 && targetWord.length >= 7 ? 2 : 1;
+      return damerauLevenshtein(tok, targetWord, maxDist) <= maxDist;
+    }
+
+    function parseSearchIntent(rawQuery) {
+      let q = normalizeSearchQueryAliases(rawQuery);
+      let maxPrice = null;
+      let exactPrice = null;
+      let requireVeg = false;
+      let requireNonVeg = false;
+
+      const underMatch = q.match(/\b(?:under|below|upto|less than)\s+(\d+)\b/) ||
+        q.match(/\b(\d+)\s+(?:ke andar|se kam|under|below|tk|tak)\b/) ||
+        q.match(/^(?:<|<=)\s*(\d+)$/);
+      if (underMatch) {
+        maxPrice = Number(underMatch[1]);
+        q = q.replace(underMatch[0], " ").replace(/\s+/g, " ").trim();
+      } else if (/^(?:sasta|cheap|budget)$/.test(q)) {
+        maxPrice = 40;
+        q = "";
+      } else if (/^\d{2,3}$/.test(q)) {
+        const n = Number(q);
+        if (n >= 10 && n <= 999 && n !== 199 && n !== 185 && n !== 250 && n !== 400 && n !== 500) {
+          exactPrice = n;
+        }
+      }
+
+      const tokens = q.split(/\s+/).filter(Boolean);
+      const remaining = [];
+      for (const tok of tokens) {
+        if (tok === "veg" || tok === "shakahari" || tok === "shaakahari" || tok === "शाकाहारी") {
+          requireVeg = true;
+        } else if (tok === "nonveg") {
+          requireNonVeg = true;
+        } else {
+          remaining.push(tok);
+        }
+      }
+
+      return {
+        cleanQuery: remaining.join(" "),
+        originalNormalized: normalizeSearchQueryAliases(rawQuery),
+        maxPrice,
+        exactPrice,
+        requireVeg,
+        requireNonVeg,
+      };
+    }
+
     function normalizeMenuName(str) {
-      return normalizeSearchText(str)
-        .replace(/[\(\)\[\]\+\-\/.,:]/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
+      return normalizeSearchText(str);
+    }
+
+    function wordMatchesToken(hayWords, tok) {
+      if (!tok) return false;
+      const isNum = /^\d/.test(tok);
+      for (const w of hayWords) {
+        if (w === tok) return true;
+        if (!isNum && isFuzzyTokenMatch(tok, w)) return true;
+      }
+      return false;
     }
 
     function getSearchMatchScore(item, rawQuery) {
-      const q = normalizeSearchQueryAliases(rawQuery);
+      const intent = parseSearchIntent(rawQuery);
+      if (intent.exactPrice !== null) {
+        if ((item.sellingPrice || 0) === intent.exactPrice) return 110;
+        return Math.max(20, 90 - Math.abs(intent.exactPrice - (item.sellingPrice || 0)));
+      }
+      const q = intent.cleanQuery || intent.originalNormalized;
       if (!q) return 0;
-      const hi = normalizeSearchText(item.nameHi);
-      const en = normalizeSearchText(item.nameEn);
+      const hi = normalizeSearchText(item.nameHi).replace(/\b(\d+)\s*ml\b/g, "$1ml").replace(/\b1\.25\s*(ltr|litre|liter|l)\b/g, "1.25l").replace(/\b1\s*(ltr|litre|liter|l)\b/g, "1l");
+      const en = normalizeSearchText(item.nameEn).replace(/\b(\d+)\s*ml\b/g, "$1ml").replace(/\b1\.25\s*(ltr|litre|liter|l)\b/g, "1.25l").replace(/\b1\s*(ltr|litre|liter|l)\b/g, "1l");
       const titleCombined = `${hi} ${en}`;
-      const wantsCombo = /(\+|combo|pack|box|party|family|feast|double|duo|2 cans|कॉम्बो|पैक|बॉक्स|पार्टी|फैमिली)/.test(q);
+      const titleWords = titleCombined.split(/\s+/).filter(Boolean);
+      const wantsCombo = /(combo|pack|box|party|family|feast|double|duo|2 cans|कॉम्बो|पैक|बॉक्स|पार्टी|फैमिली)/.test(q);
       const isSingleCore =
         !(item.nameEn || "").includes("+") &&
         item.category !== "Combos" &&
-        !/\b(2 cans|pack|box|duo|double|4-pack)\b/i.test(item.nameEn || "");
-      const singleBonus = !wantsCombo ? (isSingleCore ? 20 : -10) : 0;
+        !/\b(2 cans|pack|box|duo|double|4 pack)\b/i.test(item.nameEn || "");
+      const singleBonus = !wantsCombo ? (isSingleCore ? 22 : -10) : 0;
 
       if (hi === q || en === q) return 100 + singleBonus;
       const expanded = expandSearchTerms(q);
       if (expanded.some((term) => hi === term || en === term)) return 98 + singleBonus;
       if (hi.startsWith(q) || en.startsWith(q)) return 95 + singleBonus;
-      if (hi.includes(q) || en.includes(q)) return 88 + singleBonus;
 
       const tokens = q.split(/\s+/).filter(Boolean);
-
+      const hasDrinkBrand = tokens.some((tok) => DRINK_BRAND_HINTS.has(tok));
       if (tokens.length > 1) {
         const allTokensInTitle = tokens.every((tok) => {
-          if (titleCombined.includes(tok)) return true;
+          if (wordMatchesToken(titleWords, tok)) return true;
+          if (hasDrinkBrand && SMALL_BOTTLE_HINTS.has(tok)) {
+            if (["400ml", "500ml", "250ml", "185ml"].some((sz) => titleWords.includes(sz))) return true;
+          }
+          if (hasDrinkBrand && LARGE_BOTTLE_HINTS.has(tok)) {
+            if (["1l", "1.25l", "litre", "family"].some((sz) => titleWords.includes(sz))) return true;
+          }
           const tokExp = expandSearchTerms(tok);
-          return tokExp.some((term) => titleCombined.includes(term));
+          return tokExp.some((term) => (term.includes(" ") ? titleCombined.includes(term) : wordMatchesToken(titleWords, term)));
         });
         if (allTokensInTitle) {
-          const firstTokExp = expandSearchTerms(tokens[0]);
-          if (firstTokExp.some((term) => hi.startsWith(term) || en.startsWith(term))) return 82 + singleBonus;
-          return 75 + singleBonus;
+          const isSingleBoxOrDrink = !(item.nameEn || "").includes("+");
+          const boxBoost = isSingleBoxOrDrink ? 8 : 0;
+          const qtyMatchBoost =
+            /^\d+$/.test(tokens[0]) && new RegExp(`\\b${tokens[0]}\\s*pcs?\\b`, "i").test(titleCombined) ? 14 : 0;
+          const primaryTok = tokens.find((tk) => !/^\d+$/.test(tk)) || tokens[0];
+          const primaryExp = expandSearchTerms(primaryTok);
+          if (primaryExp.some((term) => hi.startsWith(term) || en.startsWith(term))) {
+            return 84 + boxBoost + qtyMatchBoost + singleBonus;
+          }
+          return 76 + boxBoost + qtyMatchBoost + singleBonus;
         }
       }
 
+      if (hi.includes(q) || en.includes(q)) return 72 + singleBonus;
+
       if (tokens.length === 1 && expanded.some((term) => hi.startsWith(term) || en.startsWith(term))) {
-        return 60 + singleBonus;
+        return 62 + singleBonus;
       }
-      if (expanded.some((term) => titleCombined.includes(term))) return 48 + singleBonus;
+      if (expanded.some((term) => (term.includes(" ") ? titleCombined.includes(term) : wordMatchesToken(titleWords, term)))) {
+        return 50 + singleBonus;
+      }
 
       const cat = normalizeSearchText(item.category || "");
       const catLbl = normalizeSearchText(getCategoryLabel(item.category || "Snacks"));
-      const catCombined = `${cat} ${catLbl}`;
-      if (catCombined.includes(q) || expanded.some((term) => catCombined.includes(term))) return 35 + singleBonus;
+      const catWords = `${cat} ${catLbl}`.split(/\s+/).filter(Boolean);
+      if (wordMatchesToken(catWords, q) || expanded.some((term) => wordMatchesToken(catWords, term))) return 35 + singleBonus;
       return 20;
     }
 
@@ -2713,26 +2886,49 @@
     }
 
     function expandSearchTerms(rawQuery) {
-      const q = normalizeSearchText(rawQuery);
+      const q = normalizeSearchQueryAliases(rawQuery);
       if (!q) return [];
       const terms = new Set([q]);
       const tokens = q.split(/\s+/).filter(Boolean);
+      const hasDrinkBrand = tokens.some((tok) => DRINK_BRAND_HINTS.has(tok));
       for (const group of NORMALIZED_SYNONYM_GROUPS) {
         const matched = group.some((kw) => {
-          if (kw.includes(" ")) return q.includes(kw) || (tokens.length === 1 && tokens[0].length >= 3 && kw.startsWith(tokens[0]));
-          return tokens.some((tok) => tok === kw || (tok.length >= 2 && kw.startsWith(tok)));
+          if (kw.includes(" ")) return q.includes(kw);
+          return tokens.some((tok) => isFuzzyTokenMatch(tok, kw));
         });
         if (matched) {
           group.forEach((kw) => terms.add(kw));
+        }
+      }
+      if (hasDrinkBrand) {
+        if (tokens.some((tok) => SMALL_BOTTLE_HINTS.has(tok))) {
+          ["400ml", "500ml", "250ml", "185ml"].forEach((sz) => terms.add(sz));
+        }
+        if (tokens.some((tok) => LARGE_BOTTLE_HINTS.has(tok))) {
+          ["1l", "1.25l", "1 litre", "1.25 l"].forEach((sz) => terms.add(sz));
         }
       }
       return [...terms];
     }
 
     function itemMatchesSearch(item, rawQuery) {
-      const q = normalizeSearchQueryAliases(rawQuery);
-      if (!q) return true;
-      if ((q === "non veg" || q === "nonveg") && item.isVeg === false) return true;
+      const intent = parseSearchIntent(rawQuery);
+      if (intent.maxPrice !== null && (item.sellingPrice || 0) > intent.maxPrice) return false;
+      if (intent.requireVeg && item.isVeg === false) return false;
+      if (intent.requireNonVeg && item.isVeg !== false) return false;
+      if (intent.exactPrice !== null) {
+        if ((item.sellingPrice || 0) === intent.exactPrice) return true;
+        const priceHay = normalizeSearchText(`${item.nameHi} ${item.nameEn}`).split(/\s+/);
+        if (priceHay.includes(String(intent.exactPrice))) return true;
+        if (intent.exactPrice >= 20 && intent.exactPrice % 10 === 0 && (item.sellingPrice || 0) <= intent.exactPrice) return true;
+        return false;
+      }
+
+      const q = intent.cleanQuery;
+      if (!q) {
+        return intent.maxPrice !== null || intent.requireVeg || intent.requireNonVeg;
+      }
+
       const cat = item.category || "Snacks";
       const haystack = normalizeSearchText(
         [
@@ -2745,21 +2941,28 @@
           TRANSLATIONS.hi["cat" + cat.replace(/\s+/g, "")] || "",
           TRANSLATIONS.en["cat" + cat.replace(/\s+/g, "")] || "",
         ].join(" ")
-      );
-
-      if (haystack.includes(q)) return true;
-
+      ).replace(/\b(\d+)\s*ml\b/g, "$1ml").replace(/\b1\.25\s*(ltr|litre|liter|l)\b/g, "1.25l").replace(/\b1\s*(ltr|litre|liter|l)\b/g, "1l");
+      const hayWords = haystack.split(/\s+/).filter(Boolean);
       const tokens = q.split(/\s+/).filter(Boolean);
+      const hasDrinkBrand = tokens.some((tok) => DRINK_BRAND_HINTS.has(tok));
+
       if (tokens.length > 1) {
         return tokens.every((tok) => {
-          if (haystack.includes(tok)) return true;
+          if (wordMatchesToken(hayWords, tok)) return true;
+          if (hasDrinkBrand && SMALL_BOTTLE_HINTS.has(tok)) {
+            if (["400ml", "500ml", "250ml", "185ml"].some((sz) => hayWords.includes(sz) || haystack.includes(sz))) return true;
+          }
+          if (hasDrinkBrand && LARGE_BOTTLE_HINTS.has(tok)) {
+            if (["1l", "1.25l", "litre", "family"].some((sz) => hayWords.includes(sz) || haystack.includes(sz))) return true;
+          }
           const tokExp = expandSearchTerms(tok);
-          return tokExp.some((term) => haystack.includes(term));
+          return tokExp.some((term) => (term.includes(" ") ? haystack.includes(term) : wordMatchesToken(hayWords, term)));
         });
       }
 
+      if (wordMatchesToken(hayWords, q)) return true;
       const expanded = expandSearchTerms(q);
-      return expanded.some((term) => haystack.includes(term));
+      return expanded.some((term) => (term.includes(" ") ? haystack.includes(term) : wordMatchesToken(hayWords, term)));
     }
 
     function getCategoryLabel(cat) {
@@ -2774,6 +2977,49 @@
         Beverages: t("catBeverages"),
       };
       return map[cat] || cat;
+    }
+
+    const QUICK_SEARCH_PRESETS = [
+      { query: "samosa", labelHi: "🥟 समोसा", labelEn: "🥟 Samosa" },
+      { query: "momos", labelHi: "🥟 मोमोज़", labelEn: "🥟 Momos" },
+      { query: "chowmein", labelHi: "🍜 चाउमीन", labelEn: "🍜 Chowmein" },
+      { query: "burger", labelHi: "🍔 बर्गर", labelEn: "🍔 Burger" },
+      { query: "pepsi", labelHi: "🥤 पेप्सी", labelEn: "🥤 Pepsi" },
+      { query: "under 50", labelHi: "💸 ₹50 से कम", labelEn: "💸 Under ₹50" },
+      { query: "free delivery", labelHi: "🛵 फ़्री डिलीवरी", labelEn: "🛵 Free Delivery" },
+    ];
+
+    function renderQuickSearchChips() {
+      const container = document.getElementById("quickSearchChips");
+      if (!container) return;
+      const activeNorm = normalizeSearchQueryAliases(state.menuSearch || "");
+      container.innerHTML = QUICK_SEARCH_PRESETS.map((chip) => {
+        const isActive = activeNorm === normalizeSearchQueryAliases(chip.query);
+        const label = state.lang === "hi" ? chip.labelHi : chip.labelEn;
+        return `<button type="button" data-quick-search="${escapeHtml(chip.query)}"
+          class="px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap border transition active:scale-95 ${
+            isActive
+              ? "bg-orange-600 text-white border-orange-600 shadow-sm"
+              : "bg-orange-50/80 hover:bg-orange-100 text-orange-800 border-orange-200/80"
+          }">${escapeHtml(label)}</button>`;
+      }).join("");
+
+      container.querySelectorAll("button[data-quick-search]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const nextQ = btn.dataset.quickSearch;
+          const inp = document.getElementById("customerMenuSearch");
+          if (normalizeSearchQueryAliases(state.menuSearch) === normalizeSearchQueryAliases(nextQ)) {
+            state.menuSearch = "";
+            if (inp) inp.value = "";
+          } else {
+            state.menuSearch = nextQ;
+            if (inp) inp.value = nextQ;
+          }
+          state.menuVisibleCount = getMenuPageSize();
+          renderQuickSearchChips();
+          renderMenuGrid();
+        });
+      });
     }
 
     function renderCategoryPills() {
@@ -2808,6 +3054,10 @@
     }
 
     const MENU_PAGE_SIZE = 4;
+
+    function getMenuPageSize() {
+      return state.menuSearch && state.menuSearch.trim() ? 8 : MENU_PAGE_SIZE;
+    }
 
     function createVisitSeed(prevSeed = 0) {
       let next = ((Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0) || 1337;
@@ -2970,7 +3220,7 @@
       updateMenuScrollFooter(items.length, Math.min(state.menuVisibleCount, items.length));
       setTimeout(() => {
         state.menuLoadingMore = false;
-        state.menuVisibleCount += MENU_PAGE_SIZE;
+        state.menuVisibleCount += getMenuPageSize();
         renderMenuGrid();
       }, 220);
     }
@@ -3113,11 +3363,21 @@
         } catch {}
       }
       const hintEl = document.getElementById("searchCrossCatHint");
+      const countEl = document.getElementById("searchResultCountBadge");
       const clearBtn = document.getElementById("clearMenuSearchBtn");
-      if (clearBtn) clearBtn.classList.toggle("hidden", !state.menuSearch.trim());
+      const trimmedSearch = state.menuSearch.trim();
+      if (clearBtn) clearBtn.classList.toggle("hidden", !trimmedSearch);
+      if (countEl) {
+        if (trimmedSearch && items.length > 0) {
+          countEl.textContent = t("searchCountBadge", items.length, trimmedSearch);
+          countEl.classList.remove("hidden");
+        } else {
+          countEl.classList.add("hidden");
+        }
+      }
       if (hintEl) {
-        if (meta.crossCat && state.menuSearch.trim()) {
-          hintEl.textContent = t("searchCrossCatHint", state.menuSearch.trim());
+        if (meta.crossCat && trimmedSearch) {
+          hintEl.textContent = t("searchCrossCatHint", trimmedSearch);
           hintEl.classList.remove("hidden");
         } else {
           hintEl.classList.add("hidden");
@@ -3125,9 +3385,47 @@
       }
 
       if (items.length === 0) {
-        grid.innerHTML = `<div class="sm:col-span-2 bg-white rounded-2xl p-6 text-center text-sm font-semibold text-slate-500 border border-orange-100">${escapeHtml(
-          t("noMenuMatch")
-        )}</div>`;
+        const suggestBtns = QUICK_SEARCH_PRESETS.slice(0, 5)
+          .map((chip) => {
+            const label = state.lang === "hi" ? chip.labelHi : chip.labelEn;
+            return `<button type="button" data-empty-suggest="${escapeHtml(chip.query)}"
+              class="px-3 py-1 rounded-full bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-800 text-xs font-bold transition">${escapeHtml(label)}</button>`;
+          })
+          .join("");
+        grid.innerHTML = `<div class="sm:col-span-2 bg-white rounded-2xl p-6 text-center space-y-3 border border-orange-100">
+          <div class="text-sm font-bold text-slate-700">${escapeHtml(t("noMenuMatch"))}</div>
+          <div class="text-xs font-semibold text-slate-500">${escapeHtml(t("noMatchTryPopular"))}</div>
+          <div class="flex flex-wrap items-center justify-center gap-1.5">${suggestBtns}</div>
+          <div>
+            <button type="button" id="noMatchResetBtn" class="px-4 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold transition">${escapeHtml(
+              t("noMatchResetBtn")
+            )}</button>
+          </div>
+        </div>`;
+        grid.querySelectorAll("[data-empty-suggest]").forEach((b) => {
+          b.addEventListener("click", () => {
+            const qVal = b.dataset.emptySuggest;
+            const inp = document.getElementById("customerMenuSearch");
+            state.menuSearch = qVal;
+            if (inp) inp.value = qVal;
+            state.menuVisibleCount = getMenuPageSize();
+            renderQuickSearchChips();
+            renderMenuGrid();
+          });
+        });
+        const resetBtn = document.getElementById("noMatchResetBtn");
+        if (resetBtn) {
+          resetBtn.addEventListener("click", () => {
+            const inp = document.getElementById("customerMenuSearch");
+            state.menuSearch = "";
+            state.selectedCategory = "All";
+            if (inp) inp.value = "";
+            state.menuVisibleCount = MENU_PAGE_SIZE;
+            renderQuickSearchChips();
+            renderCategoryPills();
+            renderMenuGrid();
+          });
+        }
         updateMenuScrollFooter(0, 0);
         return;
       }
@@ -4249,6 +4547,7 @@
 
     function renderAll() {
       applyStaticTranslations();
+      renderQuickSearchChips();
       renderCategoryPills();
       renderStorefrontCoupons();
       renderMenuGrid();
@@ -4818,10 +5117,7 @@
               </div>
 
               <div class="flex items-center gap-1.5 flex-wrap">
-                <button type="button" data-kot-ord="${ord._id}" class="px-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold">
-                  🍳 ${escapeHtml(t("kotBtn"))}
-                </button>
-                <button type="button" data-print-ord="${ord._id}" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold">
+                <button type="button" data-print-ord="${ord._id}" class="px-2.5 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-800 border border-orange-200 text-xs font-extrabold">
                   🧾 ${escapeHtml(t("billBtn"))}
                 </button>
                 <button type="button" data-block-phone="${escapeHtml(ord.phone)}" ${isBlocked ? "disabled" : ""}
@@ -5025,14 +5321,7 @@
       list.querySelectorAll("[data-print-ord]").forEach((btn) => {
         btn.addEventListener("click", () => {
           const ord = state.adminOrders.find((o) => o._id === btn.dataset.printOrd);
-          if (ord) openReceiptModal(ord, "BILL");
-        });
-      });
-
-      list.querySelectorAll("[data-kot-ord]").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const ord = state.adminOrders.find((o) => o._id === btn.dataset.kotOrd);
-          if (ord) openReceiptModal(ord, "KOT");
+          if (ord) openReceiptModal(ord);
         });
       });
 
@@ -5066,59 +5355,142 @@
       });
     }
 
-    function openReceiptModal(ord, mode = "BILL") {
+    function openReceiptModal(ord) {
       const shopName = state.lang === "hi" ? state.settings.shopNameHi : state.settings.shopNameEn;
-      if (mode === "KOT") {
-        const kotRows = ord.items
-          .map((it) => `<div class="flex justify-between font-bold text-sm"><span>${escapeHtml(it.nameHi)} / ${escapeHtml(it.nameEn)}</span><span>x ${it.quantity}</span></div>`)
-          .join("");
-        document.getElementById("receiptPrintArea").innerHTML = `
-          <div class="text-center border-b border-dashed border-slate-400 pb-2">
-            <div class="text-base font-extrabold">*** KITCHEN KOT ***</div>
-            <div>Order: ${escapeHtml(ord.orderNumber)} (${escapeHtml(ord.source || "Website")})</div>
-            <div>${escapeHtml(formatIST(ord.createdAt))}</div>
+      const siteUrl = "gaonrasoi.github.io";
+      const safeOrderId = escapeHtml(String(ord._id || ord.orderNumber || "rcpt").replace(/[^a-zA-Z0-9_-]/g, ""));
+      const patternId = `grWmPattern_${safeOrderId}`;
+      const rows = (ord.items || [])
+        .map(
+          (it) => `<div class="flex justify-between gap-2">
+            <span class="font-medium text-slate-800">${escapeHtml(it.nameEn)} x${it.quantity}</span>
+            <span class="font-bold text-slate-900 shrink-0">₹${it.sellingPrice * it.quantity}</span>
+          </div>`
+        )
+        .join("");
+      const kotRows = (ord.items || [])
+        .map(
+          (it) => `<div class="flex items-center justify-between gap-2 py-0.5">
+            <span class="font-extrabold text-slate-900 text-[12px] leading-snug">${escapeHtml(it.nameHi)} / ${escapeHtml(it.nameEn)}</span>
+            <span class="px-2 py-0.5 rounded-md bg-orange-100/90 border border-orange-300 text-orange-900 font-black text-xs shrink-0">× ${it.quantity}</span>
+          </div>`
+        )
+        .join("");
+
+      document.getElementById("receiptPrintArea").innerHTML = `
+        <div class="relative overflow-hidden bg-white">
+          <!-- Micro Tiled Blended Watermarks: Mini Logo + Shop Name + Website -->
+          <svg aria-hidden="true" class="pointer-events-none select-none absolute inset-0 w-full h-full opacity-[0.075]" style="mix-blend-mode:multiply;">
+            <defs>
+              <pattern id="${patternId}" width="150" height="76" patternUnits="userSpaceOnUse" patternTransform="rotate(-24)">
+                <g fill="none" stroke="#ea580c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" transform="translate(8,14) scale(0.72)">
+                  <path d="M3 11h18M5 11a7 7 0 0 0 14 0M12 4v2M8 5l.5 1.5M16 5l-.5 1.5M7 19h10" />
+                </g>
+                <text x="30" y="25" fill="#ea580c" font-size="9.5" font-weight="800" font-family="system-ui, sans-serif">${escapeHtml(shopName)}</text>
+                <text x="30" y="36" fill="#334155" font-size="7.2" font-weight="700" font-family="monospace">${siteUrl}</text>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#${patternId})" />
+          </svg>
+
+          <!-- Big Center Blended Brand Seal Watermark -->
+          <div aria-hidden="true" class="pointer-events-none select-none absolute inset-0 flex items-center justify-center">
+            <svg viewBox="0 0 220 220" class="w-56 h-56 opacity-[0.095]" style="mix-blend-mode:multiply;">
+              <circle cx="110" cy="110" r="102" fill="none" stroke="#ea580c" stroke-width="4" stroke-dasharray="6 4" />
+              <circle cx="110" cy="110" r="90" fill="#fed7aa" fill-opacity="0.35" stroke="#ea580c" stroke-width="2" />
+              <g transform="translate(52,44) scale(4.8)" fill="none" stroke="#c2410c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 11h18M5 11a7 7 0 0 0 14 0M12 4v2M8 5l.5 1.5M16 5l-.5 1.5M7 19h10" />
+              </g>
+              <text x="110" y="168" text-anchor="middle" fill="#9a3412" font-size="15" font-weight="900" font-family="system-ui, sans-serif">${escapeHtml(shopName)}</text>
+              <text x="110" y="185" text-anchor="middle" fill="#475569" font-size="10.5" font-weight="700" font-family="monospace">${siteUrl}</text>
+            </svg>
           </div>
-          <div class="border-b border-dashed border-slate-400 py-2 space-y-1.5">${kotRows}</div>
-          ${ord.customerNote ? `<div class="p-2 bg-amber-50 border border-amber-300 font-bold">NOTE: ${escapeHtml(ord.customerNote)}</div>` : ""}
-          <div class="text-center pt-1 text-[11px]">Customer: ${escapeHtml(ord.customerName)}</div>
-        `;
-      } else {
-        const rows = ord.items
-          .map(
-            (it) => `<div class="flex justify-between">
-              <span>${escapeHtml(it.nameEn)} x${it.quantity}</span>
-              <span>₹${it.sellingPrice * it.quantity}</span>
-            </div>`
-          )
-          .join("");
-        document.getElementById("receiptPrintArea").innerHTML = `
-          <div class="text-center border-b border-dashed border-slate-400 pb-2">
-            <div class="text-base font-extrabold">${escapeHtml(shopName)}</div>
-            <div>Order: ${escapeHtml(ord.orderNumber)}</div>
-            <div>${escapeHtml(formatIST(ord.createdAt))}</div>
+
+          <!-- Foreground Receipt + Kitchen KOT Content -->
+          <div class="relative z-10 space-y-2.5">
+            <!-- Top Brand Header with Logo -->
+            <div class="text-center border-b border-dashed border-slate-400 pb-2.5 space-y-1">
+              <div class="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-md shadow-orange-200 mx-auto">
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 11h18M5 11a7 7 0 0 0 14 0M12 4v2M8 5l.5 1.5M16 5l-.5 1.5M7 19h10" />
+                </svg>
+              </div>
+              <div class="text-base font-extrabold tracking-tight text-slate-900">${escapeHtml(shopName)}</div>
+              <div class="text-[10px] font-bold text-orange-700 tracking-wide">${siteUrl}</div>
+              <div class="text-[11px] font-bold text-slate-800 pt-0.5">Order: ${escapeHtml(ord.orderNumber)} (${escapeHtml(ord.source || "Website")})</div>
+              <div class="text-[10px] text-slate-600">${escapeHtml(formatIST(ord.createdAt))}</div>
+            </div>
+
+            <!-- Customer Details -->
+            <div class="border-b border-dashed border-slate-400 pb-2 space-y-0.5 text-slate-800">
+              <div><span class="font-bold">Customer:</span> ${escapeHtml(ord.customerName)}</div>
+              <div><span class="font-bold">Phone:</span> ${escapeHtml(ord.phone)}</div>
+              <div><span class="font-bold">Addr:</span> ${escapeHtml(ord.address)}</div>
+            </div>
+
+            <!-- Bill Items -->
+            <div class="border-b border-dashed border-slate-400 pb-2 space-y-1">${rows}</div>
+
+            <!-- Totals -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-slate-700"><span>Subtotal</span><span>₹${ord.subtotal}</span></div>
+              ${ord.discountAmount ? `<div class="flex justify-between text-emerald-700 font-bold"><span>Discount</span><span>-₹${ord.discountAmount}</span></div>` : ""}
+              <div class="flex justify-between text-slate-700"><span>Delivery</span><span>₹${ord.deliveryCharge}</span></div>
+              <div class="flex justify-between font-extrabold text-sm text-slate-900 border-t border-slate-300 pt-1"><span>TOTAL (COD)</span><span>₹${ord.totalAmount}</span></div>
+            </div>
+
+            ${state.settings.upiId ? `<div class="text-center text-[11px] font-semibold text-slate-700">UPI: ${escapeHtml(state.settings.upiId)}</div>` : ""}
+            <div class="text-center text-[10px] font-semibold text-slate-600">Thank you! Visit again 🙏 • ${siteUrl}</div>
+
+            <!-- Unified Perforated Cut Line + KITCHEN KOT Section -->
+            <div class="pt-1.5">
+              <div class="flex items-center gap-1.5 text-[10px] font-black text-slate-500 uppercase tracking-wider">
+                <span>✂️</span>
+                <span class="flex-1 border-t-2 border-dashed border-slate-400"></span>
+                <span class="px-2 py-0.5 rounded-full bg-amber-100/90 text-amber-900 border border-amber-300">🍳 KITCHEN KOT</span>
+                <span class="flex-1 border-t-2 border-dashed border-slate-400"></span>
+              </div>
+            </div>
+
+            <div class="rounded-xl border border-dashed border-amber-400 bg-amber-50/40 p-2.5 space-y-2">
+              <div class="flex items-center justify-between gap-2 text-[10px] font-bold text-slate-700 border-b border-dashed border-amber-300 pb-1">
+                <span>${escapeHtml(ord.orderNumber)} • ${escapeHtml(ord.customerName)}</span>
+                <span>${escapeHtml(formatIST(ord.createdAt))}</span>
+              </div>
+              <div class="space-y-1 divide-y divide-amber-200/70">${kotRows}</div>
+              ${ord.customerNote ? `<div class="p-2 rounded-lg bg-amber-100/90 border border-amber-300 font-extrabold text-amber-950 text-[11px]">📝 NOTE: ${escapeHtml(ord.customerNote)}</div>` : ""}
+            </div>
           </div>
-          <div class="border-b border-dashed border-slate-400 py-2 space-y-0.5">
-            <div>Customer: ${escapeHtml(ord.customerName)}</div>
-            <div>Phone: ${escapeHtml(ord.phone)}</div>
-            <div>Addr: ${escapeHtml(ord.address)}</div>
-          </div>
-          <div class="border-b border-dashed border-slate-400 py-2 space-y-1">${rows}</div>
-          <div class="space-y-1 pt-1">
-            <div class="flex justify-between"><span>Subtotal</span><span>₹${ord.subtotal}</span></div>
-            ${ord.discountAmount ? `<div class="flex justify-between"><span>Discount</span><span>-₹${ord.discountAmount}</span></div>` : ""}
-            <div class="flex justify-between"><span>Delivery</span><span>₹${ord.deliveryCharge}</span></div>
-            <div class="flex justify-between font-extrabold text-sm border-t border-slate-300 pt-1"><span>TOTAL (COD)</span><span>₹${ord.totalAmount}</span></div>
-          </div>
-          ${state.settings.upiId ? `<div class="text-center pt-1 text-[11px]">UPI: ${escapeHtml(state.settings.upiId)}</div>` : ""}
-          <div class="text-center pt-2 text-[10px]">Thank you! Visit again 🙏</div>
-        `;
-      }
+        </div>
+      `;
+      const receiptCopyLines = [
+        `🍽️ ${shopName} (${siteUrl})`,
+        `Order: ${ord.orderNumber} (${ord.source || "Website"})`,
+        `Time: ${formatIST(ord.createdAt)}`,
+        `------------------------------`,
+        `Customer: ${ord.customerName}`,
+        `Phone: ${ord.phone}`,
+        `Addr: ${ord.address}`,
+        `------------------------------`,
+        ...(ord.items || []).map((it) => `${it.nameEn} x${it.quantity} — ₹${it.sellingPrice * it.quantity}`),
+        `------------------------------`,
+        `Subtotal: ₹${ord.subtotal}`,
+        ...(ord.discountAmount ? [`Discount: -₹${ord.discountAmount}`] : []),
+        `Delivery: ₹${ord.deliveryCharge}`,
+        `TOTAL (COD): ₹${ord.totalAmount}`,
+        ...(state.settings.upiId ? [`UPI: ${state.settings.upiId}`] : []),
+        ``,
+        `✂️ ---- KITCHEN KOT ----`,
+        ...(ord.items || []).map((it) => `• ${it.nameHi} / ${it.nameEn} × ${it.quantity}`),
+        ...(ord.customerNote ? [`📝 NOTE: ${ord.customerNote}`] : []),
+      ];
+      state.lastReceiptCopyText = receiptCopyLines.join("\n");
       document.getElementById("receiptModal").classList.remove("hidden");
     }
 
     document.getElementById("printReceiptBtn").addEventListener("click", () => window.print());
     document.getElementById("copyReceiptBtn").addEventListener("click", () => {
-      const text = document.getElementById("receiptPrintArea").innerText;
+      const text = state.lastReceiptCopyText || document.getElementById("receiptPrintArea").innerText;
       navigator.clipboard?.writeText(text).then(() => showToast(t("copiedToast")));
     });
     document.getElementById("closeReceiptBtn").addEventListener("click", () => {
@@ -7820,7 +8192,8 @@
     syncCouponBuilderUI();
     document.getElementById("customerMenuSearch").addEventListener("input", (e) => {
       state.menuSearch = e.target.value;
-      state.menuVisibleCount = MENU_PAGE_SIZE;
+      state.menuVisibleCount = getMenuPageSize();
+      renderQuickSearchChips();
       renderMenuGrid();
     });
     document.getElementById("clearMenuSearchBtn").addEventListener("click", () => {
@@ -7828,6 +8201,7 @@
       inp.value = "";
       state.menuSearch = "";
       state.menuVisibleCount = MENU_PAGE_SIZE;
+      renderQuickSearchChips();
       renderMenuGrid();
       inp.focus();
     });
@@ -7942,5 +8316,5 @@
     renderAll();
     loadStoreData();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5eef515393b8aec',t:'MTc5NTQyNDE1MQ=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5eef515393b8aec',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5efdb1bacba598a',t:'MTc5NTQzMzU3Mw=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5efdb1bacba598a',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

@@ -164,6 +164,53 @@ function clearFailedLogins(ip) {
   loginAttempts.delete(ip);
 }
 
+function createRateLimiter({ max, windowMs, errorMessage }) {
+  const hits = new Map();
+  return function rateLimiter(req, res, next) {
+    const now = Date.now();
+    if (hits.size > 1000) {
+      for (const [k, rec] of hits.entries()) {
+        if (now > rec.resetAt) hits.delete(k);
+      }
+    }
+    const key = req.ip || 'unknown';
+    const rec = hits.get(key);
+    if (!rec || now > rec.resetAt) {
+      hits.set(key, { count: 1, resetAt: now + windowMs });
+      return next();
+    }
+    if (rec.count >= max) {
+      return res.status(429).json({
+        code: 'RATE_LIMITED',
+        error: errorMessage || 'Too many requests. Please wait a moment and try again.',
+      });
+    }
+    rec.count += 1;
+    return next();
+  };
+}
+
+const orderCreateLimiter = createRateLimiter({
+  max: 15,
+  windowMs: 10 * 60 * 1000,
+  errorMessage: 'Too many orders placed from this network. Please wait a few minutes.',
+});
+const couponValidateLimiter = createRateLimiter({
+  max: 45,
+  windowMs: 5 * 60 * 1000,
+  errorMessage: 'Too many coupon checks. Please wait a moment.',
+});
+const orderLookupLimiter = createRateLimiter({
+  max: 60,
+  windowMs: 5 * 60 * 1000,
+  errorMessage: 'Too many order lookup requests. Please wait a moment.',
+});
+const orderCancelLimiter = createRateLimiter({
+  max: 20,
+  windowMs: 10 * 60 * 1000,
+  errorMessage: 'Too many cancel attempts. Please wait a moment.',
+});
+
 function requireAdmin(req, res, next) {
   if (!process.env.ADMIN_PASSWORD) {
     return res.status(503).json({ error: 'ADMIN_PASSWORD is not configured on server.' });
@@ -352,6 +399,14 @@ const riderSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+menuItemSchema.index({ sortOrder: 1, createdAt: 1 });
+orderSchema.index({ phone: 1, createdAt: -1 });
+orderSchema.index({ status: 1, createdAt: -1 });
+orderSchema.index({ couponCode: 1, phone: 1 });
+orderSchema.index({ createdAt: -1 });
+couponSchema.index({ isActive: 1, showOnStorefront: 1 });
+expenseSchema.index({ expenseDate: -1, createdAt: -1 });
 
 const MenuItem = mongoose.model('MenuItem', menuItemSchema);
 const Order = mongoose.model('Order', orderSchema);
@@ -792,7 +847,7 @@ app.get('/api/store', async (req, res) => {
   }
 });
 
-app.post('/api/coupons/validate', async (req, res) => {
+app.post('/api/coupons/validate', couponValidateLimiter, async (req, res) => {
   try {
     const { code, subtotal, phone, items } = req.body || {};
     let numSub = Number(subtotal) || 0;
@@ -836,7 +891,9 @@ app.post('/api/coupons/validate', async (req, res) => {
   }
 });
 
-app.post('/api/orders', async (req, res) => {
+app.post('/api/orders', orderCreateLimiter, async (req, res) => {
+  let claimedCouponId = null;
+  let committedStockDecrements = [];
   try {
     const { customerName, phone, address, customerNote, gpsLocation, items, couponCode } = req.body || {};
 
@@ -912,18 +969,21 @@ app.post('/api/orders', async (req, res) => {
           error: `Coupon ${pricing.couponCode} usage limit has just been reached.`,
         });
       }
+      claimedCouponId = pricing.appliedCoupon._id;
     }
 
     const stockCommit = await commitStockDecrements(stockDecrements, true);
     if (stockCommit.error) {
-      if (pricing.appliedCoupon) {
+      if (claimedCouponId) {
         await Coupon.updateOne(
-          { _id: pricing.appliedCoupon._id, usedCount: { $gt: 0 } },
+          { _id: claimedCouponId, usedCount: { $gt: 0 } },
           { $inc: { usedCount: -1 } }
         );
+        claimedCouponId = null;
       }
       return res.status(400).json({ code: stockCommit.errorCode, error: stockCommit.error });
     }
+    committedStockDecrements = stockDecrements;
 
     let cleanGps = { lat: null, lng: null, mapLink: '' };
     if (
@@ -940,7 +1000,7 @@ app.post('/api/orders', async (req, res) => {
       cleanGps = { lat, lng, mapLink: `https://maps.google.com/?q=${lat},${lng}` };
     }
 
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    const randomSuffix = crypto.randomInt(100000, 999999);
     const orderNumber = `GR-${Date.now().toString().slice(-4)}${randomSuffix}`;
     const createdNow = new Date();
     const cancelDeadlineAt = new Date(createdNow.getTime() + 5 * 60 * 1000);
@@ -964,6 +1024,8 @@ app.post('/api/orders', async (req, res) => {
       status: 'Pending',
       cancelDeadlineAt,
     });
+    claimedCouponId = null;
+    committedStockDecrements = [];
 
     res.status(201).json({
       message: 'Order placed successfully!',
@@ -991,6 +1053,18 @@ app.post('/api/orders', async (req, res) => {
       },
     });
   } catch (err) {
+    if (claimedCouponId) {
+      await Coupon.updateOne(
+        { _id: claimedCouponId, usedCount: { $gt: 0 } },
+        { $inc: { usedCount: -1 } }
+      ).catch(() => {});
+    }
+    for (const dec of committedStockDecrements) {
+      await MenuItem.updateOne(
+        { _id: dec.id, stockCount: { $ne: null } },
+        { $inc: { stockCount: dec.qty }, $set: { inStock: true } }
+      ).catch(() => {});
+    }
     console.error('POST /api/orders error:', err);
     res.status(500).json({ error: 'Could not place order. Please try again.' });
   }
@@ -1034,7 +1108,7 @@ async function applyScheduledOrderTransition(orderDoc, now = new Date()) {
   return orderDoc;
 }
 
-app.get('/api/orders/history', async (req, res) => {
+app.get('/api/orders/history', orderLookupLimiter, async (req, res) => {
   try {
     const cleanPhone = normalizeIndianPhone(req.query.phone || '');
     if (!cleanPhone) {
@@ -1110,7 +1184,7 @@ async function handleHideCustomerOrder(req, res) {
 app.delete('/api/orders/:orderNumber/history', handleHideCustomerOrder);
 app.post('/api/orders/:orderNumber/hide', handleHideCustomerOrder);
 
-app.get('/api/orders/track/:orderNumber', async (req, res) => {
+app.get('/api/orders/track/:orderNumber', orderLookupLimiter, async (req, res) => {
   try {
     const cleanPhone = normalizeIndianPhone(req.query.phone || '');
     if (!cleanPhone) {
@@ -1143,7 +1217,7 @@ app.get('/api/orders/track/:orderNumber', async (req, res) => {
   }
 });
 
-app.post('/api/orders/:orderNumber/cancel', async (req, res) => {
+app.post('/api/orders/:orderNumber/cancel', orderCancelLimiter, async (req, res) => {
   try {
     const cleanPhone = normalizeIndianPhone((req.body && req.body.phone) || req.query.phone || '');
     if (!cleanPhone) {
@@ -1591,6 +1665,22 @@ app.delete('/api/admin/orders/:id', requireAdmin, validateObjectId, async (req, 
   try {
     const deleted = await Order.findByIdAndDelete(req.params.id).lean();
     if (!deleted) return res.status(404).json({ error: 'Order not found.' });
+    if (deleted.status !== 'Cancelled' && deleted.status !== 'Delivered') {
+      for (const it of deleted.items || []) {
+        if (it.menuItemId && it.quantity > 0) {
+          await MenuItem.updateOne(
+            { _id: it.menuItemId, stockCount: { $ne: null } },
+            { $inc: { stockCount: it.quantity }, $set: { inStock: true } }
+          );
+        }
+      }
+      if (deleted.couponCode) {
+        await Coupon.updateOne(
+          { code: deleted.couponCode, usedCount: { $gt: 0 } },
+          { $inc: { usedCount: -1 } }
+        );
+      }
+    }
     res.json({ deletedId: req.params.id });
   } catch (err) {
     console.error('DELETE /api/admin/orders/:id error:', err);
@@ -2185,7 +2275,7 @@ app.put('/api/admin/menu/:id', requireAdmin, validateObjectId, async (req, res) 
     if (isPopular !== undefined) updates.isPopular = Boolean(isPopular);
     if (sortOrder !== undefined && Number.isFinite(Number(sortOrder))) updates.sortOrder = Number(sortOrder);
 
-    if (updates.stockCount === 0 && inStock === undefined) {
+    if (updates.stockCount === 0) {
       updates.inStock = false;
     } else if (updates.inStock === true && stockCount === undefined) {
       const existingItem = await MenuItem.findById(req.params.id).select('stockCount').lean();
