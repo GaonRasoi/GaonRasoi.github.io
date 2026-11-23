@@ -1269,6 +1269,7 @@
         couponMinFail: (code, min) => `⚠️ कूपन ${code} के लिए न्यूनतम ₹${min} का ऑर्डर ज़रूरी है।`,
         couponCatFail: (code, cats) => `⚠️ कूपन ${code} केवल (${cats}) आइटम्स पर लागू है।`,
         subtotal: "खाने का कुल मूल्य",
+        deliveryCharge: "डिलीवरी चार्ज",
         discountLabel: "कूपन छूट",
         totalCod: "कुल देय राशि (COD)",
         minOrderWarn: (min, diff, sub) => `न्यूनतम खाने का मूल्य (डिलीवरी चार्ज छोड़कर) ₹${min} होना ज़रूरी है। अभी ₹${sub} है — कृपया ₹${diff} का और सामान जोड़ें।`,
@@ -1581,6 +1582,7 @@
         couponMinFail: (code, min) => `⚠️ Min order ₹${min} required for coupon ${code}.`,
         couponCatFail: (code, cats) => `⚠️ Coupon ${code} is valid only on (${cats}) items.`,
         subtotal: "Items Subtotal",
+        deliveryCharge: "Delivery Charge",
         discountLabel: "Coupon Discount",
         totalCod: "Total Payable (COD)",
         minOrderWarn: (min, diff, sub) => `Minimum items subtotal is ₹${min} (excluding delivery fee). Current items total is ₹${sub} — please add ₹${diff} more.`,
@@ -1769,6 +1771,15 @@
       },
     };
 
+    function safeStorageJson(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch {
+        return fallback;
+      }
+    }
+
     const state = {
       lang: localStorage.getItem("gr_lang") || "hi",
       theme: localStorage.getItem("gr_theme") || "light",
@@ -1802,20 +1813,16 @@
       menuLoadingMore: false,
       visitSeed: ((Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0) || 1337,
       lastSeenMenuKeys: (() => {
-        try {
-          const raw = JSON.parse(localStorage.getItem("gr_last_seen_menu") || "[]");
-          return new Set(Array.isArray(raw) ? raw.map(String) : []);
-        } catch {
-          return new Set();
-        }
+        const raw = safeStorageJson("gr_last_seen_menu", []);
+        return new Set(Array.isArray(raw) ? raw.map(String) : []);
       })(),
       recordedSeenForSeed: null,
       detailItemId: null,
-      cart: JSON.parse(localStorage.getItem("gr_cart") || "{}"),
+      cart: safeStorageJson("gr_cart", {}),
       appliedCoupon: null,
       gps: null,
-      recentOrder: JSON.parse(localStorage.getItem("gr_recent_order") || "null"),
-      customerOrders: JSON.parse(localStorage.getItem("gr_customer_orders") || "[]"),
+      recentOrder: safeStorageJson("gr_recent_order", null),
+      customerOrders: safeStorageJson("gr_customer_orders", []),
       customerPhone: localStorage.getItem("gr_customer_phone") || "",
       customerOrderFilter: "All",
       customerOrderSearch: "",
@@ -2004,9 +2011,9 @@
           let eligibleSubtotal = subtotal;
           if (cats.length > 0 || itemIds.length > 0) {
             eligibleSubtotal = detailedItems.reduce((sum, { item, qty }) => {
-              const catOk = cats.length === 0 || cats.includes(item.category || "Snacks");
-              const idOk = itemIds.length === 0 || itemIds.includes(String(item._id));
-              return catOk && idOk ? sum + item.sellingPrice * qty : sum;
+              const matchCat = cats.length > 0 && cats.includes(item.category || "Snacks");
+              const matchItem = itemIds.length > 0 && itemIds.includes(String(item._id));
+              return matchCat || matchItem ? sum + item.sellingPrice * qty : sum;
             }, 0);
           }
 
@@ -2558,21 +2565,21 @@
     };
 
     const SEARCH_SYNONYM_GROUPS = [
-      ["samosa", "samose", "samosas", "समोसा", "समौसा", "समोसे"],
-      ["patties", "paties", "patis", "pattice", "patti", "pettij", "petij", "पैटीज", "पेटीज", "पेटिज", "पैटी"],
-      ["burger", "barger", "बर्गर"],
-      ["chowmein", "chowmin", "chawmin", "chaumin", "noodles", "चाउमीन", "चाउमिन", "चाऊमीन"],
-      ["egg", "anda", "ande", "अंडा", "अंडे", "एग"],
-      ["momos", "momo", "dumpling", "मोमोज", "मोमो", "मॉमोज", "मॉमो"],
-      ["kachori", "kachaudi", "kachauri", "sabzi", "sabji", "कचौड़ी", "कचौरी", "कचोरी", "सब्जी"],
-      ["bread", "pakora", "pakoda", "pakode", "ब्रेड", "पकौड़ा", "पकोड़ा", "पकोडा", "पकौड़े"],
+      ["samosa", "samose", "samosas", "smosa", "samosha", "समोसा", "समौसा", "समोसे"],
+      ["patties", "paties", "patis", "petis", "patty", "pattice", "patti", "pettij", "petij", "पैटीज", "पेटीज", "पेटिज", "पैटी"],
+      ["burger", "barger", "burgar", "बर्गर"],
+      ["chowmein", "chowmin", "chawmin", "chaumin", "chaumeen", "chomin", "noodles", "चाउमीन", "चाउमिन", "चाऊमीन"],
+      ["egg", "anda", "ande", "non veg", "nonveg", "अंडा", "अंडे", "एग"],
+      ["momos", "momo", "momoz", "dumpling", "dumplings", "मोमोज", "मोमो", "मॉमोज", "मॉमो"],
+      ["kachori", "kachodi", "kachaudi", "kachauri", "sabzi", "sabji", "कचौड़ी", "कचौरी", "कचोरी", "सब्जी"],
+      ["bread", "bred", "pakora", "pakoda", "pakode", "ब्रेड", "पकौड़ा", "पकोड़ा", "पकोडा", "पकौड़े"],
       ["aloo", "alu", "aalu", "aaloo", "आलू"],
-      ["cold drink", "colddrink", "cold drinks", "drink", "thanda", "bottle", "कोल्ड ड्रिंक", "कोल्ड ड्रिंक्स", "पेय", "ठंडा"],
+      ["cold drink", "colddrink", "cold drinks", "soft drink", "softdrink", "drink", "thanda", "bottle", "कोल्ड ड्रिंक", "कोल्ड ड्रिंक्स", "पेय", "ठंडा"],
       ["pepsi", "पेप्सी"],
       ["mountain dew", "dew", "due", "dyu", "माउंटेन ड्यू", "ड्यू"],
       ["campa", "kampa", "कैंपा"],
       ["cola", "कोला"],
-      ["orange", "santara", "संतरा", "ऑरेंज"],
+      ["orange", "santara", "santra", "संतरा", "ऑरेंज"],
       ["hell", "हेल"],
       ["red bull", "redbull", "रेड बुल"],
       ["campa gold", "gold boost", "boost"],
@@ -2582,8 +2589,8 @@
       ["feast", "फ़ीस्ट", "फीस्ट"],
       ["double", "duo", "2 pcs", "2 plates", "डबल"],
       ["jumbo", "3 pcs", "4 pcs", "जंबो"],
-      ["small", "half", "छोटी", "हाफ"],
-      ["large", "full", "big", "बड़ी", "फुल"],
+      ["small", "half", "chhoti", "choti", "छोटी", "हाफ"],
+      ["large", "full", "big", "badi", "बड़ी", "फुल"],
       ["nashta", "breakfast", "snacks", "नाश्ता"],
       ["can", "tin", "कैन"],
       ["400ml", "400 ml"],
@@ -2595,6 +2602,13 @@
       ["litre", "liter", "लीटर"],
       ["free delivery", "199", "फ्री डिलीवरी"],
     ];
+
+    function normalizeSearchQueryAliases(rawQuery) {
+      return normalizeSearchText(rawQuery)
+        .replace(/\b(aloo|alu|aalu|aaloo|आलू)\s+(patties|paties|patis|petis|patty|patti|pettij|petij|पैटीज|पेटीज|पैटी)\b/g, "$2")
+        .replace(/\bnon[\s-]+veg\b/g, "non veg")
+        .trim();
+    }
 
     function normalizeSearchText(str) {
       return String(str || "")
@@ -2609,6 +2623,10 @@
         .trim();
     }
 
+    const NORMALIZED_SYNONYM_GROUPS = SEARCH_SYNONYM_GROUPS.map((group) => [
+      ...new Set(group.map((kw) => normalizeSearchText(kw)).filter(Boolean)),
+    ]);
+
     function normalizeMenuName(str) {
       return normalizeSearchText(str)
         .replace(/[\(\)\[\]\+\-\/.,:]/g, " ")
@@ -2617,13 +2635,16 @@
     }
 
     function getSearchMatchScore(item, rawQuery) {
-      const q = normalizeSearchText(rawQuery);
+      const q = normalizeSearchQueryAliases(rawQuery);
       if (!q) return 0;
       const hi = normalizeSearchText(item.nameHi);
       const en = normalizeSearchText(item.nameEn);
       const titleCombined = `${hi} ${en}`;
-      const wantsCombo = /(\+|combo|pack|box|party|family|feast|कॉम्बो|पैक|बॉक्स|पार्टी|फैमिली)/.test(q);
-      const isSingleCore = !(item.nameEn || "").includes("+") && item.category !== "Combos";
+      const wantsCombo = /(\+|combo|pack|box|party|family|feast|double|duo|2 cans|कॉम्बो|पैक|बॉक्स|पार्टी|फैमिली)/.test(q);
+      const isSingleCore =
+        !(item.nameEn || "").includes("+") &&
+        item.category !== "Combos" &&
+        !/\b(2 cans|pack|box|duo|double|4-pack)\b/i.test(item.nameEn || "");
       const singleBonus = !wantsCombo ? (isSingleCore ? 20 : -10) : 0;
 
       if (hi === q || en === q) return 100 + singleBonus;
@@ -2696,7 +2717,7 @@
       if (!q) return [];
       const terms = new Set([q]);
       const tokens = q.split(/\s+/).filter(Boolean);
-      for (const group of SEARCH_SYNONYM_GROUPS) {
+      for (const group of NORMALIZED_SYNONYM_GROUPS) {
         const matched = group.some((kw) => {
           if (kw.includes(" ")) return q.includes(kw) || (tokens.length === 1 && tokens[0].length >= 3 && kw.startsWith(tokens[0]));
           return tokens.some((tok) => tok === kw || (tok.length >= 2 && kw.startsWith(tok)));
@@ -2709,8 +2730,9 @@
     }
 
     function itemMatchesSearch(item, rawQuery) {
-      const q = normalizeSearchText(rawQuery);
+      const q = normalizeSearchQueryAliases(rawQuery);
       if (!q) return true;
+      if ((q === "non veg" || q === "nonveg") && item.isVeg === false) return true;
       const cat = item.category || "Snacks";
       const haystack = normalizeSearchText(
         [
@@ -4117,9 +4139,9 @@
           const hasMatchingCat =
             (cats.length === 0 && itemIds.length === 0) ||
             detailedItems.some(({ item }) => {
-              const catOk = cats.length === 0 || cats.includes(item.category || "Snacks");
-              const idOk = itemIds.length === 0 || itemIds.includes(String(item._id));
-              return catOk && idOk;
+              const matchCat = cats.length > 0 && cats.includes(item.category || "Snacks");
+              const matchItem = itemIds.length > 0 && itemIds.includes(String(item._id));
+              return matchCat || matchItem;
             });
           const ready = diff === 0 && hasMatchingCat;
           const badge = formatCouponBadgeText(c);
@@ -7920,5 +7942,5 @@
     renderAll();
     loadStoreData();
   </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5eef515393b8aec',t:'MTc5NTQyNDE1MQ=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5eef515393b8aec',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

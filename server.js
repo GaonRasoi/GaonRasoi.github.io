@@ -2119,7 +2119,7 @@ app.post('/api/admin/menu', requireAdmin, async (req, res) => {
       sellingPrice: Math.max(0, numSelling),
       makingCost: Math.max(0, numCost),
       imageUrl: imageUrl ? String(imageUrl).trim() : '',
-      inStock: inStock !== undefined ? Boolean(inStock) : true,
+      inStock: parsedStock === 0 ? false : inStock !== undefined ? Boolean(inStock) : true,
       stockCount: parsedStock,
       isVeg: isVeg !== undefined ? Boolean(isVeg) : true,
       isPopular: isPopular !== undefined ? Boolean(isPopular) : false,
