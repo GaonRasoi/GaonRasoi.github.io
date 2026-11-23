@@ -252,6 +252,8 @@ const orderSchema = new mongoose.Schema(
     cancelDeadlineAt: { type: Date, default: null },
     cancelledBy: { type: String, enum: ['', 'Customer', 'Admin'], default: '' },
     cancelledAt: { type: Date, default: null },
+    hiddenByCustomer: { type: Boolean, default: false },
+    customerHiddenAt: { type: Date, default: null },
     status: {
       type: String,
       enum: ['Pending', 'Cooking', 'Out for Delivery', 'Delivered', 'Cancelled'],
@@ -1031,6 +1033,82 @@ async function applyScheduledOrderTransition(orderDoc, now = new Date()) {
   }
   return orderDoc;
 }
+
+app.get('/api/orders/history', async (req, res) => {
+  try {
+    const cleanPhone = normalizeIndianPhone(req.query.phone || '');
+    if (!cleanPhone) {
+      return res.status(400).json({ code: 'INVALID_PHONE', error: 'Valid 10-digit phone number is required.' });
+    }
+    const orders = await Order.find({
+      phone: cleanPhone,
+      hiddenByCustomer: { $ne: true },
+    })
+      .select(
+        'orderNumber customerName phone address status subtotal discountAmount couponCode deliveryCharge totalAmount assignedRider statusSchedule cancelDeadlineAt cancelledBy cancelledAt items createdAt updatedAt'
+      )
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .lean();
+
+    const now = new Date();
+    for (const ord of orders) {
+      if (['Pending', 'Cooking', 'Out for Delivery'].includes(ord.status)) {
+        await applyScheduledOrderTransition(ord, now);
+      }
+      if (!ord.cancelDeadlineAt && ord.createdAt) {
+        ord.cancelDeadlineAt = new Date(new Date(ord.createdAt).getTime() + 5 * 60 * 1000);
+      }
+    }
+
+    res.json({ orders, serverNow: now.toISOString() });
+  } catch (err) {
+    console.error('GET /api/orders/history error:', err);
+    res.status(500).json({ error: 'Failed to load order history.' });
+  }
+});
+
+async function handleHideCustomerOrder(req, res) {
+  try {
+    const cleanPhone = normalizeIndianPhone((req.body && req.body.phone) || req.query.phone || '');
+    if (!cleanPhone) {
+      return res.status(400).json({ code: 'INVALID_PHONE', error: 'Valid 10-digit phone number is required.' });
+    }
+    const cleanOrderNum = String(req.params.orderNumber || '').trim().toUpperCase();
+    const order = await Order.findOne({ orderNumber: cleanOrderNum, phone: cleanPhone }).lean();
+    if (!order) {
+      return res.status(404).json({ code: 'ORDER_NOT_FOUND', error: 'Order not found.' });
+    }
+
+    const now = new Date();
+    await applyScheduledOrderTransition(order, now);
+
+    if (!['Delivered', 'Cancelled'].includes(order.status)) {
+      return res.status(400).json({
+        code: 'CANNOT_DELETE_ACTIVE_ORDER',
+        error: 'Only delivered or cancelled orders can be deleted from your history.',
+        serverNow: now.toISOString(),
+      });
+    }
+
+    await Order.updateOne(
+      { _id: order._id },
+      { $set: { hiddenByCustomer: true, customerHiddenAt: now } }
+    );
+
+    res.json({
+      message: 'Order deleted from your history.',
+      orderNumber: cleanOrderNum,
+      serverNow: now.toISOString(),
+    });
+  } catch (err) {
+    console.error('Hide customer order error:', err);
+    res.status(500).json({ error: 'Failed to delete order from history.' });
+  }
+}
+
+app.delete('/api/orders/:orderNumber/history', handleHideCustomerOrder);
+app.post('/api/orders/:orderNumber/hide', handleHideCustomerOrder);
 
 app.get('/api/orders/track/:orderNumber', async (req, res) => {
   try {

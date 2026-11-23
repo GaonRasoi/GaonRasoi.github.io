@@ -503,88 +503,51 @@
     </div>
   </div>
 
-  <!-- 5A. ORDER TRACKING DRAWER / MODAL (Opened from Header 📦 Button or Cart) -->
+  <!-- 5A. ALL ORDERS & LIVE HISTORY MODAL (Opened from Header 📦 Button or Cart) -->
   <div id="orderTrackModal" class="hidden fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center">
     <div class="bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl max-h-[92vh] max-h-[92dvh] flex flex-col shadow-2xl animate-slide-up overflow-hidden">
-      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
-        <h3 id="orderTrackModalTitle" class="text-lg font-extrabold text-slate-900">📦 आपका ऑर्डर और लाइव स्थिति</h3>
-        <button id="closeOrderTrackBtn" type="button" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center">✕</button>
+      <div class="px-4 sm:px-5 py-3.5 border-b border-slate-100 flex items-center justify-between gap-2 bg-white shrink-0">
+        <h3 id="orderTrackModalTitle" class="text-base sm:text-lg font-extrabold text-slate-900 truncate">📦 मेरे ऑर्डर व हिस्ट्री</h3>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button id="refreshAllOrdersBtn" type="button" class="px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200 transition">
+            🔄 <span id="refreshAllOrdersText">रिफ्रेश</span>
+          </button>
+          <button id="closeOrderTrackBtn" type="button" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center">✕</button>
+        </div>
       </div>
 
-      <div class="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1 min-h-0 overscroll-contain">
-        <!-- Active / Recent Order Card (Live Status, ETA, 5-Min Cancel Box, 4-Step Stepper) -->
-        <section id="recentOrderCard" class="hidden rounded-2xl bg-white border border-emerald-200 p-3.5 shadow-sm space-y-2.5">
-          <div class="flex items-center justify-between gap-2 flex-wrap">
-            <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <span id="recentOrderTitle" class="text-xs font-bold text-slate-500 uppercase tracking-wide">आपका पिछला ऑर्डर</span>
-                <span id="recentOrderNum" class="text-xs font-extrabold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md"></span>
-                <span id="recentOrderCustName" class="hidden text-xs font-bold text-orange-700 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200"></span>
-              </div>
-              <p class="text-sm font-bold text-slate-800 mt-1">
-                <span id="recentOrderStatusLabel">स्थिति:</span>
-                <span id="recentOrderStatusBadge" class="ml-1 inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">Pending</span>
-              </p>
-              <p id="recentOrderEtaLine" class="hidden text-xs font-bold text-emerald-700 mt-0.5">🛵 आपका ऑर्डर 10 से 15 मिनट में डिलीवर कर दिया जाएगा</p>
-              <p id="recentOrderRiderText" class="hidden text-xs text-slate-600 mt-0.5 font-semibold"></p>
-            </div>
-            <div class="flex items-center gap-1.5">
-              <button id="refreshTrackBtn" type="button" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200 transition">
-                🔄 <span id="refreshTrackText">स्थिति देखें</span>
-              </button>
-              <button id="dismissTrackBtn" type="button" aria-label="Dismiss" class="hidden w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold">✕</button>
-            </div>
+      <div class="p-4 sm:p-5 overflow-y-auto space-y-3.5 flex-1 min-h-0 overscroll-contain">
+        <!-- Phone Summary + Change Number + Search/Filter -->
+        <div id="orderHistoryControls" class="hidden space-y-2.5">
+          <div class="flex items-center justify-between gap-2 rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 text-xs">
+            <span id="orderHistoryPhoneLabel" class="font-bold text-slate-700 truncate">📱 9876543210</span>
+            <button id="changeOrderPhoneBtn" type="button" class="shrink-0 font-extrabold text-orange-600 hover:text-orange-700">🔄 <span id="changeOrderPhoneText">नंबर बदलें</span></button>
           </div>
+          <input id="customerOrderSearchInput" type="search" class="w-full rounded-xl bg-white border border-slate-200 px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" placeholder="🔍 ऑर्डर नंबर या आइटम खोजें..." />
+          <div id="customerOrderFilterPills" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5"></div>
+        </div>
 
-          <div id="trackModalItemsBox" class="hidden rounded-xl bg-slate-50 border border-slate-200/80 px-3 py-2 text-xs space-y-1">
-            <div id="trackModalItemsText" class="font-semibold text-slate-700 leading-relaxed"></div>
-            <div id="trackModalTotalText" class="font-extrabold text-slate-900"></div>
-          </div>
+        <!-- All Orders List (Active + Delivered + Cancelled) -->
+        <div id="customerOrdersList" class="space-y-3"></div>
 
-          <div id="recentOrderTimerBox" class="hidden rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white px-3 py-2 flex items-center justify-between gap-2">
-            <div class="min-w-0">
-              <div id="recentOrderTimerLabel" class="text-xs font-extrabold truncate">⏱️ डिलीवरी अपडेट टाइमर</div>
-              <div id="recentOrderScheduleNote" class="hidden text-[11px] text-orange-50 truncate"></div>
-            </div>
-            <span id="recentOrderTimerClock" class="px-2.5 py-0.5 rounded-lg bg-white/20 font-mono text-sm font-black shrink-0">00:00</span>
-          </div>
-
-          <!-- 5-Minute Customer Cancel Window / Auto-Lock Box -->
-          <div id="recentOrderCancelBox" class="hidden rounded-xl border p-2.5 space-y-2">
-            <div class="flex items-center justify-between gap-2 flex-wrap">
-              <div class="text-xs font-bold leading-snug" id="recentOrderCancelMsg"></div>
-              <span id="recentOrderCancelClock" class="px-2 py-0.5 rounded-lg font-mono text-xs font-black shrink-0"></span>
-            </div>
-            <div id="recentOrderCancelActions" class="flex items-center gap-2 flex-wrap">
-              <button id="recentCancelTriggerBtn" type="button" class="px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-extrabold transition"></button>
-            </div>
-            <div id="recentOrderCancelConfirmBox" class="hidden rounded-xl bg-red-50 border border-red-200 p-2.5 space-y-2">
-              <div id="recentCancelConfirmText" class="text-xs font-bold text-red-800"></div>
-              <div class="flex items-center gap-2">
-                <button id="confirmRecentCancelBtn" type="button" class="flex-1 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold"></button>
-                <button id="abortRecentCancelBtn" type="button" class="flex-1 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-bold"></button>
-              </div>
-            </div>
-          </div>
-
-          <div id="recentOrderStepper" class="grid grid-cols-4 gap-1 text-center text-[10px] font-bold pt-1"></div>
-        </section>
-
-        <!-- Empty State + Quick Order Lookup (when no saved recentOrder on device) -->
-        <div id="orderTrackEmptyBox" class="hidden space-y-4">
-          <div class="text-center py-3 space-y-1.5">
+        <!-- Empty State / Phone History Lookup -->
+        <div id="orderTrackEmptyBox" class="hidden space-y-3.5">
+          <div id="orderTrackEmptyHeader" class="text-center py-2 space-y-1">
             <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-2xl mx-auto">📦</div>
-            <p id="orderTrackEmptyMsg" class="text-sm font-bold text-slate-700">अभी कोई सक्रिय ऑर्डर सेव नहीं है।</p>
-            <p id="orderTrackEmptySub" class="text-xs text-slate-500">यदि आपने ऑर्डर किया है तो ऑर्डर नंबर और मोबाइल से लाइव स्थिति देखें:</p>
+            <p id="orderTrackEmptyMsg" class="text-sm font-bold text-slate-700">अभी कोई ऑर्डर नहीं मिला।</p>
+            <p id="orderTrackEmptySub" class="text-xs text-slate-500">अपने सभी पुराने व नए ऑर्डर देखने के लिए 10 अंकों का मोबाइल नंबर डालें:</p>
           </div>
           <form id="trackLookupForm" class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-2.5">
-            <div id="trackLookupTitle" class="text-xs font-extrabold text-slate-800">🔍 ऑर्डर नंबर से ट्रैक करें</div>
-            <input id="trackLookupOrderNum" type="text" required maxlength="24" placeholder="ऑर्डर नंबर (जैसे GR-19462443)" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm uppercase font-bold" />
-            <input id="trackLookupPhone" type="tel" inputmode="numeric" required maxlength="14" placeholder="10 अंकों का मोबाइल नंबर" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm" />
+            <div id="trackLookupTitle" class="text-xs font-extrabold text-slate-800">🔍 मोबाइल नंबर से अपने सभी ऑर्डर देखें</div>
+            <input id="trackLookupPhone" type="tel" inputmode="numeric" required maxlength="14" placeholder="10 अंकों का मोबाइल नंबर *" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm font-bold" />
+            <input id="trackLookupOrderNum" type="text" maxlength="24" placeholder="ऑर्डर नंबर (वैकल्पिक, जैसे GR-19462443)" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm uppercase" />
             <p id="trackLookupError" class="hidden text-xs font-semibold text-red-600"></p>
-            <button id="trackLookupSubmitBtn" type="submit" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-extrabold">
-              <span id="trackLookupSubmitText">स्थिति खोजें</span>
-            </button>
+            <div class="flex items-center gap-2">
+              <button id="trackLookupSubmitBtn" type="submit" class="flex-1 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-extrabold">
+                <span id="trackLookupSubmitText">ऑर्डर देखें</span>
+              </button>
+              <button id="trackLookupCancelBtn" type="button" class="hidden px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-700 text-xs font-bold">✕</button>
+            </div>
           </form>
         </div>
       </div>
@@ -1185,18 +1148,29 @@
         themeNames: { light: "लाइट", dark: "डार्क", warm: "वॉर्म" },
         freeDeliveryBanner: (amt) => `🎉 ₹${amt} या उससे ऊपर के ऑर्डर पर डिलीवरी बिल्कुल फ़्री!`,
         freeDeliveryApplied: "फ़्री!",
-        recentOrderTitle: "आपका पिछला ऑर्डर",
-        orderTrackModalTitle: "📦 आपका ऑर्डर और लाइव स्थिति",
+        recentOrderTitle: "आपका ऑर्डर",
+        orderTrackModalTitle: "📦 मेरे ऑर्डर व हिस्ट्री",
         emptyCartTitle: "आपका कार्ट अभी खाली है",
         emptyCartDesc: "मेनू से अपने पसंदीदा आइटम जोड़ें और तुरंत ऑर्डर करें।",
         emptyCartBrowseBtn: "मेनू देखें",
-        checkoutViewOrderBtn: "देखें",
-        orderTrackEmptyMsg: "अभी कोई सक्रिय ऑर्डर सेव नहीं है।",
-        orderTrackEmptySub: "यदि आपने ऑर्डर किया है तो ऑर्डर नंबर और मोबाइल से लाइव स्थिति देखें:",
-        trackLookupTitle: "🔍 ऑर्डर नंबर से ट्रैक करें",
-        trackLookupOrderPh: "ऑर्डर नंबर (जैसे GR-19462443)",
-        trackLookupPhonePh: "10 अंकों का मोबाइल नंबर",
-        trackLookupBtn: "स्थिति खोजें",
+        checkoutViewOrderBtn: "सभी देखें",
+        orderTrackEmptyMsg: "अभी कोई ऑर्डर नहीं मिला।",
+        orderTrackEmptySub: "अपने सभी पुराने व नए ऑर्डर देखने के लिए 10 अंकों का मोबाइल नंबर डालें:",
+        trackLookupTitle: "🔍 मोबाइल नंबर से अपने सभी ऑर्डर देखें",
+        trackLookupOrderPh: "ऑर्डर नंबर (वैकल्पिक, जैसे GR-19462443)",
+        trackLookupPhonePh: "10 अंकों का मोबाइल नंबर *",
+        trackLookupBtn: "ऑर्डर देखें",
+        changePhoneBtn: "नंबर बदलें",
+        searchOrderHistoryPh: "🔍 ऑर्डर नंबर या आइटम खोजें...",
+        filterAllOrders: "सभी",
+        filterActiveOrders: "चालू",
+        filterDeliveredOrders: "डिलीवर",
+        filterCancelledOrders: "कैंसिल",
+        deleteHistoryBtn: "🗑️ हिस्ट्री से हटाएं",
+        deleteHistoryConfirmAsk: "क्या आप इस ऑर्डर को अपनी हिस्ट्री से हटाना चाहते हैं?",
+        deleteHistoryConfirmYes: "हाँ, हटाएं",
+        deleteHistoryDeletedToast: "🗑️ ऑर्डर आपकी हिस्ट्री से हटाया गया।",
+        noOrdersMatchFilter: "इस फ़िल्टर में कोई ऑर्डर नहीं मिला।",
         statusLabel: "स्थिति:",
         riderAssigned: (n, p) => `🛵 राइडर: ${n} (${p})`,
         refreshTrack: "स्थिति देखें",
@@ -1484,18 +1458,29 @@
         themeNames: { light: "Light", dark: "Dark", warm: "Warm" },
         freeDeliveryBanner: (amt) => `🎉 FREE Delivery on orders ₹${amt} & above!`,
         freeDeliveryApplied: "FREE!",
-        recentOrderTitle: "Your Recent Order",
-        orderTrackModalTitle: "📦 Your Order & Live Status",
+        recentOrderTitle: "Your Order",
+        orderTrackModalTitle: "📦 My Orders & History",
         emptyCartTitle: "Your Cart is Empty",
         emptyCartDesc: "Add your favourite dishes from the menu to place an order.",
         emptyCartBrowseBtn: "Browse Menu",
-        checkoutViewOrderBtn: "View",
-        orderTrackEmptyMsg: "No active order saved on this device.",
-        orderTrackEmptySub: "Already placed an order? Track it below with Order ID & Mobile:",
-        trackLookupTitle: "🔍 Track by Order Number",
-        trackLookupOrderPh: "Order ID (e.g. GR-19462443)",
-        trackLookupPhonePh: "10-digit Mobile Number",
-        trackLookupBtn: "Find Order",
+        checkoutViewOrderBtn: "View All",
+        orderTrackEmptyMsg: "No orders found yet.",
+        orderTrackEmptySub: "Enter your 10-digit mobile number to view all your active & past orders:",
+        trackLookupTitle: "🔍 View All Orders by Mobile Number",
+        trackLookupOrderPh: "Order ID (optional, e.g. GR-19462443)",
+        trackLookupPhonePh: "10-digit Mobile Number *",
+        trackLookupBtn: "Find Orders",
+        changePhoneBtn: "Change No.",
+        searchOrderHistoryPh: "🔍 Search by Order ID or item...",
+        filterAllOrders: "All",
+        filterActiveOrders: "Active",
+        filterDeliveredOrders: "Delivered",
+        filterCancelledOrders: "Cancelled",
+        deleteHistoryBtn: "🗑️ Delete",
+        deleteHistoryConfirmAsk: "Remove this order from your history?",
+        deleteHistoryConfirmYes: "Yes, Delete",
+        deleteHistoryDeletedToast: "🗑️ Order removed from your history.",
+        noOrdersMatchFilter: "No orders match this filter.",
         statusLabel: "Status:",
         riderAssigned: (n, p) => `🛵 Rider: ${n} (${p})`,
         refreshTrack: "Check Status",
@@ -1811,6 +1796,11 @@
       appliedCoupon: null,
       gps: null,
       recentOrder: JSON.parse(localStorage.getItem("gr_recent_order") || "null"),
+      customerOrders: JSON.parse(localStorage.getItem("gr_customer_orders") || "[]"),
+      customerPhone: localStorage.getItem("gr_customer_phone") || "",
+      customerOrderFilter: "All",
+      customerOrderSearch: "",
+      showPhoneLookup: false,
       logoTapTimes: [],
       adminToken: sessionStorage.getItem("gr_admin_token") || "",
       activeAdminTab: "orders",
@@ -2123,13 +2113,117 @@
       showToast(t("themeSwitched", label), "info");
     }
 
-    async function syncRecentOrderStatus(isManual = false) {
-      if (!state.recentOrder) return;
-      const btn = document.getElementById("refreshTrackBtn");
-      const btnText = document.getElementById("refreshTrackText");
+    function getPrimaryActiveOrder() {
+      const list = Array.isArray(state.customerOrders) ? state.customerOrders : [];
+      const active = list.find((o) => ["Pending", "Cooking", "Out for Delivery"].includes(o.status || "Pending"));
+      return active || list[0] || null;
+    }
+
+    function saveCustomerOrders() {
+      const seenNums = new Set();
+      const cleaned = [];
+      for (const ord of state.customerOrders || []) {
+        if (!ord || !ord.orderNumber || seenNums.has(ord.orderNumber)) continue;
+        seenNums.add(ord.orderNumber);
+        cleaned.push(ord);
+      }
+      cleaned.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      state.customerOrders = cleaned.slice(0, 50);
+      localStorage.setItem("gr_customer_orders", JSON.stringify(state.customerOrders));
+      state.recentOrder = getPrimaryActiveOrder();
+      if (state.recentOrder) {
+        localStorage.setItem("gr_recent_order", JSON.stringify(state.recentOrder));
+      } else {
+        localStorage.removeItem("gr_recent_order");
+      }
+    }
+
+    function upsertCustomerOrder(ord) {
+      if (!ord || !ord.orderNumber) return;
+      const idx = state.customerOrders.findIndex((x) => x.orderNumber === ord.orderNumber);
+      if (idx >= 0) {
+        state.customerOrders[idx] = { ...state.customerOrders[idx], ...ord };
+      } else {
+        state.customerOrders.unshift(ord);
+      }
+      if (ord.phone) {
+        state.customerPhone = ord.phone;
+        localStorage.setItem("gr_customer_phone", ord.phone);
+      }
+      saveCustomerOrders();
+    }
+
+    function removeCustomerOrderFromLocal(orderNumber) {
+      state.customerOrders = state.customerOrders.filter((x) => x.orderNumber !== orderNumber);
+      saveCustomerOrders();
+    }
+
+    // Migrate any legacy single gr_recent_order into customerOrders on startup
+    if (state.recentOrder && state.recentOrder.orderNumber) {
+      const exists = state.customerOrders.some((x) => x.orderNumber === state.recentOrder.orderNumber);
+      if (!exists) state.customerOrders.unshift(state.recentOrder);
+      if (!state.customerPhone && state.recentOrder.phone) {
+        state.customerPhone = state.recentOrder.phone;
+        localStorage.setItem("gr_customer_phone", state.customerPhone);
+      }
+      saveCustomerOrders();
+    } else if (!state.customerPhone && state.customerOrders.length > 0 && state.customerOrders[0].phone) {
+      state.customerPhone = state.customerOrders[0].phone;
+      localStorage.setItem("gr_customer_phone", state.customerPhone);
+    }
+
+    async function syncCustomerOrderHistory(phoneOverride = "", isManual = false) {
+      const targetPhone = normalizeIndianPhone(phoneOverride || state.customerPhone || state.recentOrder?.phone || "");
+      const btn = document.getElementById("refreshAllOrdersBtn");
+      const btnText = document.getElementById("refreshAllOrdersText");
       if (isManual && btn && btnText) {
         btn.disabled = true;
         btnText.textContent = t("checkingTrack");
+      }
+      try {
+        if (!targetPhone) {
+          if (state.recentOrder) await syncRecentOrderStatus(isManual);
+          return false;
+        }
+        const res = await apiFetch(`/api/orders/history?phone=${encodeURIComponent(targetPhone)}`);
+        if (res.serverNow) {
+          state.clockOffsetMs = Date.now() - new Date(res.serverNow).getTime();
+        }
+        state.customerPhone = targetPhone;
+        localStorage.setItem("gr_customer_phone", targetPhone);
+        const serverOrders = Array.isArray(res.orders) ? res.orders : [];
+        // Replace orders for this phone cleanly with server truth (respecting hiddenByCustomer)
+        const otherOrders = state.customerOrders.filter((o) => o.phone && o.phone !== targetPhone);
+        state.customerOrders = [...serverOrders, ...otherOrders];
+        saveCustomerOrders();
+        if (serverOrders.length > 0) {
+          state.showPhoneLookup = false;
+        }
+        renderRecentOrderCard();
+        if (!document.getElementById("orderSuccessModal").classList.contains("hidden")) {
+          renderOrderSuccessModal();
+        }
+        if (isManual && state.recentOrder) {
+          const stLabel = TRANSLATIONS[state.lang].statuses[state.recentOrder.status] || state.recentOrder.status;
+          showToast(t("trackStatusToast", stLabel));
+        }
+        return { ok: true, count: serverOrders.length };
+      } catch (err) {
+        if (isManual) showToast((err && err.message) || t("serverError"), true);
+        return { ok: false, count: 0 };
+      } finally {
+        if (isManual && btn && btnText) {
+          btn.disabled = false;
+          btnText.textContent = t("refresh");
+        }
+      }
+    }
+
+    async function syncRecentOrderStatus(isManual = false) {
+      if (!state.recentOrder) return;
+      if (state.customerPhone) {
+        await syncCustomerOrderHistory(state.customerPhone, isManual);
+        return;
       }
       try {
         const res = await apiFetch(
@@ -2138,16 +2232,10 @@
         if (res.serverNow) {
           state.clockOffsetMs = Date.now() - new Date(res.serverNow).getTime();
         }
-        state.recentOrder.status = res.order.status;
-        state.recentOrder.customerName = res.order.customerName || state.recentOrder.customerName || "";
-        state.recentOrder.address = res.order.address || state.recentOrder.address || "";
-        state.recentOrder.totalAmount = res.order.totalAmount ?? state.recentOrder.totalAmount;
-        state.recentOrder.items = res.order.items || state.recentOrder.items || [];
-        state.recentOrder.cancelDeadlineAt = res.order.cancelDeadlineAt || state.recentOrder.cancelDeadlineAt || null;
-        state.recentOrder.cancelledBy = res.order.cancelledBy || "";
-        state.recentOrder.assignedRider = res.order.assignedRider || null;
-        state.recentOrder.statusSchedule = res.order.statusSchedule || null;
-        localStorage.setItem("gr_recent_order", JSON.stringify(state.recentOrder));
+        upsertCustomerOrder({
+          ...res.order,
+          phone: state.recentOrder.phone,
+        });
         renderRecentOrderCard();
         if (!document.getElementById("orderSuccessModal").classList.contains("hidden")) {
           renderOrderSuccessModal();
@@ -2158,17 +2246,11 @@
         }
       } catch (err) {
         if (err && err.status === 404) {
-          state.recentOrder = null;
-          localStorage.removeItem("gr_recent_order");
+          removeCustomerOrderFromLocal(state.recentOrder.orderNumber);
           renderRecentOrderCard();
           if (isManual) showToast(t("trackNotFoundToast"), "info");
         } else if (isManual) {
           showToast((err && err.message) || t("serverError"), true);
-        }
-      } finally {
-        if (isManual && btn && btnText) {
-          btn.disabled = false;
-          btnText.textContent = t("refreshTrack");
         }
       }
     }
@@ -2206,7 +2288,9 @@
         saveCart();
         renderAll();
         startLiveTimerLoop();
-        if (state.recentOrder && ["Pending", "Cooking", "Out for Delivery"].includes(state.recentOrder.status)) {
+        if (state.customerPhone) {
+          syncCustomerOrderHistory(state.customerPhone, false);
+        } else if (state.recentOrder && ["Pending", "Cooking", "Out for Delivery"].includes(state.recentOrder.status)) {
           syncRecentOrderStatus();
         }
       } catch (err) {
@@ -2280,8 +2364,10 @@
         }
       }
 
-      document.getElementById("recentOrderTitle").textContent = t("recentOrderTitle");
       document.getElementById("orderTrackModalTitle").textContent = t("orderTrackModalTitle");
+      document.getElementById("refreshAllOrdersText").textContent = t("refresh");
+      document.getElementById("changeOrderPhoneText").textContent = t("changePhoneBtn");
+      document.getElementById("customerOrderSearchInput").placeholder = t("searchOrderHistoryPh");
       document.getElementById("emptyCartTitle").textContent = t("emptyCartTitle");
       document.getElementById("emptyCartDesc").textContent = t("emptyCartDesc");
       document.getElementById("emptyCartBrowseBtnText").textContent = t("emptyCartBrowseBtn");
@@ -2292,8 +2378,6 @@
       document.getElementById("trackLookupOrderNum").placeholder = t("trackLookupOrderPh");
       document.getElementById("trackLookupPhone").placeholder = t("trackLookupPhonePh");
       document.getElementById("trackLookupSubmitText").textContent = t("trackLookupBtn");
-      document.getElementById("recentOrderStatusLabel").textContent = t("statusLabel");
-      document.getElementById("refreshTrackText").textContent = t("refreshTrack");
 
       document.getElementById("menuHeading").textContent = t("menuHeading");
       document.getElementById("customerMenuSearch").placeholder = t("searchMenuPh");
@@ -2993,59 +3077,47 @@
     }
 
     function updateOrderTrackTimerUI() {
-      const box = document.getElementById("recentOrderTimerBox");
-      const clockEl = document.getElementById("recentOrderTimerClock");
-      const labelEl = document.getElementById("recentOrderTimerLabel");
-      const noteEl = document.getElementById("recentOrderScheduleNote");
-      if (!box || !state.recentOrder) {
-        if (box) box.classList.add("hidden");
-        return;
-      }
-      const st = state.recentOrder.status || "Pending";
-      const sch = state.recentOrder.statusSchedule;
-      if (!sch || st === "Delivered" || st === "Cancelled") {
-        box.classList.add("hidden");
-        if (state.orderTrackTimerInterval) {
-          clearInterval(state.orderTrackTimerInterval);
-          state.orderTrackTimerInterval = null;
-        }
-        return;
-      }
-
+      const listEl = document.getElementById("customerOrdersList");
+      if (!listEl) return;
       const now = Date.now() - state.clockOffsetMs;
-      const target = getNextScheduledTarget(state.recentOrder);
-      if (!target) {
-        box.classList.add("hidden");
-        return;
-      }
+      let needsSync = false;
 
-      if (target.triggerSync) {
-        if (!state._autoTrackSyncing) {
-          state._autoTrackSyncing = true;
-          syncRecentOrderStatus(false).finally(() => {
-            state._autoTrackSyncing = false;
-          });
+      listEl.querySelectorAll("[data-co-sched-box]").forEach((box) => {
+        const orderNum = box.dataset.coSchedBox;
+        const ord = state.customerOrders.find((x) => x.orderNumber === orderNum);
+        const clockEl = box.querySelector("[data-co-sched-clock]");
+        const labelEl = box.querySelector("[data-co-sched-label]");
+        if (!ord || !ord.statusSchedule || ["Delivered", "Cancelled"].includes(ord.status || "Pending")) {
+          box.classList.add("hidden");
+          return;
         }
-        clockEl.textContent = "00:00";
-      } else {
-        clockEl.textContent = formatCountdown(target.ts - now);
-      }
+        const target = getNextScheduledTarget(ord);
+        if (!target) {
+          box.classList.add("hidden");
+          return;
+        }
+        if (target.triggerSync) {
+          needsSync = true;
+          if (clockEl) clockEl.textContent = "00:00";
+        } else if (clockEl) {
+          clockEl.textContent = formatCountdown(target.ts - now);
+        }
+        if (labelEl) {
+          if (target.stage && target.stage !== "Delivered") {
+            const stName = TRANSLATIONS[state.lang].statuses[target.stage] || target.stage;
+            labelEl.textContent = t("orderTimerNextStage", stName);
+          } else {
+            labelEl.textContent = t("orderTimerLabel");
+          }
+        }
+      });
 
-      if (target.stage && target.stage !== "Delivered") {
-        const stName = TRANSLATIONS[state.lang].statuses[target.stage] || target.stage;
-        labelEl.textContent = t("orderTimerNextStage", stName);
-      } else {
-        labelEl.textContent = t("orderTimerLabel");
+      if (needsSync && !state._autoTrackSyncing) {
+        state._autoTrackSyncing = true;
+        syncCustomerOrderHistory(state.customerPhone, false).finally(() => {
+          state._autoTrackSyncing = false;
+        });
       }
-
-      const customNote = (state.lang === "hi" ? sch.noteHi : sch.noteEn) || sch.noteHi || sch.noteEn || "";
-      if (customNote) {
-        noteEl.textContent = customNote;
-        noteEl.classList.remove("hidden");
-      } else {
-        noteEl.classList.add("hidden");
-      }
-      box.classList.remove("hidden");
     }
 
     function getOrderCancelInfo(order) {
@@ -3069,12 +3141,10 @@
 
     function updateCancelLockUI() {
       const ord = state.recentOrder;
-      const info = getOrderCancelInfo(ord);
-      const clockStr = formatCountdown(info.remainingMs);
-
-      // 1. Update #orderSuccessModal cancel box (when open)
       const modal = document.getElementById("orderSuccessModal");
       if (modal && !modal.classList.contains("hidden") && ord) {
+        const info = getOrderCancelInfo(ord);
+        const clockStr = formatCountdown(info.remainingMs);
         const box = document.getElementById("successCancelBox");
         const titleEl = document.getElementById("successCancelTitle");
         const clockEl = document.getElementById("successCancelClock");
@@ -3122,45 +3192,59 @@
         }
       }
 
-      // 2. Update #recentOrderCard cancel box
-      const rBox = document.getElementById("recentOrderCancelBox");
-      if (!rBox) return;
-      if (!ord || info.mode === "none") {
-        rBox.classList.add("hidden");
-        return;
-      }
-      const rMsg = document.getElementById("recentOrderCancelMsg");
-      const rClock = document.getElementById("recentOrderCancelClock");
-      const rActions = document.getElementById("recentOrderCancelActions");
-      const rBtn = document.getElementById("recentCancelTriggerBtn");
-      const rConfirm = document.getElementById("recentOrderCancelConfirmBox");
+      // 2. Update every active order card inside #customerOrdersList in-place (zero DOM flicker)
+      const listEl = document.getElementById("customerOrdersList");
+      if (!listEl) return;
+      listEl.querySelectorAll("[data-co-cancel-box]").forEach((rBox) => {
+        const orderNum = rBox.dataset.coCancelBox;
+        const cardOrd = state.customerOrders.find((x) => x.orderNumber === orderNum);
+        const info = getOrderCancelInfo(cardOrd);
+        const clockStr = formatCountdown(info.remainingMs);
+        const rMsg = rBox.querySelector("[data-co-cancel-msg]");
+        const rClock = rBox.querySelector("[data-co-cancel-clock]");
+        const rActions = rBox.querySelector("[data-co-cancel-actions]");
+        const rBtn = rBox.querySelector("[data-co-cancel-trigger]");
+        const rConfirm = rBox.querySelector("[data-co-cancel-confirm]");
 
-      if (info.mode === "open") {
-        rBox.className = "rounded-xl border border-amber-300 bg-amber-50 p-2.5 space-y-2";
-        rMsg.className = "text-xs font-bold leading-snug text-amber-900";
-        rMsg.textContent = t("cancelWindowTitleOpen");
-        rClock.className = "px-2 py-0.5 rounded-lg bg-rose-600 text-white font-mono text-xs font-black shrink-0";
-        rClock.textContent = clockStr;
-        rClock.classList.remove("hidden");
-        rBtn.disabled = Boolean(state._cancellingOrder);
-        rBtn.className = "px-3 py-1.5 rounded-xl bg-white hover:bg-red-50 text-red-700 border border-red-300 text-xs font-extrabold transition";
-        rBtn.textContent = state._cancellingOrder ? t("cancellingOrderBtn") : t("cancelBtnWithTimer", clockStr);
-        rActions.classList.remove("hidden");
-        rBox.classList.remove("hidden");
-      } else if (info.mode === "cancelled") {
-        rBox.classList.add("hidden");
-        rConfirm.classList.add("hidden");
-      } else {
-        rBox.className = "rounded-xl border border-slate-200 bg-slate-100 p-2.5 space-y-1";
-        rMsg.className = "text-xs font-bold leading-snug text-slate-700";
-        rMsg.textContent = t("cancelBtnLocked");
-        rClock.className = "px-2 py-0.5 rounded-lg bg-slate-700 text-white font-mono text-[11px] font-black shrink-0";
-        rClock.textContent = "🔒 LOCKED";
-        rClock.classList.remove("hidden");
-        rActions.classList.add("hidden");
-        rConfirm.classList.add("hidden");
-        rBox.classList.remove("hidden");
-      }
+        if (!cardOrd || info.mode === "none" || info.mode === "cancelled") {
+          rBox.classList.add("hidden");
+          if (rConfirm) rConfirm.classList.add("hidden");
+          return;
+        }
+        if (info.mode === "open") {
+          rBox.className = "rounded-xl border border-amber-300 bg-amber-50 p-2.5 space-y-2";
+          if (rMsg) {
+            rMsg.className = "text-xs font-bold leading-snug text-amber-900";
+            rMsg.textContent = t("cancelWindowTitleOpen");
+          }
+          if (rClock) {
+            rClock.className = "px-2 py-0.5 rounded-lg bg-rose-600 text-white font-mono text-xs font-black shrink-0";
+            rClock.textContent = clockStr;
+            rClock.classList.remove("hidden");
+          }
+          if (rBtn) {
+            rBtn.disabled = Boolean(state._cancellingOrder);
+            rBtn.className = "px-3 py-1.5 rounded-xl bg-white hover:bg-red-50 text-red-700 border border-red-300 text-xs font-extrabold transition";
+            rBtn.textContent = state._cancellingOrder ? t("cancellingOrderBtn") : t("cancelBtnWithTimer", clockStr);
+          }
+          if (rActions) rActions.classList.remove("hidden");
+          rBox.classList.remove("hidden");
+        } else {
+          rBox.className = "rounded-xl border border-slate-200 bg-slate-100 p-2.5 space-y-1";
+          if (rMsg) {
+            rMsg.className = "text-xs font-bold leading-snug text-slate-700";
+            rMsg.textContent = t("cancelBtnLocked");
+          }
+          if (rClock) {
+            rClock.className = "px-2 py-0.5 rounded-lg bg-slate-700 text-white font-mono text-[11px] font-black shrink-0";
+            rClock.textContent = "🔒 LOCKED";
+            rClock.classList.remove("hidden");
+          }
+          if (rActions) rActions.classList.add("hidden");
+          if (rConfirm) rConfirm.classList.add("hidden");
+          rBox.classList.remove("hidden");
+        }
+      });
     }
 
     function renderOrderSuccessModal() {
@@ -3205,9 +3289,11 @@
       updateCancelLockUI();
     }
 
-    async function handleCustomerCancelOrder() {
-      if (!state.recentOrder || state._cancellingOrder) return;
-      const info = getOrderCancelInfo(state.recentOrder);
+    async function handleCustomerCancelOrder(targetOrderNumber = "") {
+      const ordNum = typeof targetOrderNumber === "string" && targetOrderNumber ? targetOrderNumber : state.recentOrder?.orderNumber;
+      const ord = state.customerOrders.find((x) => x.orderNumber === ordNum) || state.recentOrder;
+      if (!ord || state._cancellingOrder) return;
+      const info = getOrderCancelInfo(ord);
       if (info.mode !== "open") {
         updateCancelLockUI();
         showToast(t("cancelExpiredToast"), true);
@@ -3217,20 +3303,21 @@
       updateCancelLockUI();
       try {
         const res = await apiFetch(
-          `/api/orders/${encodeURIComponent(state.recentOrder.orderNumber)}/cancel`,
+          `/api/orders/${encodeURIComponent(ord.orderNumber)}/cancel`,
           {
             method: "POST",
-            body: JSON.stringify({ phone: state.recentOrder.phone }),
+            body: JSON.stringify({ phone: ord.phone || state.customerPhone }),
           }
         );
         if (res.serverNow) {
           state.clockOffsetMs = Date.now() - new Date(res.serverNow).getTime();
         }
-        state.recentOrder.status = "Cancelled";
-        state.recentOrder.cancelledBy = "Customer";
-        localStorage.setItem("gr_recent_order", JSON.stringify(state.recentOrder));
+        upsertCustomerOrder({
+          ...ord,
+          status: "Cancelled",
+          cancelledBy: "Customer",
+        });
         document.getElementById("successCancelConfirmBox").classList.add("hidden");
-        document.getElementById("recentOrderCancelConfirmBox").classList.add("hidden");
         renderRecentOrderCard();
         if (!document.getElementById("orderSuccessModal").classList.contains("hidden")) {
           renderOrderSuccessModal();
@@ -3239,7 +3326,7 @@
         await loadStoreData();
       } catch (err) {
         if (err && err.code === "CANCEL_WINDOW_EXPIRED") {
-          await syncRecentOrderStatus(false);
+          await syncCustomerOrderHistory(ord.phone || state.customerPhone, false);
           showToast(t("cancelExpiredToast"), true);
         } else {
           showToast((err && err.message) || t("serverError"), true);
@@ -3250,24 +3337,51 @@
       }
     }
 
+    async function handleCustomerDeleteOrder(orderNumber) {
+      const ord = state.customerOrders.find((x) => x.orderNumber === orderNumber);
+      if (!ord) return;
+      if (!["Delivered", "Cancelled"].includes(ord.status)) {
+        return;
+      }
+      const phone = normalizeIndianPhone(ord.phone || state.customerPhone || "");
+      try {
+        if (phone) {
+          await apiFetch(
+            `/api/orders/${encodeURIComponent(ord.orderNumber)}/history?phone=${encodeURIComponent(phone)}`,
+            { method: "DELETE" }
+          );
+        }
+      } catch (err) {
+        // Allow removal from local history if server returns 404 (already removed/archived), block on other real errors
+        if (err && err.status && err.status !== 404) {
+          showToast(err.message || t("serverError"), true);
+          return;
+        }
+      }
+      removeCustomerOrderFromLocal(ord.orderNumber);
+      renderRecentOrderCard();
+      showToast(t("deleteHistoryDeletedToast"), "info");
+    }
+
     function updateHeaderOrderBtn() {
       const btn = document.getElementById("headerOrderBtn");
       const badge = document.getElementById("headerOrderBadge");
       const pulse = document.getElementById("headerOrderPulse");
       if (!btn) return;
-      const ord = state.recentOrder;
-      const st = ord ? ord.status || "Pending" : "";
-      const isActive = ord && ["Pending", "Cooking", "Out for Delivery"].includes(st);
-      if (ord) {
+      const list = Array.isArray(state.customerOrders) ? state.customerOrders : [];
+      const activeCount = list.filter((o) => ["Pending", "Cooking", "Out for Delivery"].includes(o.status || "Pending")).length;
+      const totalCount = list.length;
+
+      if (totalCount > 0) {
         if (badge) {
-          badge.textContent = isActive ? "1" : st === "Delivered" ? "✓" : "×";
+          badge.textContent = String(activeCount > 0 ? activeCount : totalCount);
           badge.className = `min-w-[16px] h-[16px] px-1 rounded-full text-white text-[9px] font-black flex items-center justify-center ${
-            isActive ? "bg-emerald-600" : st === "Delivered" ? "bg-slate-600" : "bg-red-500"
+            activeCount > 0 ? "bg-emerald-600" : "bg-slate-600"
           }`;
           badge.classList.remove("hidden");
         }
-        if (pulse) pulse.classList.toggle("hidden", !isActive);
-        btn.className = isActive
+        if (pulse) pulse.classList.toggle("hidden", activeCount === 0);
+        btn.className = activeCount > 0
           ? "relative inline-flex items-center gap-1 px-2 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs sm:text-sm font-extrabold transition active:scale-95"
           : "relative inline-flex items-center gap-1 px-2 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs sm:text-sm font-extrabold transition active:scale-95";
       } else {
@@ -3279,15 +3393,15 @@
     }
 
     function openOrderTrackModal() {
+      state.showPhoneLookup = false;
       renderRecentOrderCard();
       const errEl = document.getElementById("trackLookupError");
       if (errEl) errEl.classList.add("hidden");
       document.getElementById("orderTrackModal").classList.remove("hidden");
       startOrderTrackTimerLoop();
-      if (
-        state.recentOrder &&
-        ["Pending", "Cooking", "Out for Delivery"].includes(state.recentOrder.status || "Pending")
-      ) {
+      if (state.customerPhone) {
+        syncCustomerOrderHistory(state.customerPhone, false);
+      } else if (state.recentOrder) {
         syncRecentOrderStatus(false);
       }
     }
@@ -3299,9 +3413,9 @@
       }
       updateOrderTrackTimerUI();
       updateCancelLockUI();
-      const hasActiveOrder =
-        state.recentOrder &&
-        ["Pending", "Cooking", "Out for Delivery"].includes(state.recentOrder.status || "Pending");
+      const hasActiveOrder = (state.customerOrders || []).some((o) =>
+        ["Pending", "Cooking", "Out for Delivery"].includes(o.status || "Pending")
+      );
       const successOpen = !document.getElementById("orderSuccessModal").classList.contains("hidden");
       const trackOpen = !document.getElementById("orderTrackModal").classList.contains("hidden");
       if (hasActiveOrder || successOpen || trackOpen) {
@@ -3313,47 +3427,18 @@
     }
 
     function renderRecentOrderCard() {
-      const card = document.getElementById("recentOrderCard");
+      const listEl = document.getElementById("customerOrdersList");
       const emptyBox = document.getElementById("orderTrackEmptyBox");
+      const controlsEl = document.getElementById("orderHistoryControls");
       const cartStrip = document.getElementById("checkoutActiveOrderStrip");
+      const lookupCancelBtn = document.getElementById("trackLookupCancelBtn");
       updateHeaderOrderBtn();
 
-      if (!state.recentOrder) {
-        card.classList.add("hidden");
-        if (emptyBox) emptyBox.classList.remove("hidden");
-        if (cartStrip) cartStrip.classList.add("hidden");
-        if (state.orderTrackTimerInterval) {
-          clearInterval(state.orderTrackTimerInterval);
-          state.orderTrackTimerInterval = null;
-        }
-        return;
-      }
-      if (emptyBox) emptyBox.classList.add("hidden");
-      document.getElementById("recentOrderNum").textContent = state.recentOrder.orderNumber;
-      const custBadge = document.getElementById("recentOrderCustName");
-      if (custBadge) {
-        if (state.recentOrder.customerName) {
-          custBadge.textContent = `👤 ${state.recentOrder.customerName}`;
-          custBadge.classList.remove("hidden");
-        } else {
-          custBadge.classList.add("hidden");
-        }
-      }
-      const etaLine = document.getElementById("recentOrderEtaLine");
-      if (etaLine) {
-        const stCur = state.recentOrder.status || "Pending";
-        if (["Pending", "Cooking", "Out for Delivery"].includes(stCur)) {
-          etaLine.textContent = t("recentEtaLine");
-          etaLine.classList.remove("hidden");
-        } else {
-          etaLine.classList.add("hidden");
-        }
-      }
-      document.getElementById("recentCancelConfirmText").textContent = t("cancelConfirmAsk");
-      document.getElementById("confirmRecentCancelBtn").textContent = t("cancelConfirmYes");
-      document.getElementById("abortRecentCancelBtn").textContent = t("cancelConfirmNo");
-      const badge = document.getElementById("recentOrderStatusBadge");
-      const st = state.recentOrder.status || "Pending";
+      const orders = Array.isArray(state.customerOrders) ? state.customerOrders : [];
+      const activeOrders = orders.filter((o) => ["Pending", "Cooking", "Out for Delivery"].includes(o.status || "Pending"));
+      const primary = state.recentOrder || orders[0] || null;
+
+      // Sync Cart / Checkout strip
       const badgeColors = {
         Pending: "bg-amber-100 text-amber-800",
         Cooking: "bg-blue-100 text-blue-800",
@@ -3361,88 +3446,289 @@
         Delivered: "bg-emerald-100 text-emerald-800",
         Cancelled: "bg-red-100 text-red-800",
       };
-      const stLabel = TRANSLATIONS[state.lang].statuses[st] || st;
-      badge.className = `ml-1 inline-block px-2 py-0.5 rounded-full text-xs font-bold ${badgeColors[st] || "bg-amber-100 text-amber-800"}`;
-      badge.textContent = stLabel;
-
-      // Also sync compact strip inside Cart/Checkout modal
       if (cartStrip) {
-        document.getElementById("checkoutActiveOrderNum").textContent = `📦 ${state.recentOrder.orderNumber}`;
-        const stripBadge = document.getElementById("checkoutActiveOrderBadge");
-        stripBadge.className = `px-2 py-0.5 rounded-full text-[10px] font-bold ${badgeColors[st] || "bg-amber-100 text-amber-800"}`;
-        stripBadge.textContent = stLabel;
-        const subParts = [];
-        if (state.recentOrder.customerName) subParts.push(state.recentOrder.customerName);
-        if (state.recentOrder.totalAmount !== undefined) subParts.push(`₹${state.recentOrder.totalAmount}`);
-        if (["Pending", "Cooking", "Out for Delivery"].includes(st)) {
-          subParts.push("10–15 min");
+        if (!primary) {
+          cartStrip.classList.add("hidden");
+        } else {
+          const pst = primary.status || "Pending";
+          const stLabel = TRANSLATIONS[state.lang].statuses[pst] || pst;
+          document.getElementById("checkoutActiveOrderNum").textContent =
+            activeOrders.length > 1
+              ? `📦 ${activeOrders.length} ${t("filterActiveOrders")} (${primary.orderNumber})`
+              : `📦 ${primary.orderNumber}`;
+          const stripBadge = document.getElementById("checkoutActiveOrderBadge");
+          stripBadge.className = `px-2 py-0.5 rounded-full text-[10px] font-bold ${badgeColors[pst] || "bg-amber-100 text-amber-800"}`;
+          stripBadge.textContent = stLabel;
+          const subParts = [];
+          if (primary.customerName) subParts.push(primary.customerName);
+          if (primary.totalAmount !== undefined) subParts.push(`₹${primary.totalAmount}`);
+          if (orders.length > 1) subParts.push(`${orders.length} ${t("custOrdersLbl")}`);
+          document.getElementById("checkoutActiveOrderSub").textContent = subParts.join(" • ");
+          cartStrip.classList.remove("hidden");
         }
-        document.getElementById("checkoutActiveOrderSub").textContent = subParts.join(" • ");
-        cartStrip.classList.remove("hidden");
       }
 
-      // Items + Total summary inside Order Track Modal
-      const itemsBox = document.getElementById("trackModalItemsBox");
-      if (itemsBox) {
-        const list = state.recentOrder.items || [];
-        if (list.length > 0 || state.recentOrder.totalAmount !== undefined) {
-          document.getElementById("trackModalItemsText").textContent = list
+      if (!listEl) return;
+
+      // Show lookup form if no orders OR user tapped "Change Phone"
+      if (orders.length === 0 || state.showPhoneLookup) {
+        listEl.innerHTML = "";
+        if (controlsEl) controlsEl.classList.add("hidden");
+        if (emptyBox) emptyBox.classList.remove("hidden");
+        if (lookupCancelBtn) lookupCancelBtn.classList.toggle("hidden", orders.length === 0);
+        const emptyHdr = document.getElementById("orderTrackEmptyHeader");
+        if (emptyHdr) emptyHdr.classList.toggle("hidden", orders.length > 0);
+        if (state.customerPhone) {
+          const pInp = document.getElementById("trackLookupPhone");
+          if (pInp && !pInp.value) pInp.value = state.customerPhone;
+        }
+        return;
+      }
+
+      if (emptyBox) emptyBox.classList.add("hidden");
+      if (controlsEl) {
+        controlsEl.classList.remove("hidden");
+        const phoneLbl = document.getElementById("orderHistoryPhoneLabel");
+        if (phoneLbl) {
+          phoneLbl.textContent = state.customerPhone
+            ? `📱 ${state.customerPhone} (${orders.length})`
+            : `📦 ${orders.length} ${t("custOrdersLbl")}`;
+        }
+      }
+
+      // Filter pills inside modal
+      const pillEl = document.getElementById("customerOrderFilterPills");
+      if (pillEl) {
+        const counts = {
+          All: orders.length,
+          Active: activeOrders.length,
+          Delivered: orders.filter((o) => o.status === "Delivered").length,
+          Cancelled: orders.filter((o) => o.status === "Cancelled").length,
+        };
+        const defs = [
+          { key: "All", label: `${t("filterAllOrders")} (${counts.All})` },
+          { key: "Active", label: `${t("filterActiveOrders")} (${counts.Active})` },
+          { key: "Delivered", label: `${t("filterDeliveredOrders")} (${counts.Delivered})` },
+          { key: "Cancelled", label: `${t("filterCancelledOrders")} (${counts.Cancelled})` },
+        ];
+        pillEl.innerHTML = defs
+          .map((d) => {
+            const active = state.customerOrderFilter === d.key;
+            return `<button type="button" data-co-filter="${d.key}" class="px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap border ${
+              active ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-600 border-slate-200"
+            }">${escapeHtml(d.label)}</button>`;
+          })
+          .join("");
+        pillEl.querySelectorAll("[data-co-filter]").forEach((b) =>
+          b.addEventListener("click", () => {
+            state.customerOrderFilter = b.dataset.coFilter;
+            renderRecentOrderCard();
+          })
+        );
+      }
+
+      const q = (state.customerOrderSearch || "").trim().toLowerCase();
+      const filtered = orders.filter((ord) => {
+        const st = ord.status || "Pending";
+        const isActive = ["Pending", "Cooking", "Out for Delivery"].includes(st);
+        if (state.customerOrderFilter === "Active" && !isActive) return false;
+        if (state.customerOrderFilter === "Delivered" && st !== "Delivered") return false;
+        if (state.customerOrderFilter === "Cancelled" && st !== "Cancelled") return false;
+        if (!q) return true;
+        const itemText = (ord.items || []).map((i) => `${i.nameHi || ""} ${i.nameEn || ""}`).join(" ").toLowerCase();
+        return (
+          (ord.orderNumber || "").toLowerCase().includes(q) ||
+          (ord.customerName || "").toLowerCase().includes(q) ||
+          itemText.includes(q)
+        );
+      });
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `<div class="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-center text-xs font-bold text-slate-500">${escapeHtml(
+          t("noOrdersMatchFilter")
+        )}</div>`;
+        return;
+      }
+
+      const steps = [
+        { key: "Pending", icon: "📝", label: t("stepPending") },
+        { key: "Cooking", icon: "🍳", label: t("stepCooking") },
+        { key: "Out for Delivery", icon: "🛵", label: t("stepOut") },
+        { key: "Delivered", icon: "✅", label: t("stepDelivered") },
+      ];
+
+      listEl.innerHTML = filtered
+        .map((ord) => {
+          const st = ord.status || "Pending";
+          const isActive = ["Pending", "Cooking", "Out for Delivery"].includes(st);
+          const canDelete = st === "Delivered" || st === "Cancelled";
+          const stLabel = TRANSLATIONS[state.lang].statuses[st] || st;
+          const itemsStr = (ord.items || [])
             .map((it) => `${state.lang === "hi" ? it.nameHi : it.nameEn} × ${it.quantity}`)
             .join(", ");
-          document.getElementById("trackModalTotalText").textContent =
-            state.recentOrder.totalAmount !== undefined ? `${t("totalLabel")}: ₹${state.recentOrder.totalAmount} (COD)` : "";
-          itemsBox.classList.remove("hidden");
-        } else {
-          itemsBox.classList.add("hidden");
-        }
-      }
-
-      const dismissBtn = document.getElementById("dismissTrackBtn");
-      if (dismissBtn) {
-        if (st === "Delivered" || st === "Cancelled") {
-          dismissBtn.classList.remove("hidden");
-        } else {
-          dismissBtn.classList.add("hidden");
-        }
-      }
-      const riderEl = document.getElementById("recentOrderRiderText");
-      if (state.recentOrder.assignedRider && state.recentOrder.assignedRider.name) {
-        riderEl.textContent = t("riderAssigned", state.recentOrder.assignedRider.name, state.recentOrder.assignedRider.phone);
-        riderEl.classList.remove("hidden");
-      } else {
-        riderEl.classList.add("hidden");
-      }
-
-      const stepperEl = document.getElementById("recentOrderStepper");
-      if (stepperEl) {
-        if (st === "Cancelled") {
-          stepperEl.classList.add("hidden");
-        } else {
-          stepperEl.classList.remove("hidden");
-          const steps = [
-            { key: "Pending", icon: "📝", label: t("stepPending") },
-            { key: "Cooking", icon: "🍳", label: t("stepCooking") },
-            { key: "Out for Delivery", icon: "🛵", label: t("stepOut") },
-            { key: "Delivered", icon: "✅", label: t("stepDelivered") },
-          ];
+          const dateStr = ord.createdAt ? formatIST(ord.createdAt) : "";
+          const sch = ord.statusSchedule;
+          const customNote = sch ? (state.lang === "hi" ? sch.noteHi : sch.noteEn) || sch.noteHi || sch.noteEn || "" : "";
           const curIdx = Math.max(0, steps.findIndex((s) => s.key === st));
-          stepperEl.innerHTML = steps
-            .map((step, idx) => {
-              const done = idx <= curIdx;
-              return `<div class="rounded-lg py-1 px-1 border ${
-                done
-                  ? "bg-emerald-50 border-emerald-300 text-emerald-800"
-                  : "bg-slate-50 border-slate-200 text-slate-400"
-              }">
-                <div class="text-xs">${step.icon}</div>
-                <div class="truncate">${escapeHtml(step.label)}</div>
-              </div>`;
-            })
-            .join("");
-        }
-      }
 
-      card.classList.remove("hidden");
+          const stepperHtml =
+            st === "Cancelled"
+              ? ""
+              : `<div class="grid grid-cols-4 gap-1 text-center text-[10px] font-bold pt-1">
+                  ${steps
+                    .map((step, idx) => {
+                      const done = idx <= curIdx;
+                      return `<div class="rounded-lg py-1 px-1 border ${
+                        done
+                          ? "bg-emerald-50 border-emerald-300 text-emerald-800"
+                          : "bg-slate-50 border-slate-200 text-slate-400"
+                      }">
+                        <div class="text-xs">${step.icon}</div>
+                        <div class="truncate">${escapeHtml(step.label)}</div>
+                      </div>`;
+                    })
+                    .join("")}
+                </div>`;
+
+          return `<section data-co-card="${escapeHtml(ord.orderNumber)}" class="rounded-2xl bg-white border ${
+            isActive ? "border-emerald-300 shadow-sm" : "border-slate-200"
+          } p-3.5 space-y-2.5">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-xs font-extrabold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md">${escapeHtml(ord.orderNumber)}</span>
+                  <span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${badgeColors[st] || "bg-amber-100 text-amber-800"}">${escapeHtml(stLabel)}</span>
+                  ${ord.customerName ? `<span class="text-[11px] font-bold text-orange-700 bg-orange-50 px-1.5 py-0.5 rounded border border-orange-200">👤 ${escapeHtml(ord.customerName)}</span>` : ""}
+                </div>
+                ${dateStr ? `<div class="text-[11px] text-slate-400 font-semibold mt-1">🕒 ${escapeHtml(dateStr)}</div>` : ""}
+                ${isActive ? `<p class="text-xs font-bold text-emerald-700 mt-1">${escapeHtml(t("recentEtaLine"))}</p>` : ""}
+                ${
+                  ord.assignedRider && ord.assignedRider.name
+                    ? `<p class="text-xs text-slate-600 mt-0.5 font-semibold">${escapeHtml(t("riderAssigned", ord.assignedRider.name, ord.assignedRider.phone))}</p>`
+                    : ""
+                }
+              </div>
+              ${
+                canDelete
+                  ? `<button type="button" data-co-del-trigger="${escapeHtml(ord.orderNumber)}" class="shrink-0 px-2.5 py-1 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-[11px] font-extrabold transition">${escapeHtml(
+                      t("deleteHistoryBtn")
+                    )}</button>`
+                  : ""
+              }
+            </div>
+
+            ${
+              itemsStr || ord.totalAmount !== undefined
+                ? `<div class="rounded-xl bg-slate-50 border border-slate-200/80 px-3 py-2 text-xs space-y-0.5">
+                    ${itemsStr ? `<div class="font-semibold text-slate-700 leading-relaxed">${escapeHtml(itemsStr)}</div>` : ""}
+                    <div class="flex items-center justify-between gap-2 font-extrabold text-slate-900">
+                      <span>${escapeHtml(t("totalLabel"))}: ₹${ord.totalAmount ?? 0} (COD)</span>
+                      ${ord.address ? `<span class="text-[11px] font-medium text-slate-500 truncate max-w-[55%]">📍 ${escapeHtml(ord.address)}</span>` : ""}
+                    </div>
+                  </div>`
+                : ""
+            }
+
+            ${
+              canDelete
+                ? `<div data-co-del-confirm="${escapeHtml(ord.orderNumber)}" class="hidden rounded-xl bg-red-50 border border-red-200 p-2.5 space-y-2">
+                    <div class="text-xs font-bold text-red-800">${escapeHtml(t("deleteHistoryConfirmAsk"))}</div>
+                    <div class="flex items-center gap-2">
+                      <button type="button" data-co-del-yes="${escapeHtml(ord.orderNumber)}" class="flex-1 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold">${escapeHtml(
+                        t("deleteHistoryConfirmYes")
+                      )}</button>
+                      <button type="button" data-co-del-no="${escapeHtml(ord.orderNumber)}" class="flex-1 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-bold">${escapeHtml(
+                        t("cancelConfirmNo")
+                      )}</button>
+                    </div>
+                  </div>`
+                : ""
+            }
+
+            ${
+              isActive && sch
+                ? `<div data-co-sched-box="${escapeHtml(ord.orderNumber)}" class="rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white px-3 py-2 flex items-center justify-between gap-2">
+                    <div class="min-w-0">
+                      <div data-co-sched-label class="text-xs font-extrabold truncate">${escapeHtml(t("orderTimerLabel"))}</div>
+                      ${customNote ? `<div class="text-[11px] text-orange-50 truncate">${escapeHtml(customNote)}</div>` : ""}
+                    </div>
+                    <span data-co-sched-clock class="px-2.5 py-0.5 rounded-lg bg-white/20 font-mono text-sm font-black shrink-0">00:00</span>
+                  </div>`
+                : ""
+            }
+
+            ${
+              isActive
+                ? `<div data-co-cancel-box="${escapeHtml(ord.orderNumber)}" class="hidden rounded-xl border p-2.5 space-y-2">
+                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                      <div data-co-cancel-msg class="text-xs font-bold leading-snug"></div>
+                      <span data-co-cancel-clock class="px-2 py-0.5 rounded-lg font-mono text-xs font-black shrink-0"></span>
+                    </div>
+                    <div data-co-cancel-actions class="flex items-center gap-2 flex-wrap">
+                      <button type="button" data-co-cancel-trigger="${escapeHtml(ord.orderNumber)}" class="px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-extrabold transition"></button>
+                    </div>
+                    <div data-co-cancel-confirm class="hidden rounded-xl bg-red-50 border border-red-200 p-2.5 space-y-2">
+                      <div class="text-xs font-bold text-red-800">${escapeHtml(t("cancelConfirmAsk"))}</div>
+                      <div class="flex items-center gap-2">
+                        <button type="button" data-co-cancel-yes="${escapeHtml(ord.orderNumber)}" class="flex-1 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold">${escapeHtml(
+                          t("cancelConfirmYes")
+                        )}</button>
+                        <button type="button" data-co-cancel-no="${escapeHtml(ord.orderNumber)}" class="flex-1 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-bold">${escapeHtml(
+                          t("cancelConfirmNo")
+                        )}</button>
+                      </div>
+                    </div>
+                  </div>`
+                : ""
+            }
+
+            ${stepperHtml}
+          </section>`;
+        })
+        .join("");
+
+      // Bind inline cancel & delete actions cleanly per order
+      listEl.querySelectorAll("[data-co-cancel-trigger]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const num = btn.dataset.coCancelTrigger;
+          const ord = state.customerOrders.find((x) => x.orderNumber === num);
+          if (getOrderCancelInfo(ord).mode !== "open") {
+            updateCancelLockUI();
+            return;
+          }
+          const box = listEl.querySelector(`[data-co-cancel-box="${num}"] [data-co-cancel-confirm]`);
+          if (box) box.classList.remove("hidden");
+        });
+      });
+      listEl.querySelectorAll("[data-co-cancel-no]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const num = btn.dataset.coCancelNo;
+          const box = listEl.querySelector(`[data-co-cancel-box="${num}"] [data-co-cancel-confirm]`);
+          if (box) box.classList.add("hidden");
+        });
+      });
+      listEl.querySelectorAll("[data-co-cancel-yes]").forEach((btn) => {
+        btn.addEventListener("click", () => handleCustomerCancelOrder(btn.dataset.coCancelYes));
+      });
+
+      listEl.querySelectorAll("[data-co-del-trigger]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const box = listEl.querySelector(`[data-co-del-confirm="${btn.dataset.coDelTrigger}"]`);
+          if (box) box.classList.remove("hidden");
+        });
+      });
+      listEl.querySelectorAll("[data-co-del-no]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const box = listEl.querySelector(`[data-co-del-confirm="${btn.dataset.coDelNo}"]`);
+          if (box) box.classList.add("hidden");
+        });
+      });
+      listEl.querySelectorAll("[data-co-del-yes]").forEach((btn) => {
+        btn.addEventListener("click", () => handleCustomerDeleteOrder(btn.dataset.coDelYes));
+      });
+
+      updateOrderTrackTimerUI();
+      updateCancelLockUI();
       startOrderTrackTimerLoop();
     }
 
@@ -3882,7 +4168,7 @@
         if (res.serverNow) {
           state.clockOffsetMs = Date.now() - new Date(res.serverNow).getTime();
         }
-        state.recentOrder = {
+        const newSavedOrder = {
           orderNumber: res.order.orderNumber,
           customerName: res.order.customerName || name,
           phone: cleanPhone,
@@ -3901,7 +4187,7 @@
           assignedRider: null,
           statusSchedule: null,
         };
-        localStorage.setItem("gr_recent_order", JSON.stringify(state.recentOrder));
+        upsertCustomerOrder(newSavedOrder);
         state.cart = {};
         state.appliedCoupon = null;
         saveCart();
@@ -3912,7 +4198,6 @@
         document.getElementById("couponFeedbackMsg").classList.add("hidden");
         document.getElementById("removeCouponBtn").classList.add("hidden");
         document.getElementById("successCancelConfirmBox").classList.add("hidden");
-        document.getElementById("recentOrderCancelConfirmBox").classList.add("hidden");
 
         document.getElementById("checkoutModal").classList.add("hidden");
         document.getElementById("orderSuccessModal").classList.remove("hidden");
@@ -6620,6 +6905,21 @@
     document.getElementById("adminLangBtn").addEventListener("click", toggleLanguage);
     document.getElementById("themeToggleBtn").addEventListener("click", cycleTheme);
     document.getElementById("headerOrderBtn").addEventListener("click", openOrderTrackModal);
+    document.getElementById("refreshAllOrdersBtn").addEventListener("click", () => {
+      syncCustomerOrderHistory(state.customerPhone, true);
+    });
+    document.getElementById("changeOrderPhoneBtn").addEventListener("click", () => {
+      state.showPhoneLookup = true;
+      renderRecentOrderCard();
+    });
+    document.getElementById("trackLookupCancelBtn").addEventListener("click", () => {
+      state.showPhoneLookup = false;
+      renderRecentOrderCard();
+    });
+    document.getElementById("customerOrderSearchInput").addEventListener("input", (e) => {
+      state.customerOrderSearch = e.target.value;
+      renderRecentOrderCard();
+    });
     document.getElementById("closeOrderTrackBtn").addEventListener("click", () => {
       document.getElementById("orderTrackModal").classList.add("hidden");
     });
@@ -6639,35 +6939,32 @@
       const orderNum = (document.getElementById("trackLookupOrderNum").value || "").trim().toUpperCase();
       const cleanPhone = normalizeIndianPhone(document.getElementById("trackLookupPhone").value);
       errEl.classList.add("hidden");
-      if (!orderNum || !cleanPhone) {
+      if (!cleanPhone) {
         errEl.textContent = t("errInvalidPhone");
         errEl.classList.remove("hidden");
         return;
       }
       submitBtn.disabled = true;
       try {
-        const res = await apiFetch(
-          `/api/orders/track/${encodeURIComponent(orderNum)}?phone=${encodeURIComponent(cleanPhone)}`
-        );
-        if (res.serverNow) {
-          state.clockOffsetMs = Date.now() - new Date(res.serverNow).getTime();
+        if (orderNum) {
+          const res = await apiFetch(
+            `/api/orders/track/${encodeURIComponent(orderNum)}?phone=${encodeURIComponent(cleanPhone)}`
+          );
+          if (res.serverNow) {
+            state.clockOffsetMs = Date.now() - new Date(res.serverNow).getTime();
+          }
+          upsertCustomerOrder({ ...res.order, phone: cleanPhone });
+          state.showPhoneLookup = false;
+          renderRecentOrderCard();
+        } else {
+          const histRes = await syncCustomerOrderHistory(cleanPhone, true);
+          if (!histRes || histRes.count === 0) {
+            state.showPhoneLookup = true;
+            renderRecentOrderCard();
+            errEl.textContent = t("trackNotFoundToast");
+            errEl.classList.remove("hidden");
+          }
         }
-        state.recentOrder = {
-          orderNumber: res.order.orderNumber,
-          customerName: res.order.customerName || "",
-          phone: cleanPhone,
-          address: res.order.address || "",
-          totalAmount: res.order.totalAmount,
-          items: res.order.items || [],
-          status: res.order.status,
-          cancelDeadlineAt: res.order.cancelDeadlineAt || null,
-          cancelledBy: res.order.cancelledBy || "",
-          createdAt: res.order.createdAt || null,
-          assignedRider: res.order.assignedRider || null,
-          statusSchedule: res.order.statusSchedule || null,
-        };
-        localStorage.setItem("gr_recent_order", JSON.stringify(state.recentOrder));
-        renderRecentOrderCard();
       } catch (err) {
         errEl.textContent = (err && err.message) || t("trackNotFoundToast");
         errEl.classList.remove("hidden");
@@ -6743,20 +7040,8 @@
     document.getElementById("abortSuccessCancelBtn").addEventListener("click", () => {
       document.getElementById("successCancelConfirmBox").classList.add("hidden");
     });
-    document.getElementById("confirmSuccessCancelBtn").addEventListener("click", handleCustomerCancelOrder);
+    document.getElementById("confirmSuccessCancelBtn").addEventListener("click", () => handleCustomerCancelOrder());
 
-    document.getElementById("recentCancelTriggerBtn").addEventListener("click", () => {
-      const info = getOrderCancelInfo(state.recentOrder);
-      if (info.mode !== "open") {
-        updateCancelLockUI();
-        return;
-      }
-      document.getElementById("recentOrderCancelConfirmBox").classList.remove("hidden");
-    });
-    document.getElementById("abortRecentCancelBtn").addEventListener("click", () => {
-      document.getElementById("recentOrderCancelConfirmBox").classList.add("hidden");
-    });
-    document.getElementById("confirmRecentCancelBtn").addEventListener("click", handleCustomerCancelOrder);
     document.getElementById("closeProductDetailBtn").addEventListener("click", () => {
       document.getElementById("productDetailModal").classList.add("hidden");
     });
@@ -6794,20 +7079,12 @@
       });
     });
 
-    document.getElementById("refreshTrackBtn").addEventListener("click", () => syncRecentOrderStatus(true));
-    document.getElementById("dismissTrackBtn").addEventListener("click", () => {
-      state.recentOrder = null;
-      localStorage.removeItem("gr_recent_order");
-      renderRecentOrderCard();
-    });
-
     setInterval(() => {
-      if (
-        !document.hidden &&
-        state.recentOrder &&
-        ["Pending", "Cooking", "Out for Delivery"].includes(state.recentOrder.status)
-      ) {
-        syncRecentOrderStatus(false);
+      const hasActive = (state.customerOrders || []).some((o) =>
+        ["Pending", "Cooking", "Out for Delivery"].includes(o.status)
+      );
+      if (!document.hidden && hasActive) {
+        syncCustomerOrderHistory(state.customerPhone, false);
       }
     }, 30000);
 
@@ -6826,5 +7103,5 @@
     renderAll();
     loadStoreData();
   </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5ed73216c445518',t:'MTc5NTQwODM0Mw=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5ed73216c445518',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
