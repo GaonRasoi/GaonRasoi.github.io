@@ -249,6 +249,9 @@ const orderSchema = new mongoose.Schema(
     riderCashSettled: { type: Boolean, default: false },
     source: { type: String, enum: ['Website', 'Phone'], default: 'Website' },
     adminNote: { type: String, default: '', trim: true, maxlength: 250 },
+    cancelDeadlineAt: { type: Date, default: null },
+    cancelledBy: { type: String, enum: ['', 'Customer', 'Admin'], default: '' },
+    cancelledAt: { type: Date, default: null },
     status: {
       type: String,
       enum: ['Pending', 'Cooking', 'Out for Delivery', 'Delivered', 'Cancelled'],
@@ -806,6 +809,8 @@ app.post('/api/orders', async (req, res) => {
 
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     const orderNumber = `GR-${Date.now().toString().slice(-4)}${randomSuffix}`;
+    const createdNow = new Date();
+    const cancelDeadlineAt = new Date(createdNow.getTime() + 5 * 60 * 1000);
 
     const newOrder = await Order.create({
       orderNumber,
@@ -824,6 +829,7 @@ app.post('/api/orders', async (req, res) => {
       paymentMethod: 'COD',
       source: 'Website',
       status: 'Pending',
+      cancelDeadlineAt,
     });
 
     if (pricing.appliedCoupon) {
@@ -832,8 +838,12 @@ app.post('/api/orders', async (req, res) => {
 
     res.status(201).json({
       message: 'Order placed successfully!',
+      serverNow: createdNow.toISOString(),
       order: {
         orderNumber: newOrder.orderNumber,
+        customerName: newOrder.customerName,
+        phone: newOrder.phone,
+        address: newOrder.address,
         status: newOrder.status,
         subtotal: newOrder.subtotal,
         discountAmount: newOrder.discountAmount,
@@ -841,6 +851,13 @@ app.post('/api/orders', async (req, res) => {
         deliveryCharge: newOrder.deliveryCharge,
         totalAmount: newOrder.totalAmount,
         paymentMethod: newOrder.paymentMethod,
+        items: newOrder.items.map((it) => ({
+          nameHi: it.nameHi,
+          nameEn: it.nameEn,
+          quantity: it.quantity,
+          sellingPrice: it.sellingPrice,
+        })),
+        cancelDeadlineAt: newOrder.cancelDeadlineAt,
         createdAt: newOrder.createdAt,
       },
     });
@@ -899,7 +916,9 @@ app.get('/api/orders/track/:orderNumber', async (req, res) => {
       orderNumber: cleanOrderNum,
       phone: cleanPhone,
     })
-      .select('orderNumber status totalAmount discountAmount couponCode assignedRider statusSchedule items createdAt updatedAt')
+      .select(
+        'orderNumber customerName address status totalAmount discountAmount couponCode assignedRider statusSchedule cancelDeadlineAt cancelledBy cancelledAt items createdAt updatedAt'
+      )
       .lean();
 
     if (!order) {
@@ -908,11 +927,128 @@ app.get('/api/orders/track/:orderNumber', async (req, res) => {
 
     const now = new Date();
     await applyScheduledOrderTransition(order, now);
+    if (!order.cancelDeadlineAt && order.createdAt) {
+      order.cancelDeadlineAt = new Date(new Date(order.createdAt).getTime() + 5 * 60 * 1000);
+    }
 
     res.json({ order, serverNow: now.toISOString() });
   } catch (err) {
     console.error('GET /api/orders/track error:', err);
     res.status(500).json({ error: 'Failed to check order status.' });
+  }
+});
+
+app.post('/api/orders/:orderNumber/cancel', async (req, res) => {
+  try {
+    const cleanPhone = normalizeIndianPhone((req.body && req.body.phone) || req.query.phone || '');
+    if (!cleanPhone) {
+      return res.status(400).json({ code: 'INVALID_PHONE', error: 'Valid 10-digit phone number is required.' });
+    }
+    const cleanOrderNum = String(req.params.orderNumber || '').trim().toUpperCase();
+    const order = await Order.findOne({ orderNumber: cleanOrderNum, phone: cleanPhone }).lean();
+    if (!order) {
+      return res.status(404).json({ code: 'ORDER_NOT_FOUND', error: 'Order not found.' });
+    }
+
+    const now = new Date();
+    await applyScheduledOrderTransition(order, now);
+
+    if (order.status === 'Cancelled') {
+      return res.json({
+        message: 'Order is already cancelled.',
+        order,
+        serverNow: now.toISOString(),
+      });
+    }
+    if (order.status === 'Delivered' || order.status === 'Out for Delivery') {
+      return res.status(403).json({
+        code: 'CANCEL_NOT_ALLOWED_STATUS',
+        error: 'Order is already out for delivery or delivered and cannot be cancelled.',
+        serverNow: now.toISOString(),
+      });
+    }
+
+    const deadline = order.cancelDeadlineAt
+      ? new Date(order.cancelDeadlineAt)
+      : new Date(new Date(order.createdAt).getTime() + 5 * 60 * 1000);
+
+    if (now.getTime() > deadline.getTime()) {
+      return res.status(403).json({
+        code: 'CANCEL_WINDOW_EXPIRED',
+        error: '5-minute cancellation window has expired. Your order is locked and must be accepted.',
+        serverNow: now.toISOString(),
+        cancelDeadlineAt: deadline.toISOString(),
+      });
+    }
+
+    const updated = await Order.findOneAndUpdate(
+      {
+        _id: order._id,
+        status: { $in: ['Pending', 'Cooking'] },
+        $or: [{ cancelDeadlineAt: { $gte: now } }, { cancelDeadlineAt: null }],
+      },
+      {
+        $set: {
+          status: 'Cancelled',
+          cancelledBy: 'Customer',
+          cancelledAt: now,
+          paymentCollectedMode: 'Pending',
+          adminNote: order.adminNote
+            ? `${order.adminNote} | Customer cancelled within 5m`
+            : 'Customer cancelled within 5m window',
+          statusSchedule: {
+            cookingAt: null,
+            outForDeliveryAt: null,
+            deliveredAt: null,
+            etaEndsAt: null,
+            noteHi: '',
+            noteEn: '',
+            updatedAt: null,
+          },
+        },
+      },
+      { returnDocument: 'after' }
+    ).lean();
+
+    if (!updated) {
+      return res.status(409).json({
+        code: 'CANCEL_CONFLICT',
+        error: 'Order could not be cancelled (already locked or updated).',
+        serverNow: now.toISOString(),
+      });
+    }
+
+    // Safely restore limited-stock items only (keep unlimited stockCount === null untouched)
+    for (const it of order.items || []) {
+      if (it.menuItemId && it.quantity > 0) {
+        await MenuItem.updateOne(
+          { _id: it.menuItemId, stockCount: { $ne: null } },
+          { $inc: { stockCount: it.quantity }, $set: { inStock: true } }
+        );
+      }
+    }
+
+    // Restore coupon usage count if a coupon was applied
+    if (order.couponCode) {
+      await Coupon.updateOne({ code: order.couponCode, usedCount: { $gt: 0 } }, { $inc: { usedCount: -1 } });
+    }
+
+    res.json({
+      message: 'Order cancelled successfully within the 5-minute window.',
+      serverNow: now.toISOString(),
+      order: {
+        orderNumber: updated.orderNumber,
+        customerName: updated.customerName,
+        address: updated.address,
+        status: updated.status,
+        cancelledBy: updated.cancelledBy,
+        cancelledAt: updated.cancelledAt,
+        cancelDeadlineAt: deadline,
+      },
+    });
+  } catch (err) {
+    console.error('POST /api/orders/:orderNumber/cancel error:', err);
+    res.status(500).json({ error: 'Could not cancel order. Please try again.' });
   }
 });
 
@@ -1058,6 +1194,8 @@ app.patch('/api/admin/orders/:id/status', requireAdmin, validateObjectId, async 
         updateDoc.paymentCollectedMode = 'Cash';
       } else if (status === 'Cancelled') {
         updateDoc.paymentCollectedMode = 'Pending';
+        updateDoc.cancelledBy = 'Admin';
+        updateDoc.cancelledAt = new Date();
       }
       if (status === 'Delivered' || status === 'Cancelled') {
         updateDoc.statusSchedule = {

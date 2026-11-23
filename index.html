@@ -48,6 +48,9 @@
     html[data-theme="dark"] .bg-slate-100 {
       background-color: #1f2937 !important;
     }
+    html[data-theme="dark"] .bg-slate-200 {
+      background-color: #334155 !important;
+    }
     html[data-theme="dark"] .text-slate-900,
     html[data-theme="dark"] .text-slate-800 {
       color: #f8fafc !important;
@@ -198,14 +201,16 @@
     <section id="recentOrderCard" class="hidden rounded-2xl bg-white border border-emerald-200 p-3.5 shadow-sm space-y-2.5">
       <div class="flex items-center justify-between gap-2 flex-wrap">
         <div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
             <span id="recentOrderTitle" class="text-xs font-bold text-slate-500 uppercase tracking-wide">आपका पिछला ऑर्डर</span>
             <span id="recentOrderNum" class="text-xs font-extrabold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md"></span>
+            <span id="recentOrderCustName" class="hidden text-xs font-bold text-orange-700 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200"></span>
           </div>
           <p class="text-sm font-bold text-slate-800 mt-1">
             <span id="recentOrderStatusLabel">स्थिति:</span>
             <span id="recentOrderStatusBadge" class="ml-1 inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">Pending</span>
           </p>
+          <p id="recentOrderEtaLine" class="hidden text-xs font-bold text-emerald-700 mt-0.5">🛵 आपका ऑर्डर 10 से 15 मिनट में डिलीवर कर दिया जाएगा</p>
           <p id="recentOrderRiderText" class="hidden text-xs text-slate-600 mt-0.5 font-semibold"></p>
         </div>
         <div class="flex items-center gap-1.5">
@@ -222,6 +227,24 @@
           <div id="recentOrderScheduleNote" class="hidden text-[11px] text-orange-50 truncate"></div>
         </div>
         <span id="recentOrderTimerClock" class="px-2.5 py-0.5 rounded-lg bg-white/20 font-mono text-sm font-black shrink-0">00:00</span>
+      </div>
+
+      <!-- 5-Minute Customer Cancel Window / Auto-Lock Box -->
+      <div id="recentOrderCancelBox" class="hidden rounded-xl border p-2.5 space-y-2">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <div class="text-xs font-bold leading-snug" id="recentOrderCancelMsg"></div>
+          <span id="recentOrderCancelClock" class="px-2 py-0.5 rounded-lg font-mono text-xs font-black shrink-0"></span>
+        </div>
+        <div id="recentOrderCancelActions" class="flex items-center gap-2 flex-wrap">
+          <button id="recentCancelTriggerBtn" type="button" class="px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-extrabold transition"></button>
+        </div>
+        <div id="recentOrderCancelConfirmBox" class="hidden rounded-xl bg-red-50 border border-red-200 p-2.5 space-y-2">
+          <div id="recentCancelConfirmText" class="text-xs font-bold text-red-800"></div>
+          <div class="flex items-center gap-2">
+            <button id="confirmRecentCancelBtn" type="button" class="flex-1 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold"></button>
+            <button id="abortRecentCancelBtn" type="button" class="flex-1 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-bold"></button>
+          </div>
+        </div>
       </div>
 
       <div id="recentOrderStepper" class="grid grid-cols-4 gap-1 text-center text-[10px] font-bold pt-1"></div>
@@ -412,20 +435,73 @@
     </div>
   </div>
 
-  <!-- 5. ORDER SUCCESS MODAL -->
-  <div id="orderSuccessModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
-      <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mx-auto">✅</div>
-      <h3 id="successTitle" class="text-xl font-extrabold text-slate-900">ऑर्डर कन्फर्म हो गया!</h3>
-      <p id="successSubtitle" class="text-sm text-slate-600">आपका ताज़ा खाना जल्द ही तैयार होकर आपके घर पहुँचेगा।</p>
-      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 text-sm space-y-1">
-        <div class="text-xs text-slate-500 font-medium" id="successOrderNumLabel">ऑर्डर नंबर</div>
-        <div id="successOrderNumVal" class="text-lg font-extrabold text-orange-600">GR-0000</div>
-        <div id="successTotalVal" class="text-sm font-bold text-slate-800 pt-1">₹0 (COD)</div>
+  <!-- 5. ORDER SUCCESS MODAL (Personalized 10-15 Min ETA + 5-Min Cancel Lock) -->
+  <div id="orderSuccessModal" class="hidden fixed inset-0 z-50 bg-slate-900/65 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full max-h-[92vh] max-h-[92dvh] flex flex-col overflow-hidden shadow-2xl animate-slide-up">
+      <div class="p-5 sm:p-6 overflow-y-auto flex-1 space-y-3.5 text-center">
+        <div id="successIconCircle" class="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mx-auto shadow-sm">✅</div>
+        <div>
+          <h3 id="successTitle" class="text-xl font-extrabold text-slate-900">ऑर्डर कन्फर्म हो गया!</h3>
+          <p id="successGreetingName" class="text-sm sm:text-base font-extrabold text-orange-600 mt-1"></p>
+        </div>
+
+        <!-- 10-15 Min Delivery Promise Box -->
+        <div id="successEtaPromiseBox" class="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-3.5 shadow-sm space-y-1">
+          <div class="text-base sm:text-lg font-extrabold flex items-center justify-center gap-1.5">
+            <span>🛵</span>
+            <span id="successEtaHeadline">10 से 15 मिनट में डिलीवरी!</span>
+          </div>
+          <p id="successSubtitle" class="text-xs text-emerald-50 font-semibold leading-snug">आपका ताज़ा खाना अभी तैयार हो रहा है और 10 से 15 मिनट के भीतर आपके घर पहुँचा दिया जाएगा।</p>
+        </div>
+
+        <!-- Order Summary Details -->
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 text-left text-xs sm:text-sm space-y-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-slate-500 font-semibold" id="successOrderNumLabel">ऑर्डर नंबर</span>
+            <span id="successOrderNumVal" class="font-extrabold text-orange-600">GR-0000</span>
+          </div>
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-slate-500 font-semibold" id="successCustLabel">ग्राहक</span>
+            <span id="successCustVal" class="font-bold text-slate-900 truncate"></span>
+          </div>
+          <div class="flex items-start justify-between gap-2">
+            <span class="text-slate-500 font-semibold shrink-0" id="successAddrLabel">पता</span>
+            <span id="successAddrVal" class="font-semibold text-slate-700 text-right line-clamp-2"></span>
+          </div>
+          <div id="successItemsSummary" class="text-[11px] text-slate-600 pt-1 border-t border-slate-200/80"></div>
+          <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-200/80">
+            <span class="text-slate-500 font-semibold" id="successTotalLabel">कुल भुगतान</span>
+            <span id="successTotalVal" class="text-sm font-extrabold text-slate-900">₹0 (COD)</span>
+          </div>
+        </div>
+
+        <!-- 5-Minute Cancel Countdown & Auto-Lock Box -->
+        <div id="successCancelBox" class="rounded-2xl border p-3.5 text-left space-y-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <span id="successCancelTitle" class="text-xs sm:text-sm font-extrabold">⏳ ऑर्डर कैंसल करने का समय</span>
+            <span id="successCancelClock" class="px-2.5 py-0.5 rounded-lg font-mono text-sm font-black shrink-0">05:00</span>
+          </div>
+          <p id="successCancelRuleMsg" class="text-xs leading-relaxed font-semibold"></p>
+
+          <button id="successCancelBtn" type="button" class="w-full py-2.5 rounded-xl font-extrabold text-xs sm:text-sm border transition flex items-center justify-center gap-1.5">
+            <span id="successCancelBtnText">❌ ऑर्डर कैंसल करें</span>
+          </button>
+
+          <div id="successCancelConfirmBox" class="hidden rounded-xl bg-red-50 border border-red-200 p-2.5 space-y-2 text-center">
+            <div id="successCancelConfirmText" class="text-xs font-bold text-red-800"></div>
+            <div class="flex items-center gap-2">
+              <button id="confirmSuccessCancelBtn" type="button" class="flex-1 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold"></button>
+              <button id="abortSuccessCancelBtn" type="button" class="flex-1 py-2 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-bold"></button>
+            </div>
+          </div>
+        </div>
       </div>
-      <button id="closeSuccessModalBtn" type="button" class="w-full py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm">
-        <span id="successDoneBtnText">ठीक है</span>
-      </button>
+
+      <div class="p-4 border-t border-slate-100 bg-white shrink-0">
+        <button id="closeSuccessModalBtn" type="button" class="w-full py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-sm">
+          <span id="successDoneBtnText">ठीक है / ऑर्डर ट्रैक करें</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1048,9 +1124,32 @@
         noMenuMatch: "इस खोज के अनुसार कोई आइटम नहीं मिला।",
         copiedToast: "✅ कॉपी हो गया!",
         successTitle: "ऑर्डर कन्फर्म हो गया!",
-        successSubtitle: "आपका ताज़ा खाना जल्द ही तैयार होकर आपके घर पहुँचेगा।",
+        successCancelledTitle: "ऑर्डर कैंसल कर दिया गया",
+        successGreeting: (name) => `धन्यवाद ${name} जी! 🙏`,
+        successEtaHeadline: "10 से 15 मिनट में डिलीवरी!",
+        successSubtitle: "आपका ताज़ा खाना अभी तैयार हो रहा है और 10 से 15 मिनट के भीतर आपके घर पहुँचा दिया जाएगा।",
+        successCancelledSubtitle: "यह ऑर्डर 5 मिनट के भीतर आपकी रिक्वेस्ट पर कैंसल कर दिया गया है।",
+        recentEtaLine: "🛵 आपका ऑर्डर 10 से 15 मिनट में डिलीवर कर दिया जाएगा",
         orderNumber: "ऑर्डर नंबर",
-        done: "ठीक है",
+        custLabel: "ग्राहक",
+        addrLabel: "पता",
+        totalLabel: "कुल भुगतान",
+        done: "ठीक है / ऑर्डर ट्रैक करें",
+        cancelWindowTitleOpen: "⏳ ऑर्डर कैंसल करने का समय बचा है",
+        cancelWindowTitleLocked: "🔒 कैंसल बटन लॉक हो गया!",
+        cancelWindowTitleCancelled: "❌ ऑर्डर कैंसल हो चुका है",
+        cancelRuleOpen: "नोट: ऑर्डर कैंसल करने के लिए आपके पास केवल 5 मिनट हैं। 5 मिनट पूरे होने के बाद कैंसल बटन लॉक हो जाएगा और आपको ऑर्डर लेना ही पड़ेगा!",
+        cancelRuleLocked: "5 मिनट पूरे हो चुके हैं — अब यह ऑर्डर लॉक हो गया है और कैंसल नहीं किया जा सकता। कृपया अपना ऑर्डर डिलीवरी पर प्राप्त करें।",
+        cancelRuleOutLocked: "आपका ऑर्डर रास्ते में है / डिलीवर हो चुका है, इसलिए कैंसल बटन लॉक है।",
+        cancelRuleCancelled: "आपका ऑर्डर सफलतापूर्वक कैंसल कर दिया गया है।",
+        cancelBtnWithTimer: (clock) => `❌ ऑर्डर कैंसल करें (${clock})`,
+        cancelBtnLocked: "🔒 कैंसल लॉक (ऑर्डर लेना अनिवार्य है)",
+        cancelConfirmAsk: "क्या आप वाकई यह ऑर्डर कैंसल करना चाहते हैं?",
+        cancelConfirmYes: "हाँ, कैंसल करें",
+        cancelConfirmNo: "नहीं, रहने दें",
+        cancellingOrderBtn: "कैंसल हो रहा है...",
+        cancelSuccessToast: "❌ आपका ऑर्डर 5 मिनट के भीतर सफलतापूर्वक कैंसल हो गया।",
+        cancelExpiredToast: "🔒 5 मिनट पूरे हो चुके हैं — अब ऑर्डर कैंसल नहीं हो सकता!",
         // Admin UI
         adminLoginTitle: "🔐 एडमिन लॉगिन",
         adminLoginDesc: "डैशबोर्ड खोलने के लिए एडमिन पासवर्ड दर्ज करें।",
@@ -1303,9 +1402,32 @@
         noMenuMatch: "No menu items match your search.",
         copiedToast: "✅ Copied!",
         successTitle: "Order Confirmed!",
-        successSubtitle: "Your food is being prepared and will arrive at your doorstep soon.",
+        successCancelledTitle: "Order Cancelled",
+        successGreeting: (name) => `Thank you, ${name}! 🙏`,
+        successEtaHeadline: "Delivery in 10 to 15 Minutes!",
+        successSubtitle: "Your fresh food is being prepared and will be delivered to your doorstep within 10 to 15 minutes.",
+        successCancelledSubtitle: "This order was cancelled at your request within the 5-minute window.",
+        recentEtaLine: "🛵 Your order will be delivered in 10 to 15 minutes",
         orderNumber: "Order Number",
-        done: "Done",
+        custLabel: "Customer",
+        addrLabel: "Address",
+        totalLabel: "Total Payable",
+        done: "OK / Track Order",
+        cancelWindowTitleOpen: "⏳ Cancel Window Time Left",
+        cancelWindowTitleLocked: "🔒 Cancel Button Locked!",
+        cancelWindowTitleCancelled: "❌ Order Cancelled",
+        cancelRuleOpen: "Note: You only have 5 minutes to cancel this order. After 5 minutes, the cancel button locks automatically and accepting the order is mandatory!",
+        cancelRuleLocked: "5 minutes have passed — this order is now locked and cannot be cancelled. Accepting the order on delivery is mandatory.",
+        cancelRuleOutLocked: "Your order is already on the way / delivered, so cancellation is locked.",
+        cancelRuleCancelled: "Your order has been cancelled successfully within the 5-minute window.",
+        cancelBtnWithTimer: (clock) => `❌ Cancel Order (${clock})`,
+        cancelBtnLocked: "🔒 Cancel Locked (Order Mandatory)",
+        cancelConfirmAsk: "Are you sure you want to cancel this order?",
+        cancelConfirmYes: "Yes, Cancel Order",
+        cancelConfirmNo: "No, Keep Order",
+        cancellingOrderBtn: "Cancelling...",
+        cancelSuccessToast: "❌ Your order was cancelled within the 5-minute window.",
+        cancelExpiredToast: "🔒 5 minutes have passed — cancel button is now locked!",
         // Admin UI
         adminLoginTitle: "🔐 Secret Admin Login",
         adminLoginDesc: "Enter the admin password to access the store dashboard.",
@@ -1777,10 +1899,19 @@
           state.clockOffsetMs = Date.now() - new Date(res.serverNow).getTime();
         }
         state.recentOrder.status = res.order.status;
+        state.recentOrder.customerName = res.order.customerName || state.recentOrder.customerName || "";
+        state.recentOrder.address = res.order.address || state.recentOrder.address || "";
+        state.recentOrder.totalAmount = res.order.totalAmount ?? state.recentOrder.totalAmount;
+        state.recentOrder.items = res.order.items || state.recentOrder.items || [];
+        state.recentOrder.cancelDeadlineAt = res.order.cancelDeadlineAt || state.recentOrder.cancelDeadlineAt || null;
+        state.recentOrder.cancelledBy = res.order.cancelledBy || "";
         state.recentOrder.assignedRider = res.order.assignedRider || null;
         state.recentOrder.statusSchedule = res.order.statusSchedule || null;
         localStorage.setItem("gr_recent_order", JSON.stringify(state.recentOrder));
         renderRecentOrderCard();
+        if (!document.getElementById("orderSuccessModal").classList.contains("hidden")) {
+          renderOrderSuccessModal();
+        }
         if (isManual) {
           const stLabel = TRANSLATIONS[state.lang].statuses[res.order.status] || res.order.status;
           showToast(t("trackStatusToast", stLabel));
@@ -1937,10 +2068,14 @@
       document.getElementById("codOnlyText").textContent = t("codOnly");
       document.getElementById("placeOrderBtnText").textContent = t("placeOrderBtn");
 
-      document.getElementById("successTitle").textContent = t("successTitle");
-      document.getElementById("successSubtitle").textContent = t("successSubtitle");
       document.getElementById("successOrderNumLabel").textContent = t("orderNumber");
+      document.getElementById("successCustLabel").textContent = t("custLabel");
+      document.getElementById("successAddrLabel").textContent = t("addrLabel");
+      document.getElementById("successTotalLabel").textContent = t("totalLabel");
       document.getElementById("successDoneBtnText").textContent = t("done");
+      if (!document.getElementById("orderSuccessModal").classList.contains("hidden")) {
+        renderOrderSuccessModal();
+      }
 
       // Admin UI Translations (100% coverage)
       document.getElementById("adminLoginTitle").textContent = t("adminLoginTitle");
@@ -2660,18 +2795,224 @@
       box.classList.remove("hidden");
     }
 
+    function getOrderCancelInfo(order) {
+      if (!order) return { mode: "none", remainingMs: 0 };
+      const st = order.status || "Pending";
+      if (st === "Cancelled") return { mode: "cancelled", remainingMs: 0 };
+      if (st === "Out for Delivery" || st === "Delivered") {
+        return { mode: "locked_status", remainingMs: 0 };
+      }
+      const deadlineMs = order.cancelDeadlineAt
+        ? new Date(order.cancelDeadlineAt).getTime()
+        : order.createdAt
+        ? new Date(order.createdAt).getTime() + 5 * 60 * 1000
+        : 0;
+      if (!deadlineMs) return { mode: "locked_expired", remainingMs: 0 };
+      const nowServer = Date.now() - state.clockOffsetMs;
+      const remainingMs = deadlineMs - nowServer;
+      if (remainingMs > 0) return { mode: "open", remainingMs };
+      return { mode: "locked_expired", remainingMs: 0 };
+    }
+
+    function updateCancelLockUI() {
+      const ord = state.recentOrder;
+      const info = getOrderCancelInfo(ord);
+      const clockStr = formatCountdown(info.remainingMs);
+
+      // 1. Update #orderSuccessModal cancel box (when open)
+      const modal = document.getElementById("orderSuccessModal");
+      if (modal && !modal.classList.contains("hidden") && ord) {
+        const box = document.getElementById("successCancelBox");
+        const titleEl = document.getElementById("successCancelTitle");
+        const clockEl = document.getElementById("successCancelClock");
+        const ruleEl = document.getElementById("successCancelRuleMsg");
+        const btn = document.getElementById("successCancelBtn");
+        const btnText = document.getElementById("successCancelBtnText");
+        const confirmBox = document.getElementById("successCancelConfirmBox");
+
+        if (info.mode === "open") {
+          box.className = "rounded-2xl border border-amber-300 bg-amber-50 p-3.5 text-left space-y-2.5";
+          titleEl.className = "text-xs sm:text-sm font-extrabold text-amber-900";
+          titleEl.textContent = t("cancelWindowTitleOpen");
+          clockEl.className = "px-2.5 py-0.5 rounded-lg bg-rose-600 text-white font-mono text-sm font-black shrink-0";
+          clockEl.textContent = clockStr;
+          clockEl.classList.remove("hidden");
+          ruleEl.className = "text-xs leading-relaxed font-semibold text-amber-900";
+          ruleEl.textContent = t("cancelRuleOpen");
+          btn.disabled = Boolean(state._cancellingOrder);
+          btn.className = "w-full py-2.5 rounded-xl bg-white hover:bg-red-50 text-red-700 border border-red-300 font-extrabold text-xs sm:text-sm transition flex items-center justify-center gap-1.5";
+          btnText.textContent = state._cancellingOrder ? t("cancellingOrderBtn") : t("cancelBtnWithTimer", clockStr);
+          btn.classList.remove("hidden");
+        } else if (info.mode === "cancelled") {
+          box.className = "rounded-2xl border border-red-200 bg-red-50 p-3.5 text-left space-y-2";
+          titleEl.className = "text-xs sm:text-sm font-extrabold text-red-800";
+          titleEl.textContent = t("cancelWindowTitleCancelled");
+          clockEl.classList.add("hidden");
+          ruleEl.className = "text-xs leading-relaxed font-semibold text-red-700";
+          ruleEl.textContent = t("cancelRuleCancelled");
+          btn.classList.add("hidden");
+          confirmBox.classList.add("hidden");
+        } else {
+          box.className = "rounded-2xl border border-slate-300 bg-slate-100 p-3.5 text-left space-y-2.5";
+          titleEl.className = "text-xs sm:text-sm font-extrabold text-slate-900";
+          titleEl.textContent = t("cancelWindowTitleLocked");
+          clockEl.className = "px-2.5 py-0.5 rounded-lg bg-slate-800 text-white font-mono text-xs font-black shrink-0";
+          clockEl.textContent = "🔒 00:00";
+          clockEl.classList.remove("hidden");
+          ruleEl.className = "text-xs leading-relaxed font-bold text-slate-700";
+          ruleEl.textContent = info.mode === "locked_status" ? t("cancelRuleOutLocked") : t("cancelRuleLocked");
+          btn.disabled = true;
+          btn.className = "w-full py-2.5 rounded-xl bg-slate-200 text-slate-600 border border-slate-300 font-extrabold text-xs sm:text-sm cursor-not-allowed flex items-center justify-center gap-1.5";
+          btnText.textContent = t("cancelBtnLocked");
+          btn.classList.remove("hidden");
+          confirmBox.classList.add("hidden");
+        }
+      }
+
+      // 2. Update #recentOrderCard cancel box
+      const rBox = document.getElementById("recentOrderCancelBox");
+      if (!rBox) return;
+      if (!ord || info.mode === "none") {
+        rBox.classList.add("hidden");
+        return;
+      }
+      const rMsg = document.getElementById("recentOrderCancelMsg");
+      const rClock = document.getElementById("recentOrderCancelClock");
+      const rActions = document.getElementById("recentOrderCancelActions");
+      const rBtn = document.getElementById("recentCancelTriggerBtn");
+      const rConfirm = document.getElementById("recentOrderCancelConfirmBox");
+
+      if (info.mode === "open") {
+        rBox.className = "rounded-xl border border-amber-300 bg-amber-50 p-2.5 space-y-2";
+        rMsg.className = "text-xs font-bold leading-snug text-amber-900";
+        rMsg.textContent = t("cancelWindowTitleOpen");
+        rClock.className = "px-2 py-0.5 rounded-lg bg-rose-600 text-white font-mono text-xs font-black shrink-0";
+        rClock.textContent = clockStr;
+        rClock.classList.remove("hidden");
+        rBtn.disabled = Boolean(state._cancellingOrder);
+        rBtn.className = "px-3 py-1.5 rounded-xl bg-white hover:bg-red-50 text-red-700 border border-red-300 text-xs font-extrabold transition";
+        rBtn.textContent = state._cancellingOrder ? t("cancellingOrderBtn") : t("cancelBtnWithTimer", clockStr);
+        rActions.classList.remove("hidden");
+        rBox.classList.remove("hidden");
+      } else if (info.mode === "cancelled") {
+        rBox.classList.add("hidden");
+        rConfirm.classList.add("hidden");
+      } else {
+        rBox.className = "rounded-xl border border-slate-200 bg-slate-100 p-2.5 space-y-1";
+        rMsg.className = "text-xs font-bold leading-snug text-slate-700";
+        rMsg.textContent = t("cancelBtnLocked");
+        rClock.className = "px-2 py-0.5 rounded-lg bg-slate-700 text-white font-mono text-[11px] font-black shrink-0";
+        rClock.textContent = "🔒 LOCKED";
+        rClock.classList.remove("hidden");
+        rActions.classList.add("hidden");
+        rConfirm.classList.add("hidden");
+        rBox.classList.remove("hidden");
+      }
+    }
+
+    function renderOrderSuccessModal() {
+      const ord = state.recentOrder;
+      if (!ord) return;
+      const isCancelled = ord.status === "Cancelled";
+      const iconEl = document.getElementById("successIconCircle");
+      const etaBox = document.getElementById("successEtaPromiseBox");
+
+      if (isCancelled) {
+        iconEl.className = "w-14 h-14 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-3xl mx-auto shadow-sm";
+        iconEl.textContent = "❌";
+        document.getElementById("successTitle").textContent = t("successCancelledTitle");
+        etaBox.classList.add("hidden");
+      } else {
+        iconEl.className = "w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mx-auto shadow-sm";
+        iconEl.textContent = "✅";
+        document.getElementById("successTitle").textContent = t("successTitle");
+        document.getElementById("successEtaHeadline").textContent = t("successEtaHeadline");
+        document.getElementById("successSubtitle").textContent = t("successSubtitle");
+        etaBox.classList.remove("hidden");
+      }
+
+      document.getElementById("successGreetingName").textContent = ord.customerName ? t("successGreeting", ord.customerName) : "";
+      document.getElementById("successOrderNumVal").textContent = ord.orderNumber || "GR-0000";
+      document.getElementById("successCustVal").textContent = `${ord.customerName || "-"}${ord.phone ? ` (${ord.phone})` : ""}`;
+      document.getElementById("successAddrVal").textContent = ord.address || "-";
+      document.getElementById("successTotalVal").textContent = `₹${ord.totalAmount ?? 0} (COD)`;
+
+      const itemsEl = document.getElementById("successItemsSummary");
+      if (itemsEl) {
+        const list = ord.items || [];
+        itemsEl.textContent = list.length
+          ? list.map((it) => `${state.lang === "hi" ? it.nameHi : it.nameEn} × ${it.quantity}`).join(", ")
+          : "";
+        itemsEl.classList.toggle("hidden", !list.length);
+      }
+
+      document.getElementById("successCancelConfirmText").textContent = t("cancelConfirmAsk");
+      document.getElementById("confirmSuccessCancelBtn").textContent = t("cancelConfirmYes");
+      document.getElementById("abortSuccessCancelBtn").textContent = t("cancelConfirmNo");
+      updateCancelLockUI();
+    }
+
+    async function handleCustomerCancelOrder() {
+      if (!state.recentOrder || state._cancellingOrder) return;
+      const info = getOrderCancelInfo(state.recentOrder);
+      if (info.mode !== "open") {
+        updateCancelLockUI();
+        showToast(t("cancelExpiredToast"), true);
+        return;
+      }
+      state._cancellingOrder = true;
+      updateCancelLockUI();
+      try {
+        const res = await apiFetch(
+          `/api/orders/${encodeURIComponent(state.recentOrder.orderNumber)}/cancel`,
+          {
+            method: "POST",
+            body: JSON.stringify({ phone: state.recentOrder.phone }),
+          }
+        );
+        if (res.serverNow) {
+          state.clockOffsetMs = Date.now() - new Date(res.serverNow).getTime();
+        }
+        state.recentOrder.status = "Cancelled";
+        state.recentOrder.cancelledBy = "Customer";
+        localStorage.setItem("gr_recent_order", JSON.stringify(state.recentOrder));
+        document.getElementById("successCancelConfirmBox").classList.add("hidden");
+        document.getElementById("recentOrderCancelConfirmBox").classList.add("hidden");
+        renderRecentOrderCard();
+        if (!document.getElementById("orderSuccessModal").classList.contains("hidden")) {
+          renderOrderSuccessModal();
+        }
+        showToast(t("cancelSuccessToast"), "info");
+        await loadStoreData();
+      } catch (err) {
+        if (err && err.code === "CANCEL_WINDOW_EXPIRED") {
+          await syncRecentOrderStatus(false);
+          showToast(t("cancelExpiredToast"), true);
+        } else {
+          showToast((err && err.message) || t("serverError"), true);
+        }
+      } finally {
+        state._cancellingOrder = false;
+        updateCancelLockUI();
+      }
+    }
+
     function startOrderTrackTimerLoop() {
       if (state.orderTrackTimerInterval) {
         clearInterval(state.orderTrackTimerInterval);
         state.orderTrackTimerInterval = null;
       }
       updateOrderTrackTimerUI();
-      if (
+      updateCancelLockUI();
+      const hasActiveOrder =
         state.recentOrder &&
-        state.recentOrder.statusSchedule &&
-        ["Pending", "Cooking", "Out for Delivery"].includes(state.recentOrder.status || "Pending")
-      ) {
-        state.orderTrackTimerInterval = setInterval(updateOrderTrackTimerUI, 1000);
+        ["Pending", "Cooking", "Out for Delivery"].includes(state.recentOrder.status || "Pending");
+      const modalOpen = !document.getElementById("orderSuccessModal").classList.contains("hidden");
+      if (hasActiveOrder || modalOpen) {
+        state.orderTrackTimerInterval = setInterval(() => {
+          updateOrderTrackTimerUI();
+          updateCancelLockUI();
+        }, 1000);
       }
     }
 
@@ -2686,6 +3027,28 @@
         return;
       }
       document.getElementById("recentOrderNum").textContent = state.recentOrder.orderNumber;
+      const custBadge = document.getElementById("recentOrderCustName");
+      if (custBadge) {
+        if (state.recentOrder.customerName) {
+          custBadge.textContent = `👤 ${state.recentOrder.customerName}`;
+          custBadge.classList.remove("hidden");
+        } else {
+          custBadge.classList.add("hidden");
+        }
+      }
+      const etaLine = document.getElementById("recentOrderEtaLine");
+      if (etaLine) {
+        const stCur = state.recentOrder.status || "Pending";
+        if (["Pending", "Cooking", "Out for Delivery"].includes(stCur)) {
+          etaLine.textContent = t("recentEtaLine");
+          etaLine.classList.remove("hidden");
+        } else {
+          etaLine.classList.add("hidden");
+        }
+      }
+      document.getElementById("recentCancelConfirmText").textContent = t("cancelConfirmAsk");
+      document.getElementById("confirmRecentCancelBtn").textContent = t("cancelConfirmYes");
+      document.getElementById("abortRecentCancelBtn").textContent = t("cancelConfirmNo");
       const badge = document.getElementById("recentOrderStatusBadge");
       const st = state.recentOrder.status || "Pending";
       const badgeColors = {
@@ -3000,11 +3363,27 @@
         clearTimeout(coldTimer);
         coldHint.classList.add("hidden");
 
+        if (res.serverNow) {
+          state.clockOffsetMs = Date.now() - new Date(res.serverNow).getTime();
+        }
         state.recentOrder = {
           orderNumber: res.order.orderNumber,
+          customerName: res.order.customerName || name,
           phone: cleanPhone,
+          address: res.order.address || address,
+          totalAmount: res.order.totalAmount,
+          items: res.order.items || detailedItems.map(({ item, qty }) => ({
+            nameHi: item.nameHi,
+            nameEn: item.nameEn,
+            quantity: qty,
+            sellingPrice: item.sellingPrice,
+          })),
           status: res.order.status,
+          cancelDeadlineAt: res.order.cancelDeadlineAt || new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+          cancelledBy: "",
+          createdAt: res.order.createdAt || new Date().toISOString(),
           assignedRider: null,
+          statusSchedule: null,
         };
         localStorage.setItem("gr_recent_order", JSON.stringify(state.recentOrder));
         state.cart = {};
@@ -3016,12 +3395,14 @@
         document.getElementById("couponCodeInput").value = "";
         document.getElementById("couponFeedbackMsg").classList.add("hidden");
         document.getElementById("removeCouponBtn").classList.add("hidden");
+        document.getElementById("successCancelConfirmBox").classList.add("hidden");
+        document.getElementById("recentOrderCancelConfirmBox").classList.add("hidden");
 
         document.getElementById("checkoutModal").classList.add("hidden");
-        document.getElementById("successOrderNumVal").textContent = res.order.orderNumber;
-        document.getElementById("successTotalVal").textContent = `₹${res.order.totalAmount} (COD)`;
         document.getElementById("orderSuccessModal").classList.remove("hidden");
         renderAll();
+        renderOrderSuccessModal();
+        startOrderTrackTimerLoop();
         loadStoreData();
       } catch (err) {
         clearTimeout(coldTimer);
@@ -3284,6 +3665,21 @@
               ? "bg-amber-100 text-amber-800"
               : "bg-slate-100 text-slate-600";
 
+          const cancelDeadlineMs = ord.cancelDeadlineAt
+            ? new Date(ord.cancelDeadlineAt).getTime()
+            : ord.createdAt
+            ? new Date(ord.createdAt).getTime() + 5 * 60 * 1000
+            : 0;
+          const cancelRemSec = cancelDeadlineMs ? Math.floor((cancelDeadlineMs - (Date.now() - state.clockOffsetMs)) / 1000) : 0;
+          let cancelWindowBadge = "";
+          if (ord.status === "Cancelled" && ord.cancelledBy === "Customer") {
+            cancelWindowBadge = `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-100 text-red-700">❌ Customer Cancelled (&lt;5m)</span>`;
+          } else if (["Pending", "Cooking"].includes(ord.status) && cancelRemSec > 0) {
+            cancelWindowBadge = `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-800">⏳ Cancel Window: ${Math.ceil(cancelRemSec / 60)}m</span>`;
+          } else if (isActive) {
+            cancelWindowBadge = `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800">🔒 Cancel Locked</span>`;
+          }
+
           const itemsHtml = ord.items
             .map(
               (it) =>
@@ -3318,6 +3714,7 @@
                   )}</span>
                   <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-600">${escapeHtml(ord.source || "Website")}</span>
                   ${isActive ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${timerClass}">⏱️ ${mins}m</span>` : ""}
+                  ${cancelWindowBadge}
                 </div>
                 <div class="text-xs text-slate-400 mt-0.5">${escapeHtml(formatIST(ord.createdAt))}</div>
               </div>
@@ -5555,6 +5952,31 @@
     document.getElementById("closeSuccessModalBtn").addEventListener("click", () => {
       document.getElementById("orderSuccessModal").classList.add("hidden");
     });
+    document.getElementById("successCancelBtn").addEventListener("click", () => {
+      const info = getOrderCancelInfo(state.recentOrder);
+      if (info.mode !== "open") {
+        updateCancelLockUI();
+        return;
+      }
+      document.getElementById("successCancelConfirmBox").classList.remove("hidden");
+    });
+    document.getElementById("abortSuccessCancelBtn").addEventListener("click", () => {
+      document.getElementById("successCancelConfirmBox").classList.add("hidden");
+    });
+    document.getElementById("confirmSuccessCancelBtn").addEventListener("click", handleCustomerCancelOrder);
+
+    document.getElementById("recentCancelTriggerBtn").addEventListener("click", () => {
+      const info = getOrderCancelInfo(state.recentOrder);
+      if (info.mode !== "open") {
+        updateCancelLockUI();
+        return;
+      }
+      document.getElementById("recentOrderCancelConfirmBox").classList.remove("hidden");
+    });
+    document.getElementById("abortRecentCancelBtn").addEventListener("click", () => {
+      document.getElementById("recentOrderCancelConfirmBox").classList.add("hidden");
+    });
+    document.getElementById("confirmRecentCancelBtn").addEventListener("click", handleCustomerCancelOrder);
     document.getElementById("closeProductDetailBtn").addEventListener("click", () => {
       document.getElementById("productDetailModal").classList.add("hidden");
     });
@@ -5624,5 +6046,5 @@
     renderAll();
     loadStoreData();
   </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5ecfe183d858993',t:'MTc5NTQwMzU0OQ=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5ecfe183d858993',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
