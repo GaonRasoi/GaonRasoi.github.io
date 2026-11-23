@@ -691,7 +691,7 @@
         <div id="adminMenuSyncBanner" class="bg-gradient-to-r from-emerald-50 to-orange-50 border border-emerald-200 rounded-2xl p-3.5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div class="space-y-0.5">
             <div id="syncBannerTitle" class="text-xs sm:text-sm font-extrabold text-slate-900">✨ 1-क्लिक पूरा मेनू साफ व अपडेट करें (Zero Duplicates)</div>
-            <div id="syncBannerDesc" class="text-[11px] sm:text-xs text-slate-600">सभी 50 सही आइटम (नाश्ता, वैल्यू पैक, कॉम्बो, कोल्ड ड्रिंक, एनर्जी ड्रिंक) सही लागत, मुनाफ़ा, Veg/Stock और फोटो के साथ एक साथ सेट करें — सारे डुप्लीकेट अपने आप हट जाएंगे।</div>
+            <div id="syncBannerDesc" class="text-[11px] sm:text-xs text-slate-600">सभी 90 सही आइटम (नाश्ता, फास्ट फूड, चाइनीज़, भोजन, वैल्यू पैक, कॉम्बो, कोल्ड ड्रिंक, एनर्जी ड्रिंक) सही लागत, मुनाफ़ा, Veg/Stock और फोटो के साथ एक साथ सेट करें — सारे डुप्लीकेट अपने आप हट जाएंगे।</div>
             <div id="syncCleanMenuStatus" class="hidden text-xs font-extrabold text-emerald-700 pt-1"></div>
           </div>
           <button id="syncCleanMenuBtn" type="button" class="shrink-0 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-400 text-white text-xs sm:text-sm font-extrabold shadow transition">
@@ -1206,10 +1206,10 @@
         catBeverages: "एनर्जी ड्रिंक / पेय",
         searchCrossCatHint: (q) => `🔎 "${q}" के परिणाम पूरे मेनू से दिखाए जा रहे हैं`,
         syncBannerTitle: "✨ 1-क्लिक पूरा मेनू साफ व अपडेट करें (Zero Duplicates)",
-        syncBannerDesc: "सभी 60 सही आइटम (नाश्ता, वैल्यू पैक, कॉम्बो, कोल्ड ड्रिंक, एनर्जी ड्रिंक) + ₹199 फ़्री डिलीवरी और ₹60 न्यूनतम ऑर्डर के साथ एक साथ सेट करें — सारे डुप्लीकेट अपने आप हट जाएंगे।",
-        syncCleanBtn: "पूरा मेनू ऑटो-सेट करें (60)",
+        syncBannerDesc: "सभी 90 सही आइटम (नाश्ता, फास्ट फूड, चाइनीज़, भोजन, वैल्यू पैक, कॉम्बो, कोल्ड ड्रिंक, एनर्जी ड्रिंक) + ₹199 फ़्री डिलीवरी और ₹60 न्यूनतम ऑर्डर के साथ एक साथ सेट करें — सारे डुप्लीकेट अपने आप हट जाएंगे।",
+        syncCleanBtn: "पूरा मेनू ऑटो-सेट करें (90)",
         syncRunning: (done, total) => `⏳ मेनू सिंक हो रहा है... (${done}/${total})`,
-        syncConfirm: "क्या आप पूरा मेनू ऑटो-सेट करना चाहते हैं? इससे सभी डुप्लीकेट हट जाएंगे, ₹199 फ़्री डिलीवरी व ₹60 न्यूनतम ऑर्डर सेट होगा, और 60 मुनाफ़े वाले आइटम सही कीमत व फोटो के साथ सेव हो जाएंगे।",
+        syncConfirm: "क्या आप पूरा मेनू ऑटो-सेट करना चाहते हैं? इससे सभी डुप्लीकेट हट जाएंगे, ₹199 फ़्री डिलीवरी व ₹60 न्यूनतम ऑर्डर सेट होगा, और 90 मुनाफ़े वाले आइटम सही कीमत व फोटो के साथ सेव हो जाएंगे।",
         syncDone: (total, removed) => `✅ पूरा मेनू सिंक हो गया! ${total} साफ आइटम सेट और ${removed} डुप्लीकेट हटाए गए।`,
         dupItemError: "⚠️ यह आइटम पहले से मेनू में मौजूद है! डुप्लीकेट से बचने के लिए मौजूदा आइटम को Edit करें।",
         dupBadge: "⚠️ डुप्लीकेट",
@@ -1516,10 +1516,10 @@
         catBeverages: "Energy & Beverages",
         searchCrossCatHint: (q) => `🔎 Showing "${q}" results across the full menu`,
         syncBannerTitle: "✨ 1-Click Clean Menu Sync (Zero Duplicates)",
-        syncBannerDesc: "Set all 60 profit-safe items (Food, Value Packs, Combos, Cold Drinks, Energy Drinks) plus ₹199 Free Delivery & ₹60 Min Order in one tap — duplicates are automatically removed.",
-        syncCleanBtn: "Auto-Sync Full Menu (60)",
+        syncBannerDesc: "Set all 90 profit-safe items (Snacks, Fast Food, Chinese, Meals, Value Packs, Combos, Cold Drinks, Energy Drinks) plus ₹199 Free Delivery & ₹60 Min Order in one tap — duplicates are automatically removed.",
+        syncCleanBtn: "Auto-Sync Full Menu (90)",
         syncRunning: (done, total) => `⏳ Syncing menu... (${done}/${total})`,
-        syncConfirm: "Auto-sync the full 60-item clean catalog? This removes duplicates, sets Free Delivery above ₹199 & Min Order ₹60, and applies margin-safe prices & verified photos.",
+        syncConfirm: "Auto-sync the full 90-item clean catalog? This removes duplicates, sets Free Delivery above ₹199 & Min Order ₹60, and applies margin-safe prices & verified photos.",
         syncDone: (total, removed) => `✅ Menu synced! ${total} clean items active and ${removed} duplicates removed.`,
         dupItemError: "⚠️ This item already exists in your menu! Please edit the existing item instead of creating a duplicate.",
         dupBadge: "⚠️ Duplicate",
@@ -1864,6 +1864,10 @@
       const lazyAttr = opts.lazy ? ' loading="lazy"' : "";
       const imgIdAttr = opts.singleId ? ` id="${escapeHtml(opts.singleId)}"` : "";
       const safeAlt = escapeHtml(altText || "GaonRasoi");
+      const plusBadge = opts.hidePlus
+        ? ""
+        : '<span data-combo-plus="1" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-orange-600 text-white border-2 border-white font-black text-xs sm:text-sm leading-none shadow-md flex items-center justify-center pointer-events-none">+</span>';
+
       if (urls.length === 1) {
         return `<img${imgIdAttr} src="${escapeHtml(urls[0])}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover" />`;
       }
@@ -1871,7 +1875,7 @@
         return `<div class="w-full h-full grid grid-cols-2 gap-[2px] bg-white relative">
           <img src="${escapeHtml(urls[0])}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover" />
           <img src="${escapeHtml(urls[1])}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover" />
-          ${opts.hidePlus ? "" : '<span class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white/95 text-orange-600 font-black text-xs shadow flex items-center justify-center pointer-events-none">+</span>'}
+          ${plusBadge}
         </div>`;
       }
       if (urls.length === 3) {
@@ -1879,10 +1883,12 @@
           <img src="${escapeHtml(urls[0])}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover row-span-2" />
           <img src="${escapeHtml(urls[1])}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover" />
           <img src="${escapeHtml(urls[2])}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover" />
+          ${plusBadge}
         </div>`;
       }
       return `<div class="w-full h-full grid grid-cols-2 grid-rows-2 gap-[2px] bg-white relative">
         ${urls.map((u) => `<img src="${escapeHtml(u)}" alt="${safeAlt}"${lazyAttr} onerror="this.onerror=null;this.src='${FALLBACK_FOOD_IMG}'" class="w-full h-full object-cover" />`).join("")}
+        ${plusBadge}
       </div>`;
     }
 
@@ -2529,33 +2535,41 @@
     };
 
     const SEARCH_SYNONYM_GROUPS = [
-      ["samosa", "samose", "समोसा", "समौसा"],
+      ["samosa", "samose", "samosas", "समोसा", "समौसा", "समोसे"],
       ["patties", "paties", "patis", "pattice", "patti", "पैटीज", "पेटीज"],
       ["burger", "barger", "बर्गर"],
       ["chowmein", "chowmin", "chawmin", "chaumin", "noodles", "चाउमीन", "चाउमिन", "चाऊमीन"],
-      ["egg", "anda", "अंडा", "एग"],
-      ["momos", "momo", "dumpling", "मोमोज", "मोमो", "मॉमोज"],
+      ["egg", "anda", "ande", "अंडा", "अंडे", "एग"],
+      ["momos", "momo", "dumpling", "मोमोज", "मोमो", "मॉमोज", "मॉमो"],
       ["kachori", "kachaudi", "kachauri", "sabzi", "sabji", "कचौड़ी", "कचौरी", "कचोरी", "सब्जी"],
-      ["bread", "pakora", "pakoda", "ब्रेड", "पकौड़ा", "पकोड़ा", "पकोडा"],
-      ["cold drink", "colddrink", "cold drinks", "drink", "thanda", "bottle", "कोल्ड ड्रिंक", "कोल्ड ड्रिंक्स", "पेय"],
+      ["bread", "pakora", "pakoda", "pakode", "ब्रेड", "पकौड़ा", "पकोड़ा", "पकोडा", "पकौड़े"],
+      ["aloo", "alu", "aalu", "aaloo", "आलू"],
+      ["cold drink", "colddrink", "cold drinks", "drink", "thanda", "bottle", "कोल्ड ड्रिंक", "कोल्ड ड्रिंक्स", "पेय", "ठंडा"],
       ["pepsi", "पेप्सी"],
       ["mountain dew", "dew", "due", "dyu", "माउंटेन ड्यू", "ड्यू"],
-      ["campa", "kampa", "cola", "orange", "कैंपा"],
-      ["hell", "red bull", "redbull", "energy", "एनर्जी"],
-      ["combo", "combos", "pack", "offer", "कॉम्बो", "पैक"],
-      ["party", "family", "box", "पार्टी", "फैमिली", "बॉक्स"],
-      ["double", "2 pcs", "2 plates", "डबल"],
+      ["campa", "kampa", "कैंपा"],
+      ["cola", "कोला"],
+      ["orange", "santara", "संतरा", "ऑरेंज"],
+      ["hell", "red bull", "redbull", "energy", "boost", "एनर्जी"],
+      ["combo", "combos", "pack", "offer", "meal", "कॉम्बो", "पैक"],
+      ["party", "family", "box", "group", "mega", "super", "पार्टी", "फैमिली", "बॉक्स"],
+      ["feast", "फ़ीस्ट", "फीस्ट"],
+      ["double", "duo", "2 pcs", "2 plates", "डबल"],
+      ["jumbo", "3 pcs", "4 pcs", "जंबो"],
       ["small", "half", "छोटी", "हाफ"],
       ["large", "full", "big", "बड़ी", "फुल"],
       ["nashta", "breakfast", "snacks", "नाश्ता"],
       ["can", "tin", "कैन"],
-      ["litre", "liter", "1l", "1.25l", "लीटर"],
+      ["litre", "liter", "1l", "1.25l", "500ml", "400ml", "लीटर"],
+      ["free delivery", "199", "फ्री डिलीवरी"],
     ];
 
     function normalizeSearchText(str) {
       return String(str || "")
+        .normalize("NFD")
         .toLowerCase()
-        .replace(/\u093c/g, "") // strip Devanagari nukta (ज़ -> ज, ड़ -> ड)
+        .replace(/\u093c/g, "") // strip Devanagari nukta (both decomposed ज़ and precomposed ज़)
+        .normalize("NFC")
         .replace(/\u0911/g, "\u0913") // ऑ -> ओ
         .replace(/\u0949/g, "\u094b") // ॉ -> ो
         .replace(/\u0901/g, "\u0902") // ँ -> ं
@@ -2575,12 +2589,35 @@
       if (!q) return 0;
       const hi = normalizeSearchText(item.nameHi);
       const en = normalizeSearchText(item.nameEn);
+      const titleCombined = `${hi} ${en}`;
       if (hi === q || en === q) return 100;
-      if (hi.startsWith(q) || en.startsWith(q)) return 80;
-      if (hi.includes(q) || en.includes(q)) return 60;
+      const expanded = expandSearchTerms(q);
+      if (expanded.some((term) => hi === term || en === term)) return 98;
+      if (hi.startsWith(q) || en.startsWith(q)) return 95;
+      if (hi.includes(q) || en.includes(q)) return 88;
+
+      const tokens = q.split(/\s+/).filter(Boolean);
+
+      if (tokens.length > 1) {
+        const allTokensInTitle = tokens.every((tok) => {
+          if (titleCombined.includes(tok)) return true;
+          const tokExp = expandSearchTerms(tok);
+          return tokExp.some((term) => titleCombined.includes(term));
+        });
+        if (allTokensInTitle) {
+          const firstTokExp = expandSearchTerms(tokens[0]);
+          if (firstTokExp.some((term) => hi.startsWith(term) || en.startsWith(term))) return 82;
+          return 75;
+        }
+      }
+
+      if (tokens.length === 1 && expanded.some((term) => hi.startsWith(term) || en.startsWith(term))) return 60;
+      if (expanded.some((term) => titleCombined.includes(term))) return 48;
+
       const cat = normalizeSearchText(item.category || "");
       const catLbl = normalizeSearchText(getCategoryLabel(item.category || "Snacks"));
-      if (cat.includes(q) || catLbl.includes(q)) return 40;
+      const catCombined = `${cat} ${catLbl}`;
+      if (catCombined.includes(q) || expanded.some((term) => catCombined.includes(term))) return 35;
       return 20;
     }
 
@@ -2622,7 +2659,11 @@
       const terms = new Set([q]);
       const tokens = q.split(/\s+/).filter(Boolean);
       for (const group of SEARCH_SYNONYM_GROUPS) {
-        if (group.some((kw) => q.includes(kw) || tokens.some((tok) => tok.length >= 2 && kw.startsWith(tok)))) {
+        const matched = group.some((kw) => {
+          if (kw.includes(" ")) return q.includes(kw) || (tokens.length === 1 && tokens[0].length >= 3 && kw.startsWith(tokens[0]));
+          return tokens.some((tok) => tok === kw || (tok.length >= 2 && kw.startsWith(tok)));
+        });
+        if (matched) {
           group.forEach((kw) => terms.add(kw));
         }
       }
@@ -2649,7 +2690,13 @@
       if (haystack.includes(q)) return true;
 
       const tokens = q.split(/\s+/).filter(Boolean);
-      if (tokens.length > 1 && tokens.every((tok) => haystack.includes(tok))) return true;
+      if (tokens.length > 1) {
+        return tokens.every((tok) => {
+          if (haystack.includes(tok)) return true;
+          const tokExp = expandSearchTerms(tok);
+          return tokExp.some((term) => haystack.includes(term));
+        });
+      }
 
       const expanded = expandSearchTerms(q);
       return expanded.some((term) => haystack.includes(term));
@@ -5914,6 +5961,460 @@
         isPopular: true,
         sortOrder: 60,
       },
+
+      // 9. SHOP-EXACT VALUE PACKS & SMART COMBOS (14 New Items -> Total 74 Unique Items, 100% Own Shop Stock Only)
+      {
+        nameHi: "डबल वेज चाउमीन पैक (2 मीडियम प्लेट)",
+        nameEn: "Double Veg Chowmein Pack (2 Plates)",
+        legacyEn: ["Double Veg Chowmein Pack (2 Plates)"],
+        descHi: "2 मीडियम प्लेट मसालेदार देसी वेज चाउमीन — दोस्तों व परिवार के लिए बचत पैक (₹5 बचत)।",
+        descEn: "2 regular plates of street-style veg chowmein — value sharing pack (Save ₹5).",
+        category: "Chinese",
+        sellingPrice: 95,
+        makingCost: 60,
+        imageUrl: "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 61,
+      },
+      {
+        nameHi: "फैमिली समोसा बॉक्स (4 पीस)",
+        nameEn: "Family Samosa Box (4 Pcs)",
+        legacyEn: ["Family Samosa Box (4 Pcs)"],
+        descHi: "4 गरमा-गरम खस्ता समोसा हरी और मीठी इमली चटनी के साथ — 4 लोगों का परफेक्ट नाश्ता।",
+        descEn: "4 hot crispy potato samosas served with green & sweet tamarind chutney.",
+        category: "Snacks",
+        sellingPrice: 78,
+        makingCost: 60,
+        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 62,
+      },
+      {
+        nameHi: "जंबो ब्रेड पकौड़ा बॉक्स (3 पीस)",
+        nameEn: "Jumbo Bread Pakora Box (3 Pcs)",
+        legacyEn: ["Jumbo Bread Pakora Box (3 Pcs)"],
+        descHi: "3 गरमा-गरम मसाला आलू स्टफिंग वाले कुरकुरे ब्रेड पकौड़े हरी चटनी के साथ।",
+        descEn: "3 hot crispy potato-stuffed bread pakoras with green chutney.",
+        category: "Snacks",
+        sellingPrice: 94,
+        makingCost: 75,
+        imageUrl: "https://www.vegandietfood.com/wp-content/uploads/2021/10/Bread-Pakora-Recipe.jpg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 63,
+      },
+      {
+        nameHi: "जंबो आलू पैटीज़ बॉक्स (3 पीस)",
+        nameEn: "Jumbo Aloo Patties Box (3 Pcs)",
+        legacyEn: ["Jumbo Aloo Patties Box (3 Pcs)"],
+        descHi: "3 खस्ता बेक्ड मसाला आलू पैटीज़ — चाय टाइम और पूरे परिवार के लिए बेस्ट।",
+        descEn: "3 flaky golden baked spiced potato patties — ideal for family tea time.",
+        category: "Snacks",
+        sellingPrice: 94,
+        makingCost: 75,
+        imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5tmlghErwH3kgJN2TChV6qrAt0ox0JnRpmfvO9lxPrfVl9KkSo1p14SM&s=10",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 64,
+      },
+      {
+        nameHi: "1 बर्गर + 1 आलू पैटीज़ कॉम्बो",
+        nameEn: "Burger + Aloo Patties Combo",
+        legacyEn: ["Burger + Aloo Patties Combo"],
+        descHi: "1 देसी मसाला बर्गर + 1 खस्ता आलू पैटीज़ — पेट भर नाश्ता कॉम्बो (₹3 बचत)।",
+        descEn: "1 crispy desi masala burger + 1 flaky aloo patties — filling snack combo.",
+        category: "Combos",
+        sellingPrice: 69,
+        makingCost: 50,
+        imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80 + https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5tmlghErwH3kgJN2TChV6qrAt0ox0JnRpmfvO9lxPrfVl9KkSo1p14SM&s=10",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 65,
+      },
+      {
+        nameHi: "1 बर्गर + 1 ब्रेड पकौड़ा कॉम्बो",
+        nameEn: "Burger + Bread Pakora Combo",
+        legacyEn: ["Burger + Bread Pakora Combo"],
+        descHi: "1 देसी मसाला बर्गर + 1 गरमा-गरम ब्रेड पकौड़ा हरी चटनी के साथ (₹3 बचत)।",
+        descEn: "1 desi masala burger + 1 hot crispy bread pakora with green chutney.",
+        category: "Combos",
+        sellingPrice: 69,
+        makingCost: 50,
+        imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80 + https://www.vegandietfood.com/wp-content/uploads/2021/10/Bread-Pakora-Recipe.jpg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 66,
+      },
+      {
+        nameHi: "वेज चाउमीन (मीडियम) + 1 बर्गर कॉम्बो",
+        nameEn: "Veg Chowmein + Burger Combo",
+        legacyEn: ["Veg Chowmein + Burger Combo"],
+        descHi: "1 मीडियम प्लेट वेज चाउमीन + 1 देसी मसाला बर्गर — फुल ईवनिंग ट्रीट (₹5 बचत)!",
+        descEn: "1 regular spicy veg chowmein + 1 crispy desi masala burger (Save ₹5).",
+        category: "Combos",
+        sellingPrice: 85,
+        makingCost: 55,
+        imageUrl: "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80 + https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 67,
+      },
+      {
+        nameHi: "एग चाउमीन + 1 बर्गर कॉम्बो",
+        nameEn: "Egg Chowmein + Burger Combo",
+        legacyEn: ["Egg Chowmein + Burger Combo"],
+        descHi: "डबल अंडे वाली गरम एग चाउमीन + 1 देसी मसाला बर्गर — हैवी कॉम्बो (₹5 बचत)।",
+        descEn: "Hot double-egg chowmein + 1 desi masala burger — hearty combo meal.",
+        category: "Combos",
+        sellingPrice: 105,
+        makingCost: 75,
+        imageUrl: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80 + https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        isVeg: false,
+        isPopular: false,
+        sortOrder: 68,
+      },
+      {
+        nameHi: "2 आलू पैटीज़ + पेप्सी (400 ml बोतल)",
+        nameEn: "2 Aloo Patties + Pepsi (400 ml)",
+        legacyEn: ["2 Aloo Patties + Pepsi (400 ml)"],
+        descHi: "2 खस्ता मसाला आलू पैटीज़ + 1 ठंडी 400 ml पेप्सी सील्ड प्लास्टिक बोतल।",
+        descEn: "2 flaky aloo patties + 1 chilled 400 ml Pepsi sealed PET bottle.",
+        category: "Combos",
+        sellingPrice: 84,
+        makingCost: 67,
+        imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5tmlghErwH3kgJN2TChV6qrAt0ox0JnRpmfvO9lxPrfVl9KkSo1p14SM&s=10 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1321-1321,pr-true,f-auto,q-40,dpr-2/cms/product_variant/382266af-0452-48f6-bfb9-a1e03c6a053a/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 69,
+      },
+      {
+        nameHi: "वेज चाउमीन (मीडियम) + पेप्सी (400 ml बोतल)",
+        nameEn: "Veg Chowmein + Pepsi (400 ml)",
+        legacyEn: ["Veg Chowmein + Pepsi (400 ml)"],
+        descHi: "1 मीडियम प्लेट देसी वेज चाउमीन + 1 चिल्ड 400 ml पेप्सी प्लास्टिक बोतल।",
+        descEn: "1 regular plate spicy veg chowmein + 1 chilled 400 ml Pepsi PET bottle.",
+        category: "Combos",
+        sellingPrice: 68,
+        makingCost: 47,
+        imageUrl: "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1321-1321,pr-true,f-auto,q-40,dpr-2/cms/product_variant/382266af-0452-48f6-bfb9-a1e03c6a053a/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 70,
+      },
+      {
+        nameHi: "एग चाउमीन + माउंटेन ड्यू (400 ml)",
+        nameEn: "Egg Chowmein + Mountain Dew (400 ml)",
+        legacyEn: ["Egg Chowmein + Mountain Dew (400 ml)"],
+        descHi: "डबल अंडे वाली गरम चाउमीन + 1 ठंडी 400 ml माउंटेन ड्यू प्लास्टिक बोतल।",
+        descEn: "Hot double-egg chowmein + 1 chilled 400 ml Mountain Dew PET bottle.",
+        category: "Combos",
+        sellingPrice: 86,
+        makingCost: 67,
+        imageUrl: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1000-1000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/fefaf768-d602-49ef-aa9d-28ea8e917336/Mountain-Dew-Soft-Drink-PET-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: false,
+        isPopular: false,
+        sortOrder: 71,
+      },
+      {
+        nameHi: "वेज मोमोज़ (10 पीस) + कैंपा कोला (500 ml)",
+        nameEn: "10 Veg Momos + Campa Cola (500 ml)",
+        legacyEn: ["10 Veg Momos + Campa Cola (500 ml)"],
+        descHi: "10 गरम स्टीम्ड वेज मोमोज़ लाल चटनी + 1 ठंडी 500 ml कैंपा कोला बोतल।",
+        descEn: "10 steamed veg momos with spicy red chutney + 1 chilled 500 ml Campa Cola.",
+        category: "Combos",
+        sellingPrice: 76,
+        makingCost: 56,
+        imageUrl: "https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/9e8b1724-eaf8-4776-9101-e3921654d47e/Campa-Cola-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 72,
+      },
+      {
+        nameHi: "कोल्ड ड्रिंक पार्टी पैक: 1L पेप्सी + 1.25L ड्यू",
+        nameEn: "Cold Drink Party Pack: 1L Pepsi + 1.25L Dew",
+        legacyEn: ["Cold Drink Party Pack: 1L Pepsi + 1.25L Dew"],
+        descHi: "1 बड़ी 1 Litre पेप्सी + 1 बड़ी 1.25 Litre माउंटेन ड्यू चिल्ड बोतल — पार्टी व मेहमानों के लिए (₹5 बचत)।",
+        descEn: "1 chilled 1 Litre Pepsi PET + 1 chilled 1.25 Litre Mountain Dew PET (Save ₹5).",
+        category: "Cold Drinks",
+        sellingPrice: 120,
+        makingCost: 98,
+        imageUrl: "https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-1500-1500,pr-true,f-auto,q-40,dpr-2/cms/product_variant/a154ec68-0d3a-4f46-b845-8d5a3bea11e1/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg + https://5.imimg.com/data5/SELLER/Default/2022/7/JB/XD/HL/56167907/mountain-dew-soft-drink-bottle.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 73,
+      },
+      {
+        nameHi: "फ़्री-डिलीवरी सुपर पैक: 2 बर्गर + चाउमीन + 10 मोमोज़ + 1L पेप्सी",
+        nameEn: "Free-Delivery Super Feast: 2 Burgers + Chowmein + 10 Momos + 1L Pepsi",
+        legacyEn: ["Free-Delivery Super Feast: 2 Burgers + Chowmein + 10 Momos + 1L Pepsi"],
+        descHi: "2 देसी बर्गर + 1 मीडियम वेज चाउमीन + 10 वेज मोमोज़ + 1 Litre पेप्सी — 1 क्लिक में ₹199+ फ़्री डिलीवरी!",
+        descEn: "2 desi burgers + 1 regular veg chowmein + 10 veg momos + 1L Pepsi — instant Free Delivery!",
+        category: "Combos",
+        sellingPrice: 219,
+        makingCost: 168,
+        imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80 + https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80 + https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-1500-1500,pr-true,f-auto,q-40,dpr-2/cms/product_variant/a154ec68-0d3a-4f46-b845-8d5a3bea11e1/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 74,
+      },
+
+      // 10. EXPANSION PACKS & 3-4 ITEM COMBOS (16 New Items -> Total 90 Unique Items, 100% Own Shop Stock)
+      {
+        nameHi: "बड़ी वेज चाउमीन + पेप्सी (400 ml बोतल)",
+        nameEn: "Large Veg Chowmein + Pepsi (400 ml)",
+        legacyEn: ["Large Veg Chowmein + Pepsi (400 ml)"],
+        descHi: "1 फुल बड़ी प्लेट वेज चाउमीन + 1 चिल्ड 400 ml पेप्सी सील्ड बोतल (₹4 बचत)।",
+        descEn: "1 large full plate veg chowmein + 1 chilled 400 ml Pepsi PET bottle (Save ₹4).",
+        category: "Combos",
+        sellingPrice: 86,
+        makingCost: 67,
+        imageUrl: "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1321-1321,pr-true,f-auto,q-40,dpr-2/cms/product_variant/382266af-0452-48f6-bfb9-a1e03c6a053a/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 75,
+      },
+      {
+        nameHi: "वेज चाउमीन (मीडियम) + कैंपा ऑरेंज (500 ml)",
+        nameEn: "Veg Chowmein + Campa Orange (500 ml)",
+        legacyEn: ["Veg Chowmein + Campa Orange (500 ml)"],
+        descHi: "1 मीडियम प्लेट मसालेदार वेज चाउमीन + 1 ठंडी 500 ml कैंपा ऑरेंज बोतल (₹4 बचत)।",
+        descEn: "1 regular spicy veg chowmein + 1 chilled 500 ml Campa Orange PET bottle.",
+        category: "Combos",
+        sellingPrice: 66,
+        makingCost: 46,
+        imageUrl: "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/885e60d8-f76f-4e69-ace7-909fe6d49618/Campa-Orange-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 76,
+      },
+      {
+        nameHi: "वेज मोमोज़ (10 पीस) + कैंपा ऑरेंज (500 ml)",
+        nameEn: "10 Veg Momos + Campa Orange (500 ml)",
+        legacyEn: ["10 Veg Momos + Campa Orange (500 ml)"],
+        descHi: "10 स्टीम्ड वेज मोमोज़ तीखी लाल चटनी + 1 ठंडी 500 ml कैंपा ऑरेंज बोतल (₹4 बचत)।",
+        descEn: "10 hot steamed veg momos with spicy red chutney + 1 chilled 500 ml Campa Orange.",
+        category: "Combos",
+        sellingPrice: 76,
+        makingCost: 56,
+        imageUrl: "https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/885e60d8-f76f-4e69-ace7-909fe6d49618/Campa-Orange-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 77,
+      },
+      {
+        nameHi: "2 आलू पैटीज़ + कैंपा ऑरेंज (500 ml)",
+        nameEn: "2 Aloo Patties + Campa Orange (500 ml)",
+        legacyEn: ["2 Aloo Patties + Campa Orange (500 ml)"],
+        descHi: "2 खस्ता मसाला आलू पैटीज़ + 1 चिल्ड 500 ml कैंपा ऑरेंज प्लास्टिक बोतल (₹2 बचत)।",
+        descEn: "2 flaky aloo patties + 1 chilled 500 ml Campa Orange PET bottle.",
+        category: "Combos",
+        sellingPrice: 82,
+        makingCost: 66,
+        imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5tmlghErwH3kgJN2TChV6qrAt0ox0JnRpmfvO9lxPrfVl9KkSo1p14SM&s=10 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/885e60d8-f76f-4e69-ace7-909fe6d49618/Campa-Orange-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 78,
+      },
+      {
+        nameHi: "2 ब्रेड पकौड़ा + कैंपा कोला (500 ml बोतल)",
+        nameEn: "2 Bread Pakora + Campa Cola (500 ml)",
+        legacyEn: ["2 Bread Pakora + Campa Cola (500 ml)"],
+        descHi: "2 गरम आलू ब्रेड पकौड़े चटनी के साथ + 1 चिल्ड 500 ml कैंपा कोला बोतल (₹2 बचत)।",
+        descEn: "2 hot stuffed bread pakoras + 1 chilled 500 ml Campa Cola PET bottle.",
+        category: "Combos",
+        sellingPrice: 82,
+        makingCost: 66,
+        imageUrl: "https://www.vegandietfood.com/wp-content/uploads/2021/10/Bread-Pakora-Recipe.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/9e8b1724-eaf8-4776-9101-e3921654d47e/Campa-Cola-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 79,
+      },
+      {
+        nameHi: "2 ब्रेड पकौड़ा + माउंटेन ड्यू (400 ml)",
+        nameEn: "2 Bread Pakora + Mountain Dew (400 ml)",
+        legacyEn: ["2 Bread Pakora + Mountain Dew (400 ml)"],
+        descHi: "2 गरम मसाला आलू ब्रेड पकौड़े + 1 ठंडी 400 ml माउंटेन ड्यू बोतल।",
+        descEn: "2 hot stuffed bread pakoras + 1 chilled 400 ml Mountain Dew PET bottle.",
+        category: "Combos",
+        sellingPrice: 84,
+        makingCost: 67,
+        imageUrl: "https://www.vegandietfood.com/wp-content/uploads/2021/10/Bread-Pakora-Recipe.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1000-1000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/fefaf768-d602-49ef-aa9d-28ea8e917336/Mountain-Dew-Soft-Drink-PET-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 80,
+      },
+      {
+        nameHi: "कचौड़ी सब्ज़ी + 1 समोसा + कैंपा कोला (500 ml)",
+        nameEn: "Kachori Sabzi + Samosa + Campa Cola (500 ml)",
+        legacyEn: ["Kachori Sabzi + Samosa + Campa Cola (500 ml)"],
+        descHi: "2 खस्ता कचौड़ी आलू सब्ज़ी + 1 गरम समोसा + 1 चिल्ड 500 ml कैंपा कोला (₹4 बचत)।",
+        descEn: "2 crispy kachori sabzi + 1 hot samosa + 1 chilled 500 ml Campa Cola bottle.",
+        category: "Combos",
+        sellingPrice: 66,
+        makingCost: 46,
+        imageUrl: "https://media.istockphoto.com/id/2235590451/photo/traditional-indian-kachori-with-aloo-sabzi-and-chole.jpg?s=612x612&w=0&k=20&c=Yc4eJZiX_Ye7A35TzgDi8LgCerOT2kSSnkg2pS1CSJM= + https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/9e8b1724-eaf8-4776-9101-e3921654d47e/Campa-Cola-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 81,
+      },
+      {
+        nameHi: "1 समोसा + 1 बर्गर + पेप्सी (400 ml बोतल)",
+        nameEn: "Samosa + Burger + Pepsi (400 ml)",
+        legacyEn: ["Samosa + Burger + Pepsi (400 ml)"],
+        descHi: "1 गरम समोसा + 1 देसी मसाला बर्गर + 1 ठंडी 400 ml पेप्सी बोतल (₹3 बचत)।",
+        descEn: "1 hot samosa + 1 desi masala burger + 1 chilled 400 ml Pepsi PET bottle.",
+        category: "Combos",
+        sellingPrice: 77,
+        makingCost: 57,
+        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80 + https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1321-1321,pr-true,f-auto,q-40,dpr-2/cms/product_variant/382266af-0452-48f6-bfb9-a1e03c6a053a/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 82,
+      },
+      {
+        nameHi: "1 बर्गर + 4 मोमोज़ + पेप्सी (400 ml बोतल)",
+        nameEn: "Burger + 4 Momos + Pepsi (400 ml)",
+        legacyEn: ["Burger + 4 Momos + Pepsi (400 ml)"],
+        descHi: "1 देसी मसाला बर्गर + 4 स्टीम्ड वेज मोमोज़ + 1 ठंडी 400 ml पेप्सी (₹5 बचत)।",
+        descEn: "1 desi masala burger + 4 steamed veg momos + 1 chilled 400 ml Pepsi PET.",
+        category: "Combos",
+        sellingPrice: 85,
+        makingCost: 62,
+        imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80 + https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1321-1321,pr-true,f-auto,q-40,dpr-2/cms/product_variant/382266af-0452-48f6-bfb9-a1e03c6a053a/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 83,
+      },
+      {
+        nameHi: "वेज चाउमीन (मीडियम) + 4 मोमोज़ + कैंपा कोला (500 ml)",
+        nameEn: "Veg Chowmein + 4 Momos + Campa Cola (500 ml)",
+        legacyEn: ["Veg Chowmein + 4 Momos + Campa Cola (500 ml)"],
+        descHi: "1 मीडियम वेज चाउमीन + 4 स्टीम्ड वेज मोमोज़ + 1 चिल्ड 500 ml कैंपा कोला (₹6 बचत)।",
+        descEn: "1 regular veg chowmein + 4 steamed veg momos + 1 chilled 500 ml Campa Cola.",
+        category: "Combos",
+        sellingPrice: 94,
+        makingCost: 66,
+        imageUrl: "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80 + https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/9e8b1724-eaf8-4776-9101-e3921654d47e/Campa-Cola-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 84,
+      },
+      {
+        nameHi: "एग चाउमीन + 4 मोमोज़ + माउंटेन ड्यू (400 ml)",
+        nameEn: "Egg Chowmein + 4 Momos + Dew (400 ml)",
+        legacyEn: ["Egg Chowmein + 4 Momos + Dew (400 ml)"],
+        descHi: "डबल अंडा एग चाउमीन + 4 स्टीम्ड मोमोज़ + 1 ठंडी 400 ml माउंटेन ड्यू (₹6 बचत)।",
+        descEn: "Hot double-egg chowmein + 4 steamed momos + 1 chilled 400 ml Mountain Dew.",
+        category: "Combos",
+        sellingPrice: 114,
+        makingCost: 87,
+        imageUrl: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80 + https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1000-1000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/fefaf768-d602-49ef-aa9d-28ea8e917336/Mountain-Dew-Soft-Drink-PET-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: false,
+        isPopular: false,
+        sortOrder: 85,
+      },
+      {
+        nameHi: "4-इन-1 ऑल-राउंडर पैक: समोसा + पैटीज़ + बर्गर + कैंपा ऑरेंज",
+        nameEn: "4-in-1 All-Rounder: Samosa + Patties + Burger + Campa Orange",
+        legacyEn: ["4-in-1 All-Rounder: Samosa + Patties + Burger + Campa Orange"],
+        descHi: "1 समोसा + 1 आलू पैटीज़ + 1 देसी बर्गर + 1 चिल्ड 500 ml कैंपा ऑरेंज (₹6 बचत)।",
+        descEn: "1 samosa + 1 aloo patties + 1 burger + 1 chilled 500 ml Campa Orange (Save ₹6).",
+        category: "Combos",
+        sellingPrice: 106,
+        makingCost: 81,
+        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80 + https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5tmlghErwH3kgJN2TChV6qrAt0ox0JnRpmfvO9lxPrfVl9KkSo1p14SM&s=10 + https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/885e60d8-f76f-4e69-ace7-909fe6d49618/Campa-Orange-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 86,
+      },
+      {
+        nameHi: "2 आलू पैटीज़ + 2 ब्रेड पकौड़ा + 1L पेप्सी पार्टी बॉक्स",
+        nameEn: "2 Patties + 2 Bread Pakora + 1L Pepsi Box",
+        legacyEn: ["2 Patties + 2 Bread Pakora + 1L Pepsi Box"],
+        descHi: "2 आलू पैटीज़ + 2 गरम ब्रेड पकौड़ा + 1 बड़ी 1 Litre पेप्सी बोतल — चाय-पार्टी पैक (₹9 बचत)।",
+        descEn: "2 aloo patties + 2 bread pakoras + 1 big 1 Litre Pepsi PET bottle (Save ₹9).",
+        category: "Combos",
+        sellingPrice: 179,
+        makingCost: 148,
+        imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5tmlghErwH3kgJN2TChV6qrAt0ox0JnRpmfvO9lxPrfVl9KkSo1p14SM&s=10 + https://www.vegandietfood.com/wp-content/uploads/2021/10/Bread-Pakora-Recipe.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-1500-1500,pr-true,f-auto,q-40,dpr-2/cms/product_variant/a154ec68-0d3a-4f46-b845-8d5a3bea11e1/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 87,
+      },
+      {
+        nameHi: "फ़्री-डिलीवरी फैमिली फ़ीस्ट: 4 समोसा + 2 कचौड़ी + 2 पैटीज़ + 1.25L ड्यू",
+        nameEn: "Free-Delivery Family Feast: 4 Samosa + 2 Kachori + 2 Patties + 1.25L Dew",
+        legacyEn: ["Free-Delivery Family Feast: 4 Samosa + 2 Kachori + 2 Patties + 1.25L Dew"],
+        descHi: "4 समोसा + 2 प्लेट कचौड़ी सब्ज़ी + 2 आलू पैटीज़ + 1.25L माउंटेन ड्यू — ₹199+ फ़्री डिलीवरी (₹20 बचत)!",
+        descEn: "4 samosas + 2 kachori sabzi + 2 aloo patties + 1.25L Mountain Dew — Free Delivery!",
+        category: "Combos",
+        sellingPrice: 249,
+        makingCost: 190,
+        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80 + https://media.istockphoto.com/id/2235590451/photo/traditional-indian-kachori-with-aloo-sabzi-and-chole.jpg?s=612x612&w=0&k=20&c=Yc4eJZiX_Ye7A35TzgDi8LgCerOT2kSSnkg2pS1CSJM= + https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5tmlghErwH3kgJN2TChV6qrAt0ox0JnRpmfvO9lxPrfVl9KkSo1p14SM&s=10 + https://5.imimg.com/data5/SELLER/Default/2022/7/JB/XD/HL/56167907/mountain-dew-soft-drink-bottle.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 88,
+      },
+      {
+        nameHi: "कैंपा गोल्ड बूस्ट डबल कैन पैक (185 ml × 2)",
+        nameEn: "Campa Gold Boost Duo (2 Cans)",
+        legacyEn: ["Campa Gold Boost Duo (2 Cans)"],
+        descHi: "2 चिल्ड 185 ml कैंपा गोल्ड बूस्ट एनर्जी ड्रिंक कैन — 1 क्लिक में ₹60 न्यूनतम ऑर्डर पूरा।",
+        descEn: "2 chilled 185 ml Campa Gold Boost energy cans — crosses ₹60 min order in 1 tap.",
+        category: "Beverages",
+        sellingPrice: 60,
+        makingCost: 48,
+        imageUrl: "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/4c3e00f1-91d0-460a-ac49-ae5fb29cc823/Campa-Gold-Boost-Energy-Drink.jpg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 89,
+      },
+      {
+        nameHi: "डबल HELL एनर्जी ड्रिंक कैन पैक (250 ml × 2)",
+        nameEn: "Double HELL Energy Pack (2 Cans)",
+        legacyEn: ["Double HELL Energy Pack (2 Cans)"],
+        descHi: "2 चिल्ड 250 ml HELL क्लासिक एनर्जी ड्रिंक कैन पैक (₹2 बचत)।",
+        descEn: "2 chilled 250 ml HELL Classic energy drink cans value duo pack.",
+        category: "Beverages",
+        sellingPrice: 118,
+        makingCost: 98,
+        imageUrl: "https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-1085-1085,pr-true,f-auto,q-40,dpr-2/cms/product_variant/9a193d32-4814-4cfe-adf8-8e05fc4fed67/HELL-Energy-Drink-Classic-Canned-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 90,
+      },
     ];
 
     function findDuplicateMenuIds(menuList) {
@@ -7103,5 +7604,5 @@
     renderAll();
     loadStoreData();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5ed73216c445518',t:'MTc5NTQwODM0Mw=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5ed73216c445518',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5edc9adec736470',t:'MTc5NTQxMTg4OA=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5edc9adec736470',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

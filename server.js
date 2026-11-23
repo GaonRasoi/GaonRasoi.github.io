@@ -508,7 +508,7 @@ async function seedDatabaseIfEmpty() {
   const menuCount = await MenuItem.countDocuments();
   if (menuCount === 0) {
     await MenuItem.insertMany(DEFAULT_MENU_ITEMS);
-    console.log('✅ Seeded 8 default village menu items.');
+    console.log(`✅ Seeded ${DEFAULT_MENU_ITEMS.length} default village menu items.`);
   }
 }
 
