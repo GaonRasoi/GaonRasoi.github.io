@@ -254,6 +254,15 @@ const orderSchema = new mongoose.Schema(
       enum: ['Pending', 'Cooking', 'Out for Delivery', 'Delivered', 'Cancelled'],
       default: 'Pending',
     },
+    statusSchedule: {
+      cookingAt: { type: Date, default: null },
+      outForDeliveryAt: { type: Date, default: null },
+      deliveredAt: { type: Date, default: null },
+      etaEndsAt: { type: Date, default: null },
+      noteHi: { type: String, default: '', trim: true, maxlength: 140 },
+      noteEn: { type: String, default: '', trim: true, maxlength: 140 },
+      updatedAt: { type: Date, default: null },
+    },
   },
   { timestamps: true }
 );
@@ -265,8 +274,8 @@ const storeSettingsSchema = new mongoose.Schema(
     shopNameEn: { type: String, default: 'Gaon Rasoi' },
     isOpen: { type: Boolean, default: true },
     deliveryCharge: { type: Number, default: 15, min: 0 },
-    freeDeliveryAbove: { type: Number, default: 0, min: 0 },
-    minOrderAmount: { type: Number, default: 50, min: 0 },
+    freeDeliveryAbove: { type: Number, default: 199, min: 0 },
+    minOrderAmount: { type: Number, default: 60, min: 0 },
     deliveryRadiusKm: { type: Number, default: 2, min: 0.5 },
     openHoursHi: { type: String, default: 'सुबह 9:00 बजे से रात 9:30 बजे तक' },
     openHoursEn: { type: String, default: '9:00 AM – 9:30 PM' },
@@ -340,6 +349,16 @@ const Rider = mongoose.model('Rider', riderSchema);
 // 3. INITIAL DATABASE SEEDING & HELPERS
 // ----------------------------------------------------------------------------
 
+const DEFAULT_CATEGORY_SORT_ORDER = {
+  Snacks: 10,
+  'Fast Food': 20,
+  Chinese: 30,
+  Meals: 40,
+  Combos: 50,
+  'Cold Drinks': 60,
+  Beverages: 70,
+};
+
 const DEFAULT_MENU_ITEMS = [
   {
     nameHi: 'गरमा-गरम समोसा',
@@ -347,8 +366,8 @@ const DEFAULT_MENU_ITEMS = [
     descHi: 'तीखी हरी और मीठी इमली चटनी के साथ (1 पीस)',
     descEn: 'Crispy potato-stuffed pastry with green & tamarind chutney (1 pc)',
     category: 'Snacks',
-    sellingPrice: 15,
-    makingCost: 7,
+    sellingPrice: 20,
+    makingCost: 15,
     imageUrl: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80',
     inStock: true,
     stockCount: null,
@@ -358,18 +377,33 @@ const DEFAULT_MENU_ITEMS = [
   },
   {
     nameHi: 'आलू पैटीज़',
-    nameEn: 'Patties',
+    nameEn: 'Aloo Patties',
     descHi: 'खस्ता बेक्ड पफ पेस्ट्री मसाला आलू के साथ',
     descEn: 'Flaky golden puff pastry filled with spiced potato masala',
     category: 'Snacks',
-    sellingPrice: 25,
-    makingCost: 12,
-    imageUrl: 'https://images.unsplash.com/photo-1626776876729-bab4369a5a5a?auto=format&fit=crop&w=600&q=80',
+    sellingPrice: 32,
+    makingCost: 25,
+    imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5tmlghErwH3kgJN2TChV6qrAt0ox0JnRpmfvO9lxPrfVl9KkSo1p14SM&s=10',
     inStock: true,
     stockCount: null,
     isVeg: true,
     isPopular: false,
     sortOrder: 2,
+  },
+  {
+    nameHi: 'ब्रेड पकौड़ा',
+    nameEn: 'Bread Pakora',
+    descHi: 'मसाला आलू स्टफिंग वाला कुरकुरा ब्रेड पकौड़ा',
+    descEn: 'Golden gram-flour battered bread stuffed with spiced potato',
+    category: 'Snacks',
+    sellingPrice: 32,
+    makingCost: 25,
+    imageUrl: 'https://www.vegandietfood.com/wp-content/uploads/2021/10/Bread-Pakora-Recipe.jpg',
+    inStock: true,
+    stockCount: null,
+    isVeg: true,
+    isPopular: false,
+    sortOrder: 3,
   },
   {
     nameHi: 'देसी मसाला बर्गर',
@@ -378,28 +412,28 @@ const DEFAULT_MENU_ITEMS = [
     descEn: 'Crispy aloo tikki patty, fresh veggies & tangy house sauce',
     category: 'Fast Food',
     sellingPrice: 40,
-    makingCost: 19,
+    makingCost: 25,
     imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80',
-    inStock: true,
-    stockCount: null,
-    isVeg: true,
-    isPopular: false,
-    sortOrder: 3,
-  },
-  {
-    nameHi: 'वेज चाउमीन',
-    nameEn: 'Veg Chowmein',
-    descHi: 'ताज़ी सब्ज़ियों और देसी मसालों के साथ फुल प्लेट',
-    descEn: 'Street-style stir-fried noodles tossed with crunchy veggies',
-    category: 'Chinese',
-    sellingPrice: 50,
-    makingCost: 22,
-    imageUrl: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80',
     inStock: true,
     stockCount: null,
     isVeg: true,
     isPopular: true,
     sortOrder: 4,
+  },
+  {
+    nameHi: 'वेज चाउमीन (मीडियम प्लेट)',
+    nameEn: 'Veg Chowmein (Regular)',
+    descHi: 'ताज़ी सब्ज़ियों और देसी मसालों के साथ रेगुलर प्लेट',
+    descEn: 'Street-style stir-fried noodles tossed with crunchy veggies',
+    category: 'Chinese',
+    sellingPrice: 50,
+    makingCost: 30,
+    imageUrl: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80',
+    inStock: true,
+    stockCount: null,
+    isVeg: true,
+    isPopular: true,
+    sortOrder: 6,
   },
   {
     nameHi: 'एग चाउमीन',
@@ -408,58 +442,43 @@ const DEFAULT_MENU_ITEMS = [
     descEn: 'Wok-tossed noodles with scrambled egg, cabbage & chili sauce',
     category: 'Chinese',
     sellingPrice: 70,
-    makingCost: 33,
+    makingCost: 50,
     imageUrl: 'https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80',
     inStock: true,
     stockCount: null,
     isVeg: false,
     isPopular: false,
-    sortOrder: 5,
+    sortOrder: 8,
   },
   {
-    nameHi: 'वेज मोमोज़ (8 पीस)',
-    nameEn: 'Momos',
+    nameHi: 'वेज मोमोज़ (10 पीस)',
+    nameEn: 'Veg Momos (10 Pcs)',
     descHi: 'तीखी लाल मोमो चटनी के साथ गरम स्टीम्ड मोमोज़',
-    descEn: 'Steamed dumplings (8 pcs) served with fiery red garlic chutney',
+    descEn: 'Steamed dumplings (10 pcs) served with fiery red garlic chutney',
     category: 'Chinese',
-    sellingPrice: 50,
-    makingCost: 22,
-    imageUrl: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=600&q=80',
+    sellingPrice: 60,
+    makingCost: 40,
+    imageUrl: 'https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg',
     inStock: true,
     stockCount: null,
     isVeg: true,
     isPopular: true,
-    sortOrder: 6,
+    sortOrder: 10,
   },
   {
-    nameHi: 'कचौड़ी सब्ज़ी',
+    nameHi: 'कचौड़ी सब्ज़ी (2 पीस)',
     nameEn: 'Kachori Sabzi',
     descHi: '2 खस्ता कचौड़ी और चटपटी आलू रसेदार सब्ज़ी',
     descEn: '2 crispy dal kachoris paired with spicy homestyle aloo sabzi',
     category: 'Meals',
     sellingPrice: 30,
-    makingCost: 14,
-    imageUrl: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?auto=format&fit=crop&w=600&q=80',
+    makingCost: 15,
+    imageUrl: 'https://media.istockphoto.com/id/2235590451/photo/traditional-indian-kachori-with-aloo-sabzi-and-chole.jpg?s=612x612&w=0&k=20&c=Yc4eJZiX_Ye7A35TzgDi8LgCerOT2kSSnkg2pS1CSJM=',
     inStock: true,
     stockCount: null,
     isVeg: true,
     isPopular: false,
-    sortOrder: 7,
-  },
-  {
-    nameHi: 'ब्रेड पकौड़ा',
-    nameEn: 'Bread Pakora',
-    descHi: 'मसाला आलू स्टफिंग वाला कुरकुरा ब्रेड पकौड़ा',
-    descEn: 'Golden gram-flour battered bread stuffed with spiced potato',
-    category: 'Snacks',
-    sellingPrice: 20,
-    makingCost: 9,
-    imageUrl: 'https://images.unsplash.com/photo-1630383249896-424e482df921?auto=format&fit=crop&w=600&q=80',
-    inStock: true,
-    stockCount: null,
-    isVeg: true,
-    isPopular: false,
-    sortOrder: 8,
+    sortOrder: 11,
   },
 ];
 
@@ -831,6 +850,44 @@ app.post('/api/orders', async (req, res) => {
   }
 });
 
+const ORDER_STATUS_RANK = {
+  Pending: 0,
+  Cooking: 1,
+  'Out for Delivery': 2,
+  Delivered: 3,
+  Cancelled: 99,
+};
+
+async function applyScheduledOrderTransition(orderDoc, now = new Date()) {
+  if (!orderDoc || orderDoc.status === 'Delivered' || orderDoc.status === 'Cancelled') {
+    return orderDoc;
+  }
+  const sch = orderDoc.statusSchedule;
+  if (!sch) return orderDoc;
+
+  const curRank = ORDER_STATUS_RANK[orderDoc.status] ?? 0;
+  let nextStatus = orderDoc.status;
+
+  if (sch.deliveredAt && now >= new Date(sch.deliveredAt)) {
+    nextStatus = 'Delivered';
+  } else if (sch.outForDeliveryAt && now >= new Date(sch.outForDeliveryAt) && curRank < 2) {
+    nextStatus = 'Out for Delivery';
+  } else if (sch.cookingAt && now >= new Date(sch.cookingAt) && curRank < 1) {
+    nextStatus = 'Cooking';
+  }
+
+  if (nextStatus !== orderDoc.status) {
+    const updateSet = { status: nextStatus };
+    if (nextStatus === 'Delivered' && (!orderDoc.paymentCollectedMode || orderDoc.paymentCollectedMode === 'Pending')) {
+      updateSet.paymentCollectedMode = 'Cash';
+    }
+    await Order.updateOne({ _id: orderDoc._id, status: orderDoc.status }, { $set: updateSet });
+    orderDoc.status = nextStatus;
+    if (updateSet.paymentCollectedMode) orderDoc.paymentCollectedMode = updateSet.paymentCollectedMode;
+  }
+  return orderDoc;
+}
+
 app.get('/api/orders/track/:orderNumber', async (req, res) => {
   try {
     const cleanPhone = normalizeIndianPhone(req.query.phone || '');
@@ -842,14 +899,17 @@ app.get('/api/orders/track/:orderNumber', async (req, res) => {
       orderNumber: cleanOrderNum,
       phone: cleanPhone,
     })
-      .select('orderNumber status totalAmount discountAmount couponCode assignedRider items createdAt updatedAt')
+      .select('orderNumber status totalAmount discountAmount couponCode assignedRider statusSchedule items createdAt updatedAt')
       .lean();
 
     if (!order) {
       return res.status(404).json({ error: 'Order not found.' });
     }
 
-    res.json({ order });
+    const now = new Date();
+    await applyScheduledOrderTransition(order, now);
+
+    res.json({ order, serverNow: now.toISOString() });
   } catch (err) {
     console.error('GET /api/orders/track error:', err);
     res.status(500).json({ error: 'Failed to check order status.' });
@@ -899,6 +959,15 @@ app.get('/api/admin/verify', requireAdmin, (req, res) => {
 
 app.get('/api/admin/orders', requireAdmin, async (req, res) => {
   try {
+    const now = new Date();
+    const activeScheduled = await Order.find({
+      status: { $in: ['Pending', 'Cooking', 'Out for Delivery'] },
+      'statusSchedule.updatedAt': { $ne: null },
+    }).lean();
+    for (const ord of activeScheduled) {
+      await applyScheduledOrderTransition(ord, now);
+    }
+
     const filter = {};
     if (req.query.status && req.query.status !== 'All') {
       filter.status = req.query.status;
@@ -906,7 +975,7 @@ app.get('/api/admin/orders', requireAdmin, async (req, res) => {
     const orders = await Order.find(filter).sort({ createdAt: -1 }).limit(300).lean();
     const blockedDocs = await BlockedNumber.find({}).select('phone').lean();
     const blockedSet = blockedDocs.map((b) => b.phone);
-    res.json({ orders, blockedNumbers: blockedSet });
+    res.json({ orders, blockedNumbers: blockedSet, serverNow: now.toISOString() });
   } catch (err) {
     console.error('GET /api/admin/orders error:', err);
     res.status(500).json({ error: 'Failed to load orders.' });
@@ -990,6 +1059,17 @@ app.patch('/api/admin/orders/:id/status', requireAdmin, validateObjectId, async 
       } else if (status === 'Cancelled') {
         updateDoc.paymentCollectedMode = 'Pending';
       }
+      if (status === 'Delivered' || status === 'Cancelled') {
+        updateDoc.statusSchedule = {
+          cookingAt: null,
+          outForDeliveryAt: null,
+          deliveredAt: null,
+          etaEndsAt: null,
+          noteHi: '',
+          noteEn: '',
+          updatedAt: null,
+        };
+      }
     }
 
     if (adminNote !== undefined) updateDoc.adminNote = String(adminNote).trim().slice(0, 250);
@@ -1022,6 +1102,105 @@ app.patch('/api/admin/orders/:id/status', requireAdmin, validateObjectId, async 
   } catch (err) {
     console.error('PATCH /api/admin/orders/:id/status error:', err);
     res.status(500).json({ error: 'Failed to update order.' });
+  }
+});
+
+app.patch('/api/admin/orders/:id/schedule', requireAdmin, validateObjectId, async (req, res) => {
+  try {
+    const existingOrder = await Order.findById(req.params.id).lean();
+    if (!existingOrder) {
+      return res.status(404).json({ error: 'Order not found.' });
+    }
+    if (existingOrder.status === 'Delivered' || existingOrder.status === 'Cancelled') {
+      return res.status(400).json({ error: 'Cannot schedule a Delivered or Cancelled order.' });
+    }
+
+    const {
+      cookingInMin,
+      outForDeliveryInMin,
+      deliveredInMin,
+      etaInMin,
+      noteHi,
+      noteEn,
+      clearSchedule,
+    } = req.body || {};
+
+    const nowMs = Date.now();
+    if (clearSchedule === true) {
+      const cleared = await Order.findByIdAndUpdate(
+        req.params.id,
+        {
+          $set: {
+            statusSchedule: {
+              cookingAt: null,
+              outForDeliveryAt: null,
+              deliveredAt: null,
+              etaEndsAt: null,
+              noteHi: '',
+              noteEn: '',
+              updatedAt: null,
+            },
+          },
+        },
+        { returnDocument: 'after' }
+      ).lean();
+      return res.json({ order: cleared, serverNow: new Date(nowMs).toISOString() });
+    }
+
+    const parseMin = (val) => {
+      if (val === undefined || val === null || val === '') return null;
+      const n = Number(val);
+      if (!Number.isFinite(n) || n < 0 || n > 1440) return null;
+      return n;
+    };
+
+    const cMin = parseMin(cookingInMin);
+    const oMin = parseMin(outForDeliveryInMin);
+    const dMin = parseMin(deliveredInMin);
+    const eMin = parseMin(etaInMin);
+
+    let nextStatus = existingOrder.status;
+    if (oMin === 0 && (ORDER_STATUS_RANK[nextStatus] ?? 0) < 2) {
+      nextStatus = 'Out for Delivery';
+    } else if (cMin === 0 && (ORDER_STATUS_RANK[nextStatus] ?? 0) < 1) {
+      nextStatus = 'Cooking';
+    }
+
+    const cookingAt = cMin !== null && cMin > 0 ? new Date(nowMs + cMin * 60000) : null;
+    const outForDeliveryAt = oMin !== null && oMin > 0 ? new Date(nowMs + oMin * 60000) : null;
+    const deliveredAt = dMin !== null && dMin > 0 ? new Date(nowMs + dMin * 60000) : null;
+
+    let etaEndsAt = null;
+    if (eMin !== null && eMin > 0) {
+      etaEndsAt = new Date(nowMs + eMin * 60000);
+    } else if (deliveredAt) {
+      etaEndsAt = deliveredAt;
+    } else if (outForDeliveryAt) {
+      etaEndsAt = outForDeliveryAt;
+    } else if (cookingAt) {
+      etaEndsAt = cookingAt;
+    }
+
+    const scheduleObj = {
+      cookingAt,
+      outForDeliveryAt,
+      deliveredAt,
+      etaEndsAt,
+      noteHi: noteHi ? String(noteHi).trim().slice(0, 140) : '',
+      noteEn: noteEn ? String(noteEn).trim().slice(0, 140) : '',
+      updatedAt: new Date(nowMs),
+    };
+
+    const updated = await Order.findByIdAndUpdate(
+      req.params.id,
+      { $set: { status: nextStatus, statusSchedule: scheduleObj } },
+      { returnDocument: 'after' }
+    ).lean();
+
+    res.json({ order: updated, serverNow: new Date(nowMs).toISOString() });
+  } catch (err) {
+    console.error('PATCH /api/admin/orders/:id/schedule error:', err);
+    res.status(500).json({ error: 'Failed to save order schedule.' });
   }
 });
 
@@ -1453,12 +1632,15 @@ app.post('/api/admin/menu', requireAdmin, async (req, res) => {
       parsedStock = sInt;
     }
 
+    const cleanCategory = category ? String(category).trim() : 'Snacks';
+    const defaultSort = DEFAULT_CATEGORY_SORT_ORDER[cleanCategory] || 100;
+
     const item = await MenuItem.create({
       nameHi: String(nameHi).trim(),
       nameEn: String(nameEn).trim(),
       descHi: descHi ? String(descHi).trim() : '',
       descEn: descEn ? String(descEn).trim() : '',
-      category: category ? String(category).trim() : 'Snacks',
+      category: cleanCategory,
       sellingPrice: Math.max(0, numSelling),
       makingCost: Math.max(0, numCost),
       imageUrl: imageUrl ? String(imageUrl).trim() : '',
@@ -1466,7 +1648,10 @@ app.post('/api/admin/menu', requireAdmin, async (req, res) => {
       stockCount: parsedStock,
       isVeg: isVeg !== undefined ? Boolean(isVeg) : true,
       isPopular: isPopular !== undefined ? Boolean(isPopular) : false,
-      sortOrder: Number.isFinite(Number(sortOrder)) ? Number(sortOrder) : 0,
+      sortOrder:
+        sortOrder !== undefined && sortOrder !== null && sortOrder !== '' && Number.isFinite(Number(sortOrder))
+          ? Number(sortOrder)
+          : defaultSort,
     });
 
     res.status(201).json({ item });

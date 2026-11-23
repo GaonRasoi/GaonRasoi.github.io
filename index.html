@@ -25,6 +25,84 @@
       #receiptPrintArea, #receiptPrintArea * { visibility: visible !important; }
       #receiptPrintArea { position: fixed; left: 0; top: 0; width: 100%; background: white; padding: 16px; }
     }
+
+    /* Multi-Theme Support: Light (default), Dark (🌙), Warm Evening (🌅) */
+    html[data-theme="dark"] body {
+      background-color: #090d16 !important;
+      color: #f1f5f9 !important;
+    }
+    html[data-theme="dark"] header {
+      background-color: rgba(15, 23, 42, 0.96) !important;
+      border-color: #1e293b !important;
+    }
+    html[data-theme="dark"] .bg-white {
+      background-color: #111827 !important;
+      color: #f1f5f9 !important;
+    }
+    html[data-theme="dark"] .bg-slate-50,
+    html[data-theme="dark"] .bg-orange-50\/40,
+    html[data-theme="dark"] .bg-orange-50\/60,
+    html[data-theme="dark"] .bg-orange-50 {
+      background-color: #1e293b !important;
+    }
+    html[data-theme="dark"] .bg-slate-100 {
+      background-color: #1f2937 !important;
+    }
+    html[data-theme="dark"] .text-slate-900,
+    html[data-theme="dark"] .text-slate-800 {
+      color: #f8fafc !important;
+    }
+    html[data-theme="dark"] .text-slate-700,
+    html[data-theme="dark"] .text-slate-600 {
+      color: #cbd5e1 !important;
+    }
+    html[data-theme="dark"] .text-slate-500,
+    html[data-theme="dark"] .text-slate-400 {
+      color: #94a3b8 !important;
+    }
+    html[data-theme="dark"] .border-orange-100,
+    html[data-theme="dark"] .border-orange-100\/80,
+    html[data-theme="dark"] .border-orange-200,
+    html[data-theme="dark"] .border-slate-100,
+    html[data-theme="dark"] .border-slate-200,
+    html[data-theme="dark"] .border-slate-300 {
+      border-color: #334155 !important;
+    }
+    html[data-theme="dark"] input,
+    html[data-theme="dark"] select,
+    html[data-theme="dark"] textarea {
+      background-color: #0f172a !important;
+      color: #f8fafc !important;
+      border-color: #334155 !important;
+    }
+    html[data-theme="dark"] #adminDashboard {
+      background-color: #0b1120 !important;
+    }
+    html[data-theme="dark"] #categoryPills button[data-cat].bg-slate-900 {
+      background-color: #ea580c !important;
+      border-color: #ea580c !important;
+      color: #ffffff !important;
+    }
+    html[data-theme="dark"] #floatingCartBar > button {
+      background-color: #1e293b !important;
+      border: 1px solid #334155 !important;
+    }
+
+    html[data-theme="warm"] body {
+      background-color: #fdf6e9 !important;
+      color: #291c0e !important;
+    }
+    html[data-theme="warm"] header {
+      background-color: rgba(254, 249, 239, 0.96) !important;
+      border-color: #f3dfc1 !important;
+    }
+    html[data-theme="warm"] .bg-white {
+      background-color: #fffbf2 !important;
+    }
+    html[data-theme="warm"] .border-orange-100,
+    html[data-theme="warm"] .border-orange-100\/80 {
+      border-color: #f0d9b5 !important;
+    }
   </style>
 </head>
 <body class="bg-orange-50/40 text-slate-900 min-h-screen pb-28">
@@ -40,33 +118,51 @@
           id="shopLogoBtn"
           type="button"
           aria-label="Shop Logo"
-          class="w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 text-white flex items-center justify-center shadow-md shadow-orange-200 shrink-0 active:scale-95 transition select-none"
+          class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 text-white flex items-center justify-center shadow-md shadow-orange-200 shrink-0 active:scale-95 transition select-none"
         >
-          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 11h18M5 11a7 7 0 0 0 14 0M12 4v2M8 5l.5 1.5M16 5l-.5 1.5M7 19h10" />
           </svg>
         </button>
         <div class="min-w-0">
-          <div class="flex items-center gap-2 flex-wrap">
+          <div class="flex items-center gap-1.5 flex-wrap">
             <h1 id="headerShopName" class="text-base sm:text-lg font-extrabold text-slate-900 truncate">गाँव रसोई</h1>
             <span id="headerStatusBadge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
               <span id="headerStatusText">खुला है</span>
             </span>
           </div>
-          <p id="headerTagline" class="text-[11px] sm:text-xs text-slate-500 truncate">ताज़ा और गरमा-गरम खाना • 1–2 किमी डिलीवरी</p>
+          <p id="headerTagline" class="text-[11px] sm:text-xs text-slate-500 truncate">ताज़ा खाना • ₹199+ पर फ़्री डिलीवरी • न्यूनतम ₹60</p>
         </div>
       </div>
 
       <div class="flex items-center gap-1.5 shrink-0">
-        <a id="headerCallBtn" href="#" class="hidden px-2.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">📞</a>
+        <a id="headerCallBtn" href="#" class="hidden px-2 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">📞</a>
+        <button
+          id="themeToggleBtn"
+          type="button"
+          aria-label="Switch Theme"
+          title="Theme: Light / Dark / Warm"
+          class="inline-flex items-center justify-center px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs sm:text-sm font-bold transition active:scale-95"
+        >
+          <span id="themeToggleIcon">☀️</span>
+        </button>
+        <button
+          id="headerCartBtn"
+          type="button"
+          aria-label="View Cart"
+          class="relative inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-orange-200 bg-orange-600 hover:bg-orange-700 text-white text-xs sm:text-sm font-extrabold shadow-sm transition active:scale-95"
+        >
+          <span>🛒</span>
+          <span id="headerCartBadge" class="min-w-[18px] h-[18px] px-1 rounded-full bg-white text-orange-700 text-[10px] font-black flex items-center justify-center">0</span>
+        </button>
         <button
           id="langToggleBtn"
           type="button"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-orange-800 text-xs sm:text-sm font-bold transition active:scale-95"
+          class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-orange-800 text-xs sm:text-sm font-bold transition active:scale-95"
         >
           <span>🌐</span>
-          <span id="langToggleLabel">English</span>
+          <span id="langToggleLabel">EN</span>
         </button>
       </div>
     </div>
@@ -75,7 +171,7 @@
   <!-- ===================================================================== -->
   <!-- 2. MAIN CUSTOMER VIEW                                                 -->
   <!-- ===================================================================== -->
-  <main class="max-w-3xl mx-auto px-3.5 pt-3 space-y-4">
+  <main class="max-w-3xl mx-auto px-3.5 pt-3 space-y-3.5">
     <div id="serverBanner" class="hidden rounded-2xl p-3 text-xs sm:text-sm font-medium border"></div>
 
     <div id="announcementBanner" class="hidden rounded-2xl bg-amber-50 border border-amber-200 px-3.5 py-2.5 text-amber-900 text-xs sm:text-sm font-bold flex items-center gap-2">
@@ -96,42 +192,10 @@
       <span id="shopClosedBannerText">दुकान अभी बंद है। कृपया खुलने के समय ऑर्डर करें।</span>
     </div>
 
-    <!-- Hero Info Strip -->
-    <section class="rounded-2xl bg-gradient-to-br from-orange-600 via-orange-500 to-amber-500 text-white p-4 shadow-md shadow-orange-200/70">
-      <div class="flex items-start justify-between gap-3">
-        <div>
-          <span id="heroBadge" class="inline-block bg-white/20 backdrop-blur px-2.5 py-0.5 rounded-full text-[11px] font-bold mb-1.5">
-            🛵 गाँव होम डिलीवरी (1–2 किमी)
-          </span>
-          <h2 id="heroTitle" class="text-lg sm:text-xl font-extrabold leading-snug">
-            घर बैठे गरमा-गरम नाश्ता मंगाएं!
-          </h2>
-          <p id="heroSubtitle" class="text-xs sm:text-sm text-orange-50 mt-1">
-            तेज़ डिलीवरी • केवल कैश ऑन डिलीवरी (COD)
-          </p>
-          <p id="heroHoursText" class="text-[11px] text-orange-100 mt-1 font-medium"></p>
-        </div>
-      </div>
+    <div id="freeDeliveryHintBanner" class="hidden rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2 text-center text-xs font-extrabold text-emerald-800"></div>
 
-      <div class="grid grid-cols-3 gap-2 mt-3.5 pt-3 border-t border-white/20 text-center">
-        <div class="bg-white/10 rounded-xl py-1.5 px-2">
-          <div id="statDeliveryLabel" class="text-[10px] text-orange-100 font-medium">डिलीवरी चार्ज</div>
-          <div id="statDeliveryValue" class="text-sm font-extrabold">₹15</div>
-        </div>
-        <div class="bg-white/10 rounded-xl py-1.5 px-2">
-          <div id="statMinOrderLabel" class="text-[10px] text-orange-100 font-medium">न्यूनतम ऑर्डर</div>
-          <div id="statMinOrderValue" class="text-sm font-extrabold">₹50</div>
-        </div>
-        <div class="bg-white/10 rounded-xl py-1.5 px-2">
-          <div id="statPaymentLabel" class="text-[10px] text-orange-100 font-medium">भुगतान</div>
-          <div id="statPaymentValue" class="text-sm font-extrabold">COD</div>
-        </div>
-      </div>
-      <div id="freeDeliveryHintBanner" class="hidden mt-2.5 text-center bg-white/15 rounded-xl py-1.5 px-2 text-xs font-bold text-white"></div>
-    </section>
-
-    <!-- Track Recent Order Card -->
-    <section id="recentOrderCard" class="hidden rounded-2xl bg-white border border-emerald-200 p-3.5 shadow-sm">
+    <!-- Track Recent Order Card (with Live Stepper & Scheduled Countdown Timer) -->
+    <section id="recentOrderCard" class="hidden rounded-2xl bg-white border border-emerald-200 p-3.5 shadow-sm space-y-2.5">
       <div class="flex items-center justify-between gap-2 flex-wrap">
         <div>
           <div class="flex items-center gap-2">
@@ -151,6 +215,16 @@
           <button id="dismissTrackBtn" type="button" aria-label="Dismiss" class="hidden w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold">✕</button>
         </div>
       </div>
+
+      <div id="recentOrderTimerBox" class="hidden rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white px-3 py-2 flex items-center justify-between gap-2">
+        <div class="min-w-0">
+          <div id="recentOrderTimerLabel" class="text-xs font-extrabold truncate">⏱️ डिलीवरी अपडेट टाइमर</div>
+          <div id="recentOrderScheduleNote" class="hidden text-[11px] text-orange-50 truncate"></div>
+        </div>
+        <span id="recentOrderTimerClock" class="px-2.5 py-0.5 rounded-lg bg-white/20 font-mono text-sm font-black shrink-0">00:00</span>
+      </div>
+
+      <div id="recentOrderStepper" class="grid grid-cols-4 gap-1 text-center text-[10px] font-bold pt-1"></div>
     </section>
 
     <!-- Menu Search, Category Filter Pills & Menu Grid -->
@@ -162,9 +236,13 @@
         </button>
       </div>
 
-      <input id="customerMenuSearch" type="search" class="w-full rounded-xl bg-white border border-orange-100 px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" placeholder="🔍 समोसा, बर्गर, मोमोज़ खोजें..." />
+      <div class="relative">
+        <input id="customerMenuSearch" type="search" class="w-full rounded-xl bg-white border border-orange-100 pl-3.5 pr-9 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" placeholder="🔍 समोसा, बर्गर, मोमोज़ खोजें..." />
+        <button id="clearMenuSearchBtn" type="button" aria-label="Clear search" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-extrabold flex items-center justify-center">✕</button>
+      </div>
 
       <div id="categoryPills" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+      <div id="searchCrossCatHint" class="hidden text-[11px] font-bold text-orange-700 bg-orange-50 border border-orange-200 rounded-xl px-3 py-1.5"></div>
 
       <div id="menuLoader" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div class="bg-white rounded-2xl p-3 border border-slate-100 animate-pulse flex gap-3">
@@ -485,6 +563,19 @@
           </div>
         </div>
 
+        <div id="adminMenuSyncBanner" class="bg-gradient-to-r from-emerald-50 to-orange-50 border border-emerald-200 rounded-2xl p-3.5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="space-y-0.5">
+            <div id="syncBannerTitle" class="text-xs sm:text-sm font-extrabold text-slate-900">✨ 1-क्लिक पूरा मेनू साफ व अपडेट करें (Zero Duplicates)</div>
+            <div id="syncBannerDesc" class="text-[11px] sm:text-xs text-slate-600">सभी 50 सही आइटम (नाश्ता, वैल्यू पैक, कॉम्बो, कोल्ड ड्रिंक, एनर्जी ड्रिंक) सही लागत, मुनाफ़ा, Veg/Stock और फोटो के साथ एक साथ सेट करें — सारे डुप्लीकेट अपने आप हट जाएंगे।</div>
+            <div id="syncCleanMenuStatus" class="hidden text-xs font-extrabold text-emerald-700 pt-1"></div>
+          </div>
+          <button id="syncCleanMenuBtn" type="button" class="shrink-0 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-400 text-white text-xs sm:text-sm font-extrabold shadow transition">
+            🚀 <span id="syncCleanMenuBtnText">पूरा मेनू ऑटो-सेट करें</span>
+          </button>
+        </div>
+
+        <div id="adminMenuCatPills" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+
         <div id="menuItemFormCard" class="hidden bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
           <div class="flex items-center justify-between">
             <h4 id="menuFormTitle" class="font-extrabold text-slate-900 text-sm">नया आइटम जोड़ें</h4>
@@ -524,7 +615,8 @@
                 <option value="Chinese">Chinese</option>
                 <option value="Meals">Meals</option>
                 <option value="Combos">Combo Packs</option>
-                <option value="Beverages">Beverages</option>
+                <option value="Cold Drinks">Cold Drinks (कोल्ड ड्रिंक्स)</option>
+                <option value="Beverages">Energy Drinks &amp; Beverages</option>
               </select>
             </div>
             <div>
@@ -833,17 +925,13 @@
 
     const TRANSLATIONS = {
       hi: {
-        langBtn: "English",
+        langBtn: "EN",
         open: "खुला है",
         closed: "बंद है",
-        tagline: "ताज़ा और गरमा-गरम खाना • 1–2 किमी डिलीवरी",
+        tagline: "ताज़ा खाना • ₹199+ पर फ़्री डिलीवरी • न्यूनतम ₹60",
         shopClosedBanner: "दुकान अभी बंद है। कृपया खुलने के समय पर ऑर्डर करें।",
-        heroBadge: "🛵 गाँव होम डिलीवरी (1–2 किमी)",
-        heroTitle: "घर बैठे गरमा-गरम नाश्ता मंगाएं!",
-        heroSubtitle: "तेज़ डिलीवरी • केवल कैश ऑन डिलीवरी (COD)",
-        deliveryCharge: "डिलीवरी चार्ज",
-        minOrder: "न्यूनतम ऑर्डर",
-        payment: "भुगतान",
+        themeSwitched: (m) => `🎨 थीम बदली गई: ${m}`,
+        themeNames: { light: "लाइट", dark: "डार्क", warm: "वॉर्म" },
         freeDeliveryBanner: (amt) => `🎉 ₹${amt} या उससे ऊपर के ऑर्डर पर डिलीवरी बिल्कुल फ़्री!`,
         freeDeliveryApplied: "फ़्री!",
         recentOrderTitle: "आपका पिछला ऑर्डर",
@@ -853,6 +941,22 @@
         checkingTrack: "जाँच रहे हैं...",
         trackStatusToast: (st) => `✅ ऑर्डर की ताज़ा स्थिति: ${st}`,
         trackNotFoundToast: "⚠️ यह ऑर्डर अब उपलब्ध नहीं है या हटाया जा चुका है।",
+        orderTimerLabel: "⏱️ अनुमानित डिलीवरी / अपडेट टाइमर",
+        orderTimerNextStage: (st) => `⏳ अगला अपडेट (${st})`,
+        orderDeliveredTimerDone: "✅ ऑर्डर डिलीवर हो चुका है",
+        stepPending: "ऑर्डर मिला",
+        stepCooking: "बन रहा है",
+        stepOut: "रास्ते में",
+        stepDelivered: "पहुँच गया",
+        schedHeading: "⏱️ शेड्यूल टाइमर (Admin ऑटो-अपडेट)",
+        schedCookingLbl: "Cooking (मिनट)",
+        schedOutLbl: "Out for Del (मिनट)",
+        schedDeliveredLbl: "Delivered (मिनट)",
+        schedNotePh: "ग्राहक नोट (जैसे: गरम समोसे बन रहे हैं)",
+        schedSaveBtn: "टाइमर सेट करें",
+        schedClearBtn: "रीसेट",
+        schedSavedToast: "✅ ऑर्डर टाइमर शेड्यूल सेव हो गया!",
+        schedClearedToast: "✅ ऑर्डर टाइमर हटाया गया।",
         menuHeading: "आज का ताज़ा मेनू",
         searchMenuPh: "🔍 समोसा, बर्गर, मोमोज़ खोजें...",
         refresh: "रिफ्रेश",
@@ -862,7 +966,17 @@
         catChinese: "चाइनीज़",
         catMeals: "भोजन",
         catCombos: "कॉम्बो पैक",
-        catBeverages: "पेय / कोल्ड ड्रिंक",
+        catColdDrinks: "कोल्ड ड्रिंक्स",
+        catBeverages: "एनर्जी ड्रिंक / पेय",
+        searchCrossCatHint: (q) => `🔎 "${q}" के परिणाम पूरे मेनू से दिखाए जा रहे हैं`,
+        syncBannerTitle: "✨ 1-क्लिक पूरा मेनू साफ व अपडेट करें (Zero Duplicates)",
+        syncBannerDesc: "सभी 60 सही आइटम (नाश्ता, वैल्यू पैक, कॉम्बो, कोल्ड ड्रिंक, एनर्जी ड्रिंक) + ₹199 फ़्री डिलीवरी और ₹60 न्यूनतम ऑर्डर के साथ एक साथ सेट करें — सारे डुप्लीकेट अपने आप हट जाएंगे।",
+        syncCleanBtn: "पूरा मेनू ऑटो-सेट करें (60)",
+        syncRunning: (done, total) => `⏳ मेनू सिंक हो रहा है... (${done}/${total})`,
+        syncConfirm: "क्या आप पूरा मेनू ऑटो-सेट करना चाहते हैं? इससे सभी डुप्लीकेट हट जाएंगे, ₹199 फ़्री डिलीवरी व ₹60 न्यूनतम ऑर्डर सेट होगा, और 60 मुनाफ़े वाले आइटम सही कीमत व फोटो के साथ सेव हो जाएंगे।",
+        syncDone: (total, removed) => `✅ पूरा मेनू सिंक हो गया! ${total} साफ आइटम सेट और ${removed} डुप्लीकेट हटाए गए।`,
+        dupItemError: "⚠️ यह आइटम पहले से मेनू में मौजूद है! डुप्लीकेट से बचने के लिए मौजूदा आइटम को Edit करें।",
+        dupBadge: "⚠️ डुप्लीकेट",
         outOfStock: "स्टॉक ख़त्म",
         onlyLeft: (n) => `🔥 केवल ${n} बचे!`,
         inStockQty: (n) => `📦 स्टॉक: ${n} बचे`,
@@ -1066,17 +1180,13 @@
         },
       },
       en: {
-        langBtn: "हिंदी",
+        langBtn: "HI",
         open: "OPEN",
         closed: "CLOSED",
-        tagline: "Fresh & Hot Food • 1–2 km Village Delivery",
+        tagline: "Fresh Food • Free Delivery ₹199+ • Min Order ₹60",
         shopClosedBanner: "Shop is currently closed. Please order during open hours.",
-        heroBadge: "🛵 Village Home Delivery (1–2 km)",
-        heroTitle: "Hot & Fresh Snacks at Your Doorstep!",
-        heroSubtitle: "Fast Hyperlocal Delivery • Cash on Delivery (COD) Only",
-        deliveryCharge: "Delivery Fee",
-        minOrder: "Min Order",
-        payment: "Payment",
+        themeSwitched: (m) => `🎨 Theme switched: ${m}`,
+        themeNames: { light: "Light", dark: "Dark", warm: "Warm" },
         freeDeliveryBanner: (amt) => `🎉 FREE Delivery on orders ₹${amt} & above!`,
         freeDeliveryApplied: "FREE!",
         recentOrderTitle: "Your Recent Order",
@@ -1086,6 +1196,22 @@
         checkingTrack: "Checking...",
         trackStatusToast: (st) => `✅ Current order status: ${st}`,
         trackNotFoundToast: "⚠️ This order is no longer found or was removed.",
+        orderTimerLabel: "⏱️ Delivery / Update Timer",
+        orderTimerNextStage: (st) => `⏳ Next stage (${st})`,
+        orderDeliveredTimerDone: "✅ Order Delivered",
+        stepPending: "Placed",
+        stepCooking: "Cooking",
+        stepOut: "On the Way",
+        stepDelivered: "Delivered",
+        schedHeading: "⏱️ Scheduled Status Timer (Auto-Advance)",
+        schedCookingLbl: "Cooking (min)",
+        schedOutLbl: "Out for Del (min)",
+        schedDeliveredLbl: "Delivered (min)",
+        schedNotePh: "Customer note (e.g. Freshly frying samosas)",
+        schedSaveBtn: "Set Timer",
+        schedClearBtn: "Reset",
+        schedSavedToast: "✅ Order timer schedule saved!",
+        schedClearedToast: "✅ Order schedule cleared.",
         menuHeading: "Today's Fresh Menu",
         searchMenuPh: "🔍 Search samosa, burger, momos...",
         refresh: "Refresh",
@@ -1095,7 +1221,17 @@
         catChinese: "Chinese",
         catMeals: "Meals",
         catCombos: "Combo Packs",
-        catBeverages: "Cold Drinks & Beverages",
+        catColdDrinks: "Cold Drinks",
+        catBeverages: "Energy & Beverages",
+        searchCrossCatHint: (q) => `🔎 Showing "${q}" results across the full menu`,
+        syncBannerTitle: "✨ 1-Click Clean Menu Sync (Zero Duplicates)",
+        syncBannerDesc: "Set all 60 profit-safe items (Food, Value Packs, Combos, Cold Drinks, Energy Drinks) plus ₹199 Free Delivery & ₹60 Min Order in one tap — duplicates are automatically removed.",
+        syncCleanBtn: "Auto-Sync Full Menu (60)",
+        syncRunning: (done, total) => `⏳ Syncing menu... (${done}/${total})`,
+        syncConfirm: "Auto-sync the full 60-item clean catalog? This removes duplicates, sets Free Delivery above ₹199 & Min Order ₹60, and applies margin-safe prices & verified photos.",
+        syncDone: (total, removed) => `✅ Menu synced! ${total} clean items active and ${removed} duplicates removed.`,
+        dupItemError: "⚠️ This item already exists in your menu! Please edit the existing item instead of creating a duplicate.",
+        dupBadge: "⚠️ Duplicate",
         outOfStock: "Out of Stock",
         onlyLeft: (n) => `🔥 Only ${n} left!`,
         inStockQty: (n) => `📦 ${n} in stock`,
@@ -1302,13 +1438,14 @@
 
     const state = {
       lang: localStorage.getItem("gr_lang") || "hi",
+      theme: localStorage.getItem("gr_theme") || "light",
       settings: {
         shopNameHi: "गाँव रसोई",
         shopNameEn: "Gaon Rasoi",
         isOpen: true,
         deliveryCharge: 15,
-        freeDeliveryAbove: 0,
-        minOrderAmount: 50,
+        freeDeliveryAbove: 199,
+        minOrderAmount: 60,
         deliveryRadiusKm: 2,
         openHoursHi: "सुबह 9:00 से रात 9:30 तक",
         openHoursEn: "9:00 AM – 9:30 PM",
@@ -1322,6 +1459,7 @@
       },
       clockOffsetMs: 0,
       liveTimerInterval: null,
+      orderTrackTimerInterval: null,
       menu: [],
       menuSearch: "",
       selectedCategory: "All",
@@ -1337,6 +1475,7 @@
       activeAdminTab: "orders",
       adminOrderFilter: "All",
       adminOrderSearch: "",
+      adminMenuCategory: "All",
       adminMenuSearch: "",
       adminCustomerSearch: "",
       adminOrders: [],
@@ -1602,6 +1741,26 @@
       }
     }
 
+    function applyTheme(themeName) {
+      const allowed = ["light", "dark", "warm"];
+      const next = allowed.includes(themeName) ? themeName : "light";
+      state.theme = next;
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("gr_theme", next);
+      const iconMap = { light: "☀️", dark: "🌙", warm: "🌅" };
+      const iconEl = document.getElementById("themeToggleIcon");
+      if (iconEl) iconEl.textContent = iconMap[next] || "☀️";
+    }
+
+    function cycleTheme() {
+      const order = ["light", "dark", "warm"];
+      const idx = order.indexOf(state.theme);
+      const next = order[(idx + 1) % order.length];
+      applyTheme(next);
+      const label = (TRANSLATIONS[state.lang].themeNames && TRANSLATIONS[state.lang].themeNames[next]) || next;
+      showToast(t("themeSwitched", label), "info");
+    }
+
     async function syncRecentOrderStatus(isManual = false) {
       if (!state.recentOrder) return;
       const btn = document.getElementById("refreshTrackBtn");
@@ -1614,8 +1773,12 @@
         const res = await apiFetch(
           `/api/orders/track/${encodeURIComponent(state.recentOrder.orderNumber)}?phone=${encodeURIComponent(state.recentOrder.phone)}`
         );
+        if (res.serverNow) {
+          state.clockOffsetMs = Date.now() - new Date(res.serverNow).getTime();
+        }
         state.recentOrder.status = res.order.status;
         state.recentOrder.assignedRider = res.order.assignedRider || null;
+        state.recentOrder.statusSchedule = res.order.statusSchedule || null;
         localStorage.setItem("gr_recent_order", JSON.stringify(state.recentOrder));
         renderRecentOrderCard();
         if (isManual) {
@@ -1690,7 +1853,17 @@
 
       const s = state.settings;
       document.getElementById("headerShopName").textContent = state.lang === "hi" ? s.shopNameHi : s.shopNameEn;
-      document.getElementById("headerTagline").textContent = t("tagline");
+      const hrs = state.lang === "hi" ? s.openHoursHi : s.openHoursEn;
+      const freePart =
+        s.freeDeliveryAbove > 0
+          ? state.lang === "hi"
+            ? `₹${s.freeDeliveryAbove}+ पर फ़्री डिलीवरी`
+            : `Free Delivery ₹${s.freeDeliveryAbove}+`
+          : state.lang === "hi"
+          ? `डिलीवरी ₹${s.deliveryCharge}`
+          : `Delivery ₹${s.deliveryCharge}`;
+      const minPart = state.lang === "hi" ? `न्यूनतम ₹${s.minOrderAmount}` : `Min ₹${s.minOrderAmount}`;
+      document.getElementById("headerTagline").textContent = `${freePart} • ${minPart}${hrs ? ` • ${hrs}` : ""}`;
 
       const callBtn = document.getElementById("headerCallBtn");
       const cleanSupport = normalizeIndianPhone(s.supportPhone || "");
@@ -1725,23 +1898,14 @@
         document.getElementById("shopClosedBanner").classList.remove("hidden");
       }
 
-      document.getElementById("heroBadge").textContent = t("heroBadge");
-      document.getElementById("heroTitle").textContent = t("heroTitle");
-      document.getElementById("heroSubtitle").textContent = t("heroSubtitle");
-      const hrs = state.lang === "hi" ? s.openHoursHi : s.openHoursEn;
-      document.getElementById("heroHoursText").textContent = hrs ? `🕒 ${hrs}` : "";
-      document.getElementById("statDeliveryLabel").textContent = t("deliveryCharge");
-      document.getElementById("statDeliveryValue").textContent = `₹${s.deliveryCharge}`;
-      document.getElementById("statMinOrderLabel").textContent = t("minOrder");
-      document.getElementById("statMinOrderValue").textContent = `₹${s.minOrderAmount}`;
-      document.getElementById("statPaymentLabel").textContent = t("payment");
-
       const freeBanner = document.getElementById("freeDeliveryHintBanner");
-      if (s.freeDeliveryAbove > 0) {
-        freeBanner.textContent = t("freeDeliveryBanner", s.freeDeliveryAbove);
-        freeBanner.classList.remove("hidden");
-      } else {
-        freeBanner.classList.add("hidden");
+      if (freeBanner) {
+        if (s.freeDeliveryAbove > 0) {
+          freeBanner.textContent = t("freeDeliveryBanner", s.freeDeliveryAbove);
+          freeBanner.classList.remove("hidden");
+        } else {
+          freeBanner.classList.add("hidden");
+        }
       }
 
       document.getElementById("recentOrderTitle").textContent = t("recentOrderTitle");
@@ -1808,6 +1972,9 @@
       document.getElementById("moSaveBtn").textContent = t("moSaveBtn");
 
       document.getElementById("adminMenuHeading").textContent = t("adminMenuHeading");
+      document.getElementById("syncBannerTitle").textContent = t("syncBannerTitle");
+      document.getElementById("syncBannerDesc").textContent = t("syncBannerDesc");
+      document.getElementById("syncCleanMenuBtnText").textContent = t("syncCleanBtn");
       document.getElementById("addItemBtnText").textContent = t("addNewItem");
       document.getElementById("lblItemNameHi").textContent = t("lblItemNameHi");
       document.getElementById("lblItemNameEn").textContent = t("lblItemNameEn");
@@ -1866,6 +2033,153 @@
       updateLiveTimerUI();
     }
 
+    const CATEGORY_PRIORITY = {
+      Snacks: 1,
+      "Fast Food": 2,
+      Chinese: 3,
+      Meals: 4,
+      Combos: 5,
+      "Cold Drinks": 6,
+      Beverages: 7,
+    };
+
+    const CATEGORY_DEFAULT_SORT = {
+      Snacks: 10,
+      "Fast Food": 20,
+      Chinese: 30,
+      Meals: 40,
+      Combos: 50,
+      "Cold Drinks": 60,
+      Beverages: 70,
+    };
+
+    const SEARCH_SYNONYM_GROUPS = [
+      ["samosa", "samose", "समोसा", "समौसा"],
+      ["patties", "paties", "patis", "pattice", "patti", "पैटीज", "पेटीज"],
+      ["burger", "barger", "बर्गर"],
+      ["chowmein", "chowmin", "chawmin", "chaumin", "noodles", "चाउमीन", "चाउमिन", "चाऊमीन"],
+      ["egg", "anda", "अंडा", "एग"],
+      ["momos", "momo", "dumpling", "मोमोज", "मोमो", "मॉमोज"],
+      ["kachori", "kachaudi", "kachauri", "sabzi", "sabji", "कचौड़ी", "कचौरी", "कचोरी", "सब्जी"],
+      ["bread", "pakora", "pakoda", "ब्रेड", "पकौड़ा", "पकोड़ा", "पकोडा"],
+      ["cold drink", "colddrink", "cold drinks", "drink", "thanda", "bottle", "कोल्ड ड्रिंक", "कोल्ड ड्रिंक्स", "पेय"],
+      ["pepsi", "पेप्सी"],
+      ["mountain dew", "dew", "due", "dyu", "माउंटेन ड्यू", "ड्यू"],
+      ["campa", "kampa", "cola", "orange", "कैंपा"],
+      ["hell", "red bull", "redbull", "energy", "एनर्जी"],
+      ["combo", "combos", "pack", "offer", "कॉम्बो", "पैक"],
+      ["party", "family", "box", "पार्टी", "फैमिली", "बॉक्स"],
+      ["double", "2 pcs", "2 plates", "डबल"],
+      ["small", "half", "छोटी", "हाफ"],
+      ["large", "full", "big", "बड़ी", "फुल"],
+      ["nashta", "breakfast", "snacks", "नाश्ता"],
+      ["can", "tin", "कैन"],
+      ["litre", "liter", "1l", "1.25l", "लीटर"],
+    ];
+
+    function normalizeSearchText(str) {
+      return String(str || "")
+        .toLowerCase()
+        .replace(/\u093c/g, "") // strip Devanagari nukta (ज़ -> ज, ड़ -> ड)
+        .replace(/\u0911/g, "\u0913") // ऑ -> ओ
+        .replace(/\u0949/g, "\u094b") // ॉ -> ो
+        .replace(/\u0901/g, "\u0902") // ँ -> ं
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function normalizeMenuName(str) {
+      return normalizeSearchText(str)
+        .replace(/[\(\)\[\]\+\-\/.,:]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function getSearchMatchScore(item, rawQuery) {
+      const q = normalizeSearchText(rawQuery);
+      if (!q) return 0;
+      const hi = normalizeSearchText(item.nameHi);
+      const en = normalizeSearchText(item.nameEn);
+      if (hi === q || en === q) return 100;
+      if (hi.startsWith(q) || en.startsWith(q)) return 80;
+      if (hi.includes(q) || en.includes(q)) return 60;
+      const cat = normalizeSearchText(item.category || "");
+      const catLbl = normalizeSearchText(getCategoryLabel(item.category || "Snacks"));
+      if (cat.includes(q) || catLbl.includes(q)) return 40;
+      return 20;
+    }
+
+    function sortMenuItemsForDisplay(items, byCategoryOrder = true, searchQuery = "") {
+      const q = normalizeSearchText(searchQuery);
+      return [...items].sort((a, b) => {
+        const aIn = a.inStock !== false && a.stockCount !== 0 ? 0 : 1;
+        const bIn = b.inStock !== false && b.stockCount !== 0 ? 0 : 1;
+        if (aIn !== bIn) return aIn - bIn;
+
+        if (q) {
+          const scoreDiff = getSearchMatchScore(b, q) - getSearchMatchScore(a, q);
+          if (scoreDiff !== 0) return scoreDiff;
+        }
+
+        if (byCategoryOrder) {
+          const aCat = CATEGORY_PRIORITY[a.category || "Snacks"] || 99;
+          const bCat = CATEGORY_PRIORITY[b.category || "Snacks"] || 99;
+          if (aCat !== bCat) return aCat - bCat;
+        }
+
+        const aPop = a.isPopular ? 0 : 1;
+        const bPop = b.isPopular ? 0 : 1;
+        if (aPop !== bPop) return aPop - bPop;
+
+        const aSort = a.sortOrder && a.sortOrder > 0 ? a.sortOrder : 9999;
+        const bSort = b.sortOrder && b.sortOrder > 0 ? b.sortOrder : 9999;
+        if (aSort !== bSort) return aSort - bSort;
+
+        const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return aTime - bTime;
+      });
+    }
+
+    function expandSearchTerms(rawQuery) {
+      const q = normalizeSearchText(rawQuery);
+      if (!q) return [];
+      const terms = new Set([q]);
+      const tokens = q.split(/\s+/).filter(Boolean);
+      for (const group of SEARCH_SYNONYM_GROUPS) {
+        if (group.some((kw) => q.includes(kw) || tokens.some((tok) => tok.length >= 2 && kw.startsWith(tok)))) {
+          group.forEach((kw) => terms.add(kw));
+        }
+      }
+      return [...terms];
+    }
+
+    function itemMatchesSearch(item, rawQuery) {
+      const q = normalizeSearchText(rawQuery);
+      if (!q) return true;
+      const cat = item.category || "Snacks";
+      const haystack = normalizeSearchText(
+        [
+          item.nameHi,
+          item.nameEn,
+          item.descHi,
+          item.descEn,
+          cat,
+          getCategoryLabel(cat),
+          TRANSLATIONS.hi["cat" + cat.replace(/\s+/g, "")] || "",
+          TRANSLATIONS.en["cat" + cat.replace(/\s+/g, "")] || "",
+        ].join(" ")
+      );
+
+      if (haystack.includes(q)) return true;
+
+      const tokens = q.split(/\s+/).filter(Boolean);
+      if (tokens.length > 1 && tokens.every((tok) => haystack.includes(tok))) return true;
+
+      const expanded = expandSearchTerms(q);
+      return expanded.some((term) => haystack.includes(term));
+    }
+
     function getCategoryLabel(cat) {
       const map = {
         All: t("allCategories"),
@@ -1874,13 +2188,20 @@
         Chinese: t("catChinese"),
         Meals: t("catMeals"),
         Combos: t("catCombos"),
+        "Cold Drinks": t("catColdDrinks"),
         Beverages: t("catBeverages"),
       };
       return map[cat] || cat;
     }
 
     function renderCategoryPills() {
-      const cats = ["All", ...new Set(state.menu.map((m) => m.category || "Snacks"))];
+      const uniqueCats = [...new Set(state.menu.map((m) => m.category || "Snacks"))].sort((a, b) => {
+        const pa = CATEGORY_PRIORITY[a] || 99;
+        const pb = CATEGORY_PRIORITY[b] || 99;
+        if (pa !== pb) return pa - pb;
+        return a.localeCompare(b);
+      });
+      const cats = ["All", ...uniqueCats];
       const container = document.getElementById("categoryPills");
       container.innerHTML = cats
         .map((cat) => {
@@ -1897,7 +2218,7 @@
       container.querySelectorAll("button[data-cat]").forEach((btn) => {
         btn.addEventListener("click", () => {
           state.selectedCategory = btn.dataset.cat;
-          state.menuVisibleCount = 4;
+          state.menuVisibleCount = MENU_PAGE_SIZE;
           renderCategoryPills();
           renderMenuGrid();
         });
@@ -1906,19 +2227,21 @@
 
     const MENU_PAGE_SIZE = 4;
 
-    function getFilteredMenuItems() {
+    function getFilteredMenuItems(metaOut = null) {
       const q = state.menuSearch.trim().toLowerCase();
-      return state.menu.filter((m) => {
-        const catOk = state.selectedCategory === "All" || (m.category || "Snacks") === state.selectedCategory;
-        if (!catOk) return false;
-        if (!q) return true;
-        return (
-          (m.nameHi || "").toLowerCase().includes(q) ||
-          (m.nameEn || "").toLowerCase().includes(q) ||
-          (m.descHi || "").toLowerCase().includes(q) ||
-          (m.descEn || "").toLowerCase().includes(q)
-        );
-      });
+      const inSelectedCat = state.menu.filter(
+        (m) => state.selectedCategory === "All" || (m.category || "Snacks") === state.selectedCategory
+      );
+      let matched = q ? inSelectedCat.filter((m) => itemMatchesSearch(m, q)) : inSelectedCat;
+      let usedCrossCategoryFallback = false;
+
+      if (q && matched.length === 0 && state.selectedCategory !== "All") {
+        matched = state.menu.filter((m) => itemMatchesSearch(m, q));
+        usedCrossCategoryFallback = matched.length > 0;
+      }
+
+      if (metaOut) metaOut.crossCat = usedCrossCategoryFallback;
+      return sortMenuItemsForDisplay(matched, state.selectedCategory === "All" || usedCrossCategoryFallback, q);
     }
 
     function updateMenuScrollFooter(totalCount, shownCount) {
@@ -2093,7 +2416,19 @@
 
     function renderMenuGrid() {
       const grid = document.getElementById("menuGrid");
-      const items = getFilteredMenuItems();
+      const meta = { crossCat: false };
+      const items = getFilteredMenuItems(meta);
+      const hintEl = document.getElementById("searchCrossCatHint");
+      const clearBtn = document.getElementById("clearMenuSearchBtn");
+      if (clearBtn) clearBtn.classList.toggle("hidden", !state.menuSearch.trim());
+      if (hintEl) {
+        if (meta.crossCat && state.menuSearch.trim()) {
+          hintEl.textContent = t("searchCrossCatHint", state.menuSearch.trim());
+          hintEl.classList.remove("hidden");
+        } else {
+          hintEl.classList.add("hidden");
+        }
+      }
 
       if (items.length === 0) {
         grid.innerHTML = `<div class="sm:col-span-2 bg-white rounded-2xl p-6 text-center text-sm font-semibold text-slate-500 border border-orange-100">${escapeHtml(
@@ -2225,7 +2560,13 @@
 
     function renderFloatingCart() {
       const bar = document.getElementById("floatingCartBar");
+      const headerBadge = document.getElementById("headerCartBadge");
       const { totalItems, subtotal } = getCartSummary();
+      if (headerBadge) {
+        headerBadge.textContent = totalItems;
+        headerBadge.classList.toggle("bg-amber-300", totalItems > 0);
+        headerBadge.classList.toggle("bg-white", totalItems === 0);
+      }
       if (totalItems === 0) {
         bar.classList.add("hidden");
         return;
@@ -2237,10 +2578,111 @@
       bar.classList.remove("hidden");
     }
 
+    function getNextScheduledTarget(order) {
+      if (!order || !order.statusSchedule) return null;
+      const sch = order.statusSchedule;
+      const now = Date.now() - state.clockOffsetMs;
+      const st = order.status || "Pending";
+      if (st === "Delivered" || st === "Cancelled") return null;
+
+      const targets = [];
+      if (st === "Pending" && sch.cookingAt) {
+        targets.push({ ts: new Date(sch.cookingAt).getTime(), stage: "Cooking" });
+      }
+      if ((st === "Pending" || st === "Cooking") && sch.outForDeliveryAt) {
+        targets.push({ ts: new Date(sch.outForDeliveryAt).getTime(), stage: "Out for Delivery" });
+      }
+      if (sch.deliveredAt) {
+        targets.push({ ts: new Date(sch.deliveredAt).getTime(), stage: "Delivered" });
+      } else if (sch.etaEndsAt) {
+        targets.push({ ts: new Date(sch.etaEndsAt).getTime(), stage: "" });
+      }
+      targets.sort((a, b) => a.ts - b.ts);
+      const future = targets.find((x) => x.ts > now);
+      if (future) return future;
+      const overdue = targets.find((x) => x.ts <= now && x.stage);
+      return overdue ? { ...overdue, triggerSync: true } : null;
+    }
+
+    function updateOrderTrackTimerUI() {
+      const box = document.getElementById("recentOrderTimerBox");
+      const clockEl = document.getElementById("recentOrderTimerClock");
+      const labelEl = document.getElementById("recentOrderTimerLabel");
+      const noteEl = document.getElementById("recentOrderScheduleNote");
+      if (!box || !state.recentOrder) {
+        if (box) box.classList.add("hidden");
+        return;
+      }
+      const st = state.recentOrder.status || "Pending";
+      const sch = state.recentOrder.statusSchedule;
+      if (!sch || st === "Delivered" || st === "Cancelled") {
+        box.classList.add("hidden");
+        if (state.orderTrackTimerInterval) {
+          clearInterval(state.orderTrackTimerInterval);
+          state.orderTrackTimerInterval = null;
+        }
+        return;
+      }
+
+      const now = Date.now() - state.clockOffsetMs;
+      const target = getNextScheduledTarget(state.recentOrder);
+      if (!target) {
+        box.classList.add("hidden");
+        return;
+      }
+
+      if (target.triggerSync) {
+        if (!state._autoTrackSyncing) {
+          state._autoTrackSyncing = true;
+          syncRecentOrderStatus(false).finally(() => {
+            state._autoTrackSyncing = false;
+          });
+        }
+        clockEl.textContent = "00:00";
+      } else {
+        clockEl.textContent = formatCountdown(target.ts - now);
+      }
+
+      if (target.stage && target.stage !== "Delivered") {
+        const stName = TRANSLATIONS[state.lang].statuses[target.stage] || target.stage;
+        labelEl.textContent = t("orderTimerNextStage", stName);
+      } else {
+        labelEl.textContent = t("orderTimerLabel");
+      }
+
+      const customNote = (state.lang === "hi" ? sch.noteHi : sch.noteEn) || sch.noteHi || sch.noteEn || "";
+      if (customNote) {
+        noteEl.textContent = customNote;
+        noteEl.classList.remove("hidden");
+      } else {
+        noteEl.classList.add("hidden");
+      }
+      box.classList.remove("hidden");
+    }
+
+    function startOrderTrackTimerLoop() {
+      if (state.orderTrackTimerInterval) {
+        clearInterval(state.orderTrackTimerInterval);
+        state.orderTrackTimerInterval = null;
+      }
+      updateOrderTrackTimerUI();
+      if (
+        state.recentOrder &&
+        state.recentOrder.statusSchedule &&
+        ["Pending", "Cooking", "Out for Delivery"].includes(state.recentOrder.status || "Pending")
+      ) {
+        state.orderTrackTimerInterval = setInterval(updateOrderTrackTimerUI, 1000);
+      }
+    }
+
     function renderRecentOrderCard() {
       const card = document.getElementById("recentOrderCard");
       if (!state.recentOrder) {
         card.classList.add("hidden");
+        if (state.orderTrackTimerInterval) {
+          clearInterval(state.orderTrackTimerInterval);
+          state.orderTrackTimerInterval = null;
+        }
         return;
       }
       document.getElementById("recentOrderNum").textContent = state.recentOrder.orderNumber;
@@ -2270,7 +2712,38 @@
       } else {
         riderEl.classList.add("hidden");
       }
+
+      const stepperEl = document.getElementById("recentOrderStepper");
+      if (stepperEl) {
+        if (st === "Cancelled") {
+          stepperEl.classList.add("hidden");
+        } else {
+          stepperEl.classList.remove("hidden");
+          const steps = [
+            { key: "Pending", icon: "📝", label: t("stepPending") },
+            { key: "Cooking", icon: "🍳", label: t("stepCooking") },
+            { key: "Out for Delivery", icon: "🛵", label: t("stepOut") },
+            { key: "Delivered", icon: "✅", label: t("stepDelivered") },
+          ];
+          const curIdx = Math.max(0, steps.findIndex((s) => s.key === st));
+          stepperEl.innerHTML = steps
+            .map((step, idx) => {
+              const done = idx <= curIdx;
+              return `<div class="rounded-lg py-1 px-1 border ${
+                done
+                  ? "bg-emerald-50 border-emerald-300 text-emerald-800"
+                  : "bg-slate-50 border-slate-200 text-slate-400"
+              }">
+                <div class="text-xs">${step.icon}</div>
+                <div class="truncate">${escapeHtml(step.label)}</div>
+              </div>`;
+            })
+            .join("");
+        }
+      }
+
       card.classList.remove("hidden");
+      startOrderTrackTimerLoop();
     }
 
     function renderCheckoutDrawer() {
@@ -2926,9 +3399,145 @@
                 </button>
               </div>
             </div>
+
+            ${
+              isActive
+                ? (() => {
+                    const sch = ord.statusSchedule || {};
+                    const fmtTime = (d) =>
+                      d
+                        ? new Date(d).toLocaleTimeString("en-IN", {
+                            timeZone: "Asia/Kolkata",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : "";
+                    const activeScheduleTags = [
+                      sch.cookingAt ? `🍳 ${fmtTime(sch.cookingAt)}` : "",
+                      sch.outForDeliveryAt ? `🛵 ${fmtTime(sch.outForDeliveryAt)}` : "",
+                      sch.deliveredAt ? `✅ ${fmtTime(sch.deliveredAt)}` : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" • ");
+
+                    return `<div class="rounded-xl bg-orange-50/70 border border-orange-200 p-2.5 space-y-2">
+                      <div class="flex items-center justify-between gap-2 flex-wrap">
+                        <span class="text-[11px] font-extrabold text-orange-900">${escapeHtml(t("schedHeading"))}</span>
+                        <div class="flex items-center gap-1 flex-wrap">
+                          <button type="button" data-sched-preset="${ord._id}" data-c="2" data-o="10" data-d="22" class="px-2 py-0.5 rounded-lg bg-white hover:bg-orange-100 border border-orange-200 text-[10px] font-bold text-orange-800">⚡ 2/10/22m</button>
+                          <button type="button" data-sched-preset="${ord._id}" data-c="5" data-o="15" data-d="30" class="px-2 py-0.5 rounded-lg bg-white hover:bg-orange-100 border border-orange-200 text-[10px] font-bold text-orange-800">🛵 5/15/30m</button>
+                          <button type="button" data-sched-preset="${ord._id}" data-c="10" data-o="25" data-d="45" class="px-2 py-0.5 rounded-lg bg-white hover:bg-orange-100 border border-orange-200 text-[10px] font-bold text-orange-800">🕒 10/25/45m</button>
+                        </div>
+                      </div>
+                      ${
+                        activeScheduleTags
+                          ? `<div class="text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg px-2 py-1">🔔 Scheduled: ${escapeHtml(activeScheduleTags)}</div>`
+                          : ""
+                      }
+                      <div class="grid grid-cols-3 gap-1.5">
+                        <label class="text-[10px] font-bold text-slate-600">
+                          ${escapeHtml(t("schedCookingLbl"))}
+                          <input type="number" min="0" max="1440" data-sched-c="${ord._id}" placeholder="e.g. 5" class="mt-0.5 w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-bold" />
+                        </label>
+                        <label class="text-[10px] font-bold text-slate-600">
+                          ${escapeHtml(t("schedOutLbl"))}
+                          <input type="number" min="0" max="1440" data-sched-o="${ord._id}" placeholder="e.g. 15" class="mt-0.5 w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-bold" />
+                        </label>
+                        <label class="text-[10px] font-bold text-slate-600">
+                          ${escapeHtml(t("schedDeliveredLbl"))}
+                          <input type="number" min="0" max="1440" data-sched-d="${ord._id}" placeholder="e.g. 30" class="mt-0.5 w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-bold" />
+                        </label>
+                      </div>
+                      <div class="flex items-center gap-1.5 flex-wrap">
+                        <input type="text" data-sched-note="${ord._id}" value="${escapeHtml(sch.noteHi || sch.noteEn || "")}" placeholder="${escapeHtml(t("schedNotePh"))}" class="flex-1 min-w-[140px] rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs" />
+                        <button type="button" data-sched-save="${ord._id}" class="px-3 py-1 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-extrabold">${escapeHtml(t("schedSaveBtn"))}</button>
+                        ${
+                          sch.updatedAt
+                            ? `<button type="button" data-sched-clear="${ord._id}" class="px-2.5 py-1 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold">${escapeHtml(t("schedClearBtn"))}</button>`
+                            : ""
+                        }
+                      </div>
+                    </div>`;
+                  })()
+                : ""
+            }
           </div>`;
         })
         .join("");
+
+      list.querySelectorAll("[data-sched-preset]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const id = btn.dataset.schedPreset;
+          const noteEl = list.querySelector(`[data-sched-note="${id}"]`);
+          const noteVal = noteEl ? noteEl.value.trim() : "";
+          try {
+            await apiFetch(
+              `/api/admin/orders/${id}/schedule`,
+              {
+                method: "PATCH",
+                body: JSON.stringify({
+                  cookingInMin: Number(btn.dataset.c),
+                  outForDeliveryInMin: Number(btn.dataset.o),
+                  deliveredInMin: Number(btn.dataset.d),
+                  noteHi: noteVal,
+                  noteEn: noteVal,
+                }),
+              },
+              true
+            );
+            showToast(t("schedSavedToast"));
+            await refreshAdminData();
+          } catch (err) {
+            showToast(err.message, true);
+          }
+        });
+      });
+
+      list.querySelectorAll("[data-sched-save]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const id = btn.dataset.schedSave;
+          const cVal = list.querySelector(`[data-sched-c="${id}"]`)?.value ?? "";
+          const oVal = list.querySelector(`[data-sched-o="${id}"]`)?.value ?? "";
+          const dVal = list.querySelector(`[data-sched-d="${id}"]`)?.value ?? "";
+          const noteVal = list.querySelector(`[data-sched-note="${id}"]`)?.value.trim() || "";
+          try {
+            await apiFetch(
+              `/api/admin/orders/${id}/schedule`,
+              {
+                method: "PATCH",
+                body: JSON.stringify({
+                  cookingInMin: cVal === "" ? null : Number(cVal),
+                  outForDeliveryInMin: oVal === "" ? null : Number(oVal),
+                  deliveredInMin: dVal === "" ? null : Number(dVal),
+                  noteHi: noteVal,
+                  noteEn: noteVal,
+                }),
+              },
+              true
+            );
+            showToast(t("schedSavedToast"));
+            await refreshAdminData();
+          } catch (err) {
+            showToast(err.message, true);
+          }
+        });
+      });
+
+      list.querySelectorAll("[data-sched-clear]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          try {
+            await apiFetch(
+              `/api/admin/orders/${btn.dataset.schedClear}/schedule`,
+              { method: "PATCH", body: JSON.stringify({ clearSchedule: true }) },
+              true
+            );
+            showToast(t("schedClearedToast"), "info");
+            await refreshAdminData();
+          } catch (err) {
+            showToast(err.message, true);
+          }
+        });
+      });
 
       list.querySelectorAll("select[data-ord-status]").forEach((sel) => {
         sel.addEventListener("change", async () => {
@@ -3083,7 +3692,7 @@
       document.getElementById("manualOrderForm").reset();
       document.getElementById("moDelivery").value = state.settings.deliveryCharge ?? 15;
       const picker = document.getElementById("moItemsPicker");
-      picker.innerHTML = state.adminMenu
+      picker.innerHTML = sortMenuItemsForDisplay(state.adminMenu, true)
         .map((m) => {
           const out = !m.inStock || m.stockCount === 0;
           const stockText =
@@ -3179,21 +3788,1005 @@
     });
 
     // --- ADMIN TAB 2: MENU, STOCK COUNT & MARGIN ---
+    const CLEAN_MENU_CATALOG = [
+      // 1. SNACKS, FAST FOOD, CHINESE & MEALS (11 Single Foods)
+      {
+        nameHi: "गरमा-गरम समोसा",
+        nameEn: "Samosa",
+        legacyEn: ["Samosa"],
+        descHi: "तीखी हरी और मीठी इमली चटनी के साथ (1 पीस)",
+        descEn: "Crispy potato-stuffed samosa with green & tamarind chutney (1 pc)",
+        category: "Snacks",
+        sellingPrice: 20,
+        makingCost: 15,
+        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 1,
+      },
+      {
+        nameHi: "आलू पैटीज़",
+        nameEn: "Aloo Patties",
+        legacyEn: ["Patties", "Aloo Patties"],
+        descHi: "खस्ता बेक्ड पफ पेस्ट्री मसाला आलू के साथ (1 पीस)",
+        descEn: "Flaky golden puff pastry filled with spiced potato masala (1 pc)",
+        category: "Snacks",
+        sellingPrice: 32,
+        makingCost: 25,
+        imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5tmlghErwH3kgJN2TChV6qrAt0ox0JnRpmfvO9lxPrfVl9KkSo1p14SM&s=10",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 2,
+      },
+      {
+        nameHi: "ब्रेड पकौड़ा",
+        nameEn: "Bread Pakora",
+        legacyEn: ["Bread Pakora"],
+        descHi: "मसाला आलू स्टफिंग वाला गरमा-गरम कुरकुरा ब्रेड पकौड़ा",
+        descEn: "Golden gram-flour battered bread stuffed with spiced potato",
+        category: "Snacks",
+        sellingPrice: 32,
+        makingCost: 25,
+        imageUrl: "https://www.vegandietfood.com/wp-content/uploads/2021/10/Bread-Pakora-Recipe.jpg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 3,
+      },
+      {
+        nameHi: "देसी मसाला बर्गर",
+        nameEn: "Burger",
+        legacyEn: ["Burger", "Desi Masala Burger"],
+        descHi: "क्रिस्पी आलू टिक्की, प्याज़, टमाटर और स्पेशल सॉस",
+        descEn: "Crispy aloo tikki patty, fresh veggies & tangy house sauce",
+        category: "Fast Food",
+        sellingPrice: 40,
+        makingCost: 25,
+        imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 4,
+      },
+      {
+        nameHi: "वेज चाउमीन (छोटी प्लेट)",
+        nameEn: "Veg Chowmein (Small)",
+        legacyEn: ["Veg Chowmein (Small)"],
+        descHi: "हल्की भूख के लिए गर्मागर्म देसी वेज चाउमीन (हाफ/छोटी प्लेट)",
+        descEn: "Hot street-style veg noodles in small single-serve portion",
+        category: "Chinese",
+        sellingPrice: 35,
+        makingCost: 20,
+        imageUrl: "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 5,
+      },
+      {
+        nameHi: "वेज चाउमीन (मीडियम प्लेट)",
+        nameEn: "Veg Chowmein (Regular)",
+        legacyEn: ["Veg Chowmein", "Veg Chowmein (Regular)"],
+        descHi: "ताज़ी सब्ज़ियों और देसी मसालों के साथ रेगुलर प्लेट",
+        descEn: "Street-style stir-fried noodles tossed with crunchy veggies (Regular)",
+        category: "Chinese",
+        sellingPrice: 50,
+        makingCost: 30,
+        imageUrl: "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 6,
+      },
+      {
+        nameHi: "वेज चाउमीन (फुल बड़ी प्लेट)",
+        nameEn: "Veg Chowmein (Large)",
+        legacyEn: ["Veg Chowmein (Large)"],
+        descHi: "2 लोगों के लिए भरपूर मसालेदार वेज चाउमीन फुल प्लेट",
+        descEn: "Generous full large plate of spicy street-style veg chowmein",
+        category: "Chinese",
+        sellingPrice: 70,
+        makingCost: 50,
+        imageUrl: "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 7,
+      },
+      {
+        nameHi: "एग चाउमीन",
+        nameEn: "Egg Chowmein",
+        legacyEn: ["Egg Chowmein"],
+        descHi: "डबल अंडे और स्पाइसी सॉस के साथ गरम चाउमीन",
+        descEn: "Wok-tossed noodles with scrambled egg, cabbage & chili sauce",
+        category: "Chinese",
+        sellingPrice: 70,
+        makingCost: 50,
+        imageUrl: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        isVeg: false,
+        isPopular: false,
+        sortOrder: 8,
+      },
+      {
+        nameHi: "वेज मोमोज़ (4 पीस)",
+        nameEn: "Veg Momos (4 Pcs)",
+        legacyEn: ["Veg Momos (4 Pcs)", "Momos (4 Pcs)"],
+        descHi: "तीखी लाल मोमो चटनी के साथ 4 स्टीम्ड मोमोज़",
+        descEn: "4 hot steamed veg dumplings served with spicy red garlic chutney",
+        category: "Chinese",
+        sellingPrice: 30,
+        makingCost: 20,
+        imageUrl: "https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 9,
+      },
+      {
+        nameHi: "वेज मोमोज़ (10 पीस)",
+        nameEn: "Veg Momos (10 Pcs)",
+        legacyEn: ["Momos", "Veg Momos (10 Pcs)"],
+        descHi: "तीखी लाल मोमो चटनी के साथ 10 गरम स्टीम्ड मोमोज़",
+        descEn: "10 steamed veg dumplings served with fiery red garlic chutney",
+        category: "Chinese",
+        sellingPrice: 60,
+        makingCost: 40,
+        imageUrl: "https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 10,
+      },
+      {
+        nameHi: "कचौड़ी सब्ज़ी (2 पीस)",
+        nameEn: "Kachori Sabzi",
+        legacyEn: ["Kachori Sabzi"],
+        descHi: "2 खस्ता कचौड़ी और चटपटी आलू रसेदार सब्ज़ी",
+        descEn: "2 crispy dal kachoris paired with spicy homestyle aloo sabzi",
+        category: "Meals",
+        sellingPrice: 30,
+        makingCost: 15,
+        imageUrl: "https://media.istockphoto.com/id/2235590451/photo/traditional-indian-kachori-with-aloo-sabzi-and-chole.jpg?s=612x612&w=0&k=20&c=Yc4eJZiX_Ye7A35TzgDi8LgCerOT2kSSnkg2pS1CSJM=",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 11,
+      },
+
+      // 2. COMBO PACKS (12 Profit-Protected Combos)
+      {
+        nameHi: "2 समोसा + पेप्सी (400 ml बोतल)",
+        nameEn: "2 Samosa + Pepsi (400 ml)",
+        legacyEn: ["2 Samosa + Pepsi (400 ml)", "2 Samosa + Pepsi/Campa (400 ml Bottle)", "2 Samosa + 1 Campa Cola (Plastic Bottle)"],
+        descHi: "2 गरमा-गरम समोसा चटनी के साथ + 1 चिल्ड पेप्सी 400 ml प्लास्टिक बोतल।",
+        descEn: "2 hot samosas with chutney + 1 chilled Pepsi 400 ml PET bottle.",
+        category: "Combos",
+        sellingPrice: 65,
+        makingCost: 47,
+        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1321-1321,pr-true,f-auto,q-40,dpr-2/cms/product_variant/382266af-0452-48f6-bfb9-a1e03c6a053a/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 12,
+      },
+      {
+        nameHi: "2 समोसा + माउंटेन ड्यू (400 ml बोतल)",
+        nameEn: "2 Samosa + Mountain Dew (400 ml)",
+        legacyEn: ["2 Samosa + Mountain Dew (400 ml)", "2 Samosa + Mountain Dew (400 ml Bottle)"],
+        descHi: "2 गरमा-गरम समोसा चटनी के साथ + 1 ठंडी 400 ml माउंटेन ड्यू प्लास्टिक बोतल।",
+        descEn: "2 hot samosas with chutney + 1 chilled 400 ml Mountain Dew PET bottle.",
+        category: "Combos",
+        sellingPrice: 65,
+        makingCost: 47,
+        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1000-1000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/fefaf768-d602-49ef-aa9d-28ea8e917336/Mountain-Dew-Soft-Drink-PET-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 13,
+      },
+      {
+        nameHi: "2 आलू पैटीज़ + कैंपा कोला (500 ml)",
+        nameEn: "2 Aloo Patties + Campa Cola (500 ml)",
+        legacyEn: ["2 Aloo Patties + Campa Cola (500 ml)", "2 Aloo Patties + Campa/Pepsi (400 ml Bottle)", "2 Aloo Patties +1 Campa Cola (Plastic Bottle)"],
+        descHi: "2 खस्ता मसाला आलू पैटीज़ + 1 चिल्ड कैंपा कोला 500 ml प्लास्टिक बोतल।",
+        descEn: "2 flaky aloo patties + 1 chilled Campa Cola 500 ml PET bottle.",
+        category: "Combos",
+        sellingPrice: 85,
+        makingCost: 66,
+        imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5tmlghErwH3kgJN2TChV6qrAt0ox0JnRpmfvO9lxPrfVl9KkSo1p14SM&s=10 + https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/9e8b1724-eaf8-4776-9101-e3921654d47e/Campa-Cola-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 14,
+      },
+      {
+        nameHi: "2 ब्रेड पकौड़ा + पेप्सी (400 ml बोतल)",
+        nameEn: "2 Bread Pakora + Pepsi (400 ml)",
+        legacyEn: ["2 Bread Pakora + Pepsi (400 ml)"],
+        descHi: "2 गरमा-गरम मसाला आलू ब्रेड पकौड़ा + 1 चिल्ड 400 ml पेप्सी बोतल।",
+        descEn: "2 hot stuffed bread pakoras + 1 chilled 400 ml Pepsi PET bottle.",
+        category: "Combos",
+        sellingPrice: 85,
+        makingCost: 67,
+        imageUrl: "https://www.vegandietfood.com/wp-content/uploads/2021/10/Bread-Pakora-Recipe.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1321-1321,pr-true,f-auto,q-40,dpr-2/cms/product_variant/382266af-0452-48f6-bfb9-a1e03c6a053a/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 15,
+      },
+      {
+        nameHi: "देसी बर्गर + माउंटेन ड्यू (400 ml बोतल)",
+        nameEn: "Desi Burger + Mountain Dew (400 ml)",
+        legacyEn: ["Desi Burger + Mountain Dew (400 ml)"],
+        descHi: "1 क्रिस्पी मसाला आलू टिक्की बर्गर + 1 ठंडी 400 ml माउंटेन ड्यू बोतल।",
+        descEn: "1 crispy aloo tikki burger + 1 chilled 400 ml Mountain Dew bottle.",
+        category: "Combos",
+        sellingPrice: 60,
+        makingCost: 42,
+        imageUrl: "https://images.pexels.com/photos/2983103/pexels-photo-2983103.jpeg?auto=compress&cs=tinysrgb&w=600",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 16,
+      },
+      {
+        nameHi: "कचौड़ी सब्ज़ी + 1 समोसा + पेप्सी (400 ml)",
+        nameEn: "Kachori Sabzi + Samosa + Pepsi (400 ml)",
+        legacyEn: ["Kachori Sabzi + Samosa + Pepsi (400 ml)"],
+        descHi: "2 खस्ता कचौड़ी रसेदार आलू सब्ज़ी + 1 गरम समोसा + 1 चिल्ड पेप्सी 400 ml।",
+        descEn: "2 crispy kachori sabzi + 1 hot samosa + 1 chilled Pepsi 400 ml bottle.",
+        category: "Combos",
+        sellingPrice: 65,
+        makingCost: 47,
+        imageUrl: "https://media.istockphoto.com/id/2235590451/photo/traditional-indian-kachori-with-aloo-sabzi-and-chole.jpg?s=612x612&w=0&k=20&c=Yc4eJZiX_Ye7A35TzgDi8LgCerOT2kSSnkg2pS1CSJM= + https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1321-1321,pr-true,f-auto,q-40,dpr-2/cms/product_variant/382266af-0452-48f6-bfb9-a1e03c6a053a/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 17,
+      },
+      {
+        nameHi: "वेज चाउमीन (मीडियम) + माउंटेन ड्यू (400 ml)",
+        nameEn: "Veg Chowmein + Mountain Dew (400 ml)",
+        legacyEn: ["Veg Chowmein + Mountain Dew (400 ml)"],
+        descHi: "1 मीडियम प्लेट मसालेदार वेज चाउमीन + 1 चिल्ड 400 ml माउंटेन ड्यू।",
+        descEn: "1 regular plate spicy veg chowmein + 1 chilled 400 ml Mountain Dew.",
+        category: "Combos",
+        sellingPrice: 68,
+        makingCost: 47,
+        imageUrl: "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1000-1000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/fefaf768-d602-49ef-aa9d-28ea8e917336/Mountain-Dew-Soft-Drink-PET-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 18,
+      },
+      {
+        nameHi: "एग चाउमीन + पेप्सी (400 ml बोतल)",
+        nameEn: "Egg Chowmein + Pepsi (400 ml)",
+        legacyEn: ["Egg Chowmein + Pepsi (400 ml)"],
+        descHi: "डबल अंडे वाली गरम चाउमीन + 1 ठंडी 400 ml पेप्सी प्लास्टिक बोतल।",
+        descEn: "Hot double-egg chowmein + 1 chilled 400 ml Pepsi PET bottle.",
+        category: "Combos",
+        sellingPrice: 86,
+        makingCost: 67,
+        imageUrl: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1321-1321,pr-true,f-auto,q-40,dpr-2/cms/product_variant/382266af-0452-48f6-bfb9-a1e03c6a053a/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: false,
+        isPopular: false,
+        sortOrder: 19,
+      },
+      {
+        nameHi: "छोटी चाउमीन + 4 मोमोज़ + माउंटेन ड्यू (400 ml)",
+        nameEn: "Small Chowmein + 4 Momos + Dew (400 ml)",
+        legacyEn: ["Small Chowmein + 4 Momos + Dew (400 ml)"],
+        descHi: "देसी वेज चाउमीन (छोटी प्लेट) + 4 वेज मोमोज़ लाल चटनी + 400 ml माउंटेन ड्यू।",
+        descEn: "Small veg chowmein + 4 steamed veg momos with chutney + 400 ml Dew.",
+        category: "Combos",
+        sellingPrice: 79,
+        makingCost: 57,
+        imageUrl: "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80 + https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1000-1000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/fefaf768-d602-49ef-aa9d-28ea8e917336/Mountain-Dew-Soft-Drink-PET-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 20,
+      },
+      {
+        nameHi: "वेज मोमोज़ (10 पीस) + कैंपा गोल्ड कैन (185 ml)",
+        nameEn: "10 Veg Momos + Campa Gold Can (185 ml)",
+        legacyEn: ["10 Veg Momos + Campa Gold Can (185 ml)"],
+        descHi: "10 स्टीम्ड वेज मोमोज़ तीखी लाल चटनी के साथ + 1 चिल्ड कैंपा गोल्ड बूस्ट कैन।",
+        descEn: "10 steamed veg momos with fiery chutney + 1 chilled Campa Gold Boost can.",
+        category: "Combos",
+        sellingPrice: 86,
+        makingCost: 64,
+        imageUrl: "https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/4c3e00f1-91d0-460a-ac49-ae5fb29cc823/Campa-Gold-Boost-Energy-Drink.jpg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 21,
+      },
+      {
+        nameHi: "बर्गर + 4 मोमोज़ + HELL एनर्जी कैन (250 ml)",
+        nameEn: "Burger + 4 Momos + HELL Can (250 ml)",
+        legacyEn: ["Burger + 4 Momos + HELL Can (250 ml)"],
+        descHi: "1 देसी मसाला बर्गर + 4 स्टीम्ड वेज मोमोज़ + 1 चिल्ड HELL एनर्जी ड्रिंक कैन।",
+        descEn: "1 desi masala burger + 4 steamed veg momos + 1 chilled HELL 250 ml can.",
+        category: "Combos",
+        sellingPrice: 119,
+        makingCost: 94,
+        imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80 + https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-1085-1085,pr-true,f-auto,q-40,dpr-2/cms/product_variant/9a193d32-4814-4cfe-adf8-8e05fc4fed67/HELL-Energy-Drink-Classic-Canned-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 22,
+      },
+      {
+        nameHi: "फैमिली पैक: 4 समोसा + 2 कचौड़ी + 1.25L ड्यू",
+        nameEn: "Family Pack: 4 Samosa + 2 Kachori + 1.25L Dew",
+        legacyEn: ["Family Pack: 4 Samosa + 2 Kachori + 1.25L Dew"],
+        descHi: "4 गरम समोसा + 2 प्लेट कचौड़ी सब्ज़ी + 1 बड़ी 1.25 Litre माउंटेन ड्यू बोतल।",
+        descEn: "4 hot samosas + 2 plates kachori sabzi + 1 family 1.25 L Mountain Dew PET.",
+        category: "Combos",
+        sellingPrice: 185,
+        makingCost: 140,
+        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80 + https://media.istockphoto.com/id/2235590451/photo/traditional-indian-kachori-with-aloo-sabzi-and-chole.jpg?s=612x612&w=0&k=20&c=Yc4eJZiX_Ye7A35TzgDi8LgCerOT2kSSnkg2pS1CSJM= + https://5.imimg.com/data5/SELLER/Default/2022/7/JB/XD/HL/56167907/mountain-dew-soft-drink-bottle.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 23,
+      },
+
+      // 3. COLD DRINKS (6 Plastic Bottles - Dedicated Category!)
+      {
+        nameHi: "पेप्सी (400 ml प्लास्टिक बोतल)",
+        nameEn: "Pepsi (400 ml Plastic Bottle)",
+        legacyEn: ["Pepsi (400 ml Plastic Bottle)", "Pepsi (250 ml / 400 ml Plastic Bottle)"],
+        descHi: "बर्फ जैसी ठंडी 400 ml पेप्सी सील्ड प्लास्टिक बोतल — ₹20 MRP पर।",
+        descEn: "Chilled 400 ml Pepsi sealed plastic bottle at ₹20 MRP.",
+        category: "Cold Drinks",
+        sellingPrice: 20,
+        makingCost: 17,
+        imageUrl: "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1321-1321,pr-true,f-auto,q-40,dpr-2/cms/product_variant/382266af-0452-48f6-bfb9-a1e03c6a053a/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 24,
+      },
+      {
+        nameHi: "माउंटेन ड्यू (400 ml प्लास्टिक बोतल)",
+        nameEn: "Mountain Dew (400 ml Plastic Bottle)",
+        legacyEn: ["Mountain Dew (400 ml Plastic Bottle)", "Mountain Dew (250+150 ml Plastic Bottle)"],
+        descHi: "बर्फ जैसी ठंडी 400 ml माउंटेन ड्यू सील्ड प्लास्टिक बोतल मात्र ₹20 में।",
+        descEn: "Chilled 400 ml Mountain Dew sealed PET bottle at ₹20 MRP.",
+        category: "Cold Drinks",
+        sellingPrice: 20,
+        makingCost: 17,
+        imageUrl: "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1000-1000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/fefaf768-d602-49ef-aa9d-28ea8e917336/Mountain-Dew-Soft-Drink-PET-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 25,
+      },
+      {
+        nameHi: "कैंपा कोला (500 ml प्लास्टिक बोतल)",
+        nameEn: "Campa Cola (500 ml Plastic Bottle)",
+        legacyEn: ["Campa Cola (500 ml Plastic Bottle)"],
+        descHi: "एकदम ठंडी चिल्ड कैंपा कोला 500 ml सील्ड प्लास्टिक बोतल मात्र ₹20 में।",
+        descEn: "Chilled 500 ml Campa Cola sealed plastic bottle at ₹20 MRP.",
+        category: "Cold Drinks",
+        sellingPrice: 20,
+        makingCost: 16,
+        imageUrl: "https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/9e8b1724-eaf8-4776-9101-e3921654d47e/Campa-Cola-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 26,
+      },
+      {
+        nameHi: "कैंपा ऑरेंज (500 ml प्लास्टिक बोतल)",
+        nameEn: "Campa Orange (500 ml Plastic Bottle)",
+        legacyEn: ["Campa Orange (500 ml Plastic Bottle)"],
+        descHi: "चिल्ड 500 ml कैंपा ऑरेंज प्लास्टिक बोतल मात्र ₹20 में। खट्टा-मीठा ताज़ा संतरा स्वाद।",
+        descEn: "Chilled 500 ml Campa Orange sealed plastic bottle with tangy orange flavor.",
+        category: "Cold Drinks",
+        sellingPrice: 20,
+        makingCost: 16,
+        imageUrl: "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/885e60d8-f76f-4e69-ace7-909fe6d49618/Campa-Orange-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 27,
+      },
+      {
+        nameHi: "पेप्सी बड़ी बोतल (1 Litre प्लास्टिक)",
+        nameEn: "Pepsi Big Bottle (1 Litre PET)",
+        legacyEn: ["Pepsi Big Bottle (1 Litre PET)", "Pepsi Party Bottle (1.25 Litre PET"],
+        descHi: "चिल्ड 1 लीटर पेप्सी की बड़ी प्लास्टिक बोतल — परिवार व दोस्तों के लिए बेस्ट।",
+        descEn: "Chilled 1 Litre Pepsi big PET bottle — ideal for family & group snacks.",
+        category: "Cold Drinks",
+        sellingPrice: 60,
+        makingCost: 48,
+        imageUrl: "https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-1500-1500,pr-true,f-auto,q-40,dpr-2/cms/product_variant/a154ec68-0d3a-4f46-b845-8d5a3bea11e1/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 28,
+      },
+      {
+        nameHi: "माउंटेन ड्यू बड़ी बोतल (1.25 Litre प्लास्टिक)",
+        nameEn: "Mountain Dew Family Bottle (1.25 L PET)",
+        legacyEn: ["Mountain Dew Family Bottle (1.25 L PET)"],
+        descHi: "बर्फ जैसी ठंडी 1.25 लीटर माउंटेन ड्यू बड़ी प्लास्टिक बोतल — पार्टी पैक।",
+        descEn: "Chilled 1.25 Litre Mountain Dew family plastic bottle for group sharing.",
+        category: "Cold Drinks",
+        sellingPrice: 65,
+        makingCost: 50,
+        imageUrl: "https://5.imimg.com/data5/SELLER/Default/2022/7/JB/XD/HL/56167907/mountain-dew-soft-drink-bottle.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 29,
+      },
+
+      // 4. ENERGY DRINKS & BEVERAGES (3 Cans)
+      {
+        nameHi: "कैंपा गोल्ड बूस्ट कैन (185 ml)",
+        nameEn: "Campa Gold Boost Can (185 ml)",
+        legacyEn: ["Campa Gold Boost Can (185 ml)"],
+        descHi: "तुरंत ताज़गी और एनर्जी देने वाली ठंडी कैंपा गोल्ड बूस्ट कैन 185 ml मात्र ₹30 में।",
+        descEn: "Chilled 185 ml Campa Gold Boost energy drink tin can at ₹30.",
+        category: "Beverages",
+        sellingPrice: 30,
+        makingCost: 24,
+        imageUrl: "https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/4c3e00f1-91d0-460a-ac49-ae5fb29cc823/Campa-Gold-Boost-Energy-Drink.jpg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 30,
+      },
+      {
+        nameHi: "HELL एनर्जी ड्रिंक क्लासिक (250 ml कैन)",
+        nameEn: "HELL Classic Energy Drink (250 ml Can)",
+        legacyEn: ["HELL Classic Energy Drink (250 ml Can)"],
+        descHi: "चिल्ड 250 ml HELL एनर्जी ड्रिंक कैन मात्र ₹60 MRP में।",
+        descEn: "Chilled 250 ml HELL Classic energy drink tin can at ₹60 MRP.",
+        category: "Beverages",
+        sellingPrice: 60,
+        makingCost: 49,
+        imageUrl: "https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-1085-1085,pr-true,f-auto,q-40,dpr-2/cms/product_variant/9a193d32-4814-4cfe-adf8-8e05fc4fed67/HELL-Energy-Drink-Classic-Canned-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 31,
+      },
+      {
+        nameHi: "रेड बुल एनर्जी ड्रिंक (250 ml कैन)",
+        nameEn: "Red Bull Energy Drink (250 ml Can)",
+        legacyEn: ["Red Bull Energy Drink (250 ml Can)"],
+        descHi: "ओरिजिनल चिल्ड 250 ml रेड बुल एनर्जी ड्रिंक कैन ₹125 MRP में।",
+        descEn: "Original chilled 250 ml Red Bull energy drink can at ₹125 MRP.",
+        category: "Beverages",
+        sellingPrice: 125,
+        makingCost: 108,
+        imageUrl: "https://images.pexels.com/photos/17220088/pexels-photo-17220088.jpeg?auto=compress&cs=tinysrgb&w=600",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 32,
+      },
+
+      // 5. MULTI-PIECE VALUE PACKS (6 Items - Cross ₹50 Min Order in 1 Tap!)
+      {
+        nameHi: "समोसा पैक (3 पीस)",
+        nameEn: "Samosa Pack (3 Pcs)",
+        legacyEn: ["Samosa Pack (3 Pcs)"],
+        descHi: "3 गरमा-गरम खस्ता समोसा हरी और मीठी इमली चटनी के साथ — मिनिमम ऑर्डर ₹50 पार करने के लिए बेस्ट!",
+        descEn: "3 hot crispy samosas served with green & sweet tamarind chutney.",
+        category: "Snacks",
+        sellingPrice: 60,
+        makingCost: 45,
+        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 33,
+      },
+      {
+        nameHi: "पार्टी समोसा बॉक्स (5 पीस)",
+        nameEn: "Party Samosa Box (5 Pcs)",
+        legacyEn: ["Party Samosa Box (5 Pcs)"],
+        descHi: "परिवार और मेहमानों के लिए 5 गरमा-गरम समोसा चटनी पैक के साथ (₹5 बचत)।",
+        descEn: "5 hot crispy samosas with extra green & tamarind chutney for family.",
+        category: "Snacks",
+        sellingPrice: 95,
+        makingCost: 75,
+        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 34,
+      },
+      {
+        nameHi: "डबल आलू पैटीज़ पैक (2 पीस)",
+        nameEn: "Aloo Patties Pack (2 Pcs)",
+        legacyEn: ["Aloo Patties Pack (2 Pcs)", "Double Aloo Patties (2 Pcs)"],
+        descHi: "2 खस्ता बेक्ड मसाला आलू पैटीज़ — 1 क्लिक में ₹50 से ऊपर आसान ऑर्डर।",
+        descEn: "2 flaky golden baked spiced potato patties.",
+        category: "Snacks",
+        sellingPrice: 65,
+        makingCost: 50,
+        imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5tmlghErwH3kgJN2TChV6qrAt0ox0JnRpmfvO9lxPrfVl9KkSo1p14SM&s=10",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 35,
+      },
+      {
+        nameHi: "डबल ब्रेड पकौड़ा पैक (2 पीस)",
+        nameEn: "Bread Pakora Pack (2 Pcs)",
+        legacyEn: ["Bread Pakora Pack (2 Pcs)", "Double Bread Pakora (2 Pcs)"],
+        descHi: "2 गरम मसाला आलू स्टफिंग वाले कुरकुरे ब्रेड पकौड़े हरी चटनी के साथ।",
+        descEn: "2 hot crispy potato-stuffed bread pakoras with green chutney.",
+        category: "Snacks",
+        sellingPrice: 65,
+        makingCost: 50,
+        imageUrl: "https://www.vegandietfood.com/wp-content/uploads/2021/10/Bread-Pakora-Recipe.jpg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 36,
+      },
+      {
+        nameHi: "डबल बर्गर पैक (2 पीस)",
+        nameEn: "Double Burger Pack (2 Pcs)",
+        legacyEn: ["Double Burger Pack (2 Pcs)"],
+        descHi: "2 देसी मसाला आलू टिक्की बर्गर क्रिस्पी सब्ज़ी और स्पेशल सॉस के साथ (₹5 बचत)।",
+        descEn: "2 crispy desi aloo tikki burgers with fresh veggies & house sauce.",
+        category: "Fast Food",
+        sellingPrice: 75,
+        makingCost: 50,
+        imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 37,
+      },
+      {
+        nameHi: "फैमिली कचौड़ी सब्ज़ी (2 प्लेट - 4 पीस)",
+        nameEn: "Double Kachori Sabzi (2 Plates)",
+        legacyEn: ["Double Kachori Sabzi (2 Plates)"],
+        descHi: "4 खस्ता कचौड़ी और 2 प्लेट गर्मागर्म चटपटी आलू रसेदार सब्ज़ी (₹5 बचत)।",
+        descEn: "4 crispy dal kachoris with 2 generous plates of homestyle aloo sabzi.",
+        category: "Meals",
+        sellingPrice: 55,
+        makingCost: 30,
+        imageUrl: "https://media.istockphoto.com/id/2235590451/photo/traditional-indian-kachori-with-aloo-sabzi-and-chole.jpg?s=612x612&w=0&k=20&c=Yc4eJZiX_Ye7A35TzgDi8LgCerOT2kSSnkg2pS1CSJM=",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 38,
+      },
+
+      // 6. FOOD-ONLY SAVER COMBOS (5 Items - Hot Food Without Cold Drink)
+      {
+        nameHi: "देसी ट्रायो बॉक्स: समोसा + पैटीज़ + ब्रेड पकौड़ा",
+        nameEn: "Desi Trio Snack Box (Samosa + Patties + Bread Pakora)",
+        legacyEn: ["Desi Trio Snack Box (Samosa + Patties + Bread Pakora)"],
+        descHi: "1 समोसा + 1 आलू पैटीज़ + 1 ब्रेड पकौड़ा — एक ही बॉक्स में तीनों देसी नाश्ते का स्वाद!",
+        descEn: "1 crispy samosa + 1 aloo patties + 1 bread pakora with chutney.",
+        category: "Combos",
+        sellingPrice: 82,
+        makingCost: 65,
+        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80 + https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5tmlghErwH3kgJN2TChV6qrAt0ox0JnRpmfvO9lxPrfVl9KkSo1p14SM&s=10 + https://www.vegandietfood.com/wp-content/uploads/2021/10/Bread-Pakora-Recipe.jpg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 39,
+      },
+      {
+        nameHi: "1 बर्गर + 4 वेज मोमोज़ कॉम्बो",
+        nameEn: "Burger + 4 Momos Combo",
+        legacyEn: ["Burger + 4 Momos Combo"],
+        descHi: "1 देसी मसाला बर्गर + 4 स्टीम्ड वेज मोमोज़ लाल चटनी के साथ (₹5 बचत)।",
+        descEn: "1 desi masala burger + 4 hot steamed veg momos with spicy chutney.",
+        category: "Combos",
+        sellingPrice: 65,
+        makingCost: 45,
+        imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80 + https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 40,
+      },
+      {
+        nameHi: "वेज चाउमीन (मीडियम) + 4 वेज मोमोज़",
+        nameEn: "Veg Chowmein + 4 Momos Combo",
+        legacyEn: ["Veg Chowmein + 4 Momos Combo"],
+        descHi: "1 मीडियम प्लेट वेज चाउमीन + 4 स्टीम्ड वेज मोमोज़ लाल चटनी के साथ (₹5 बचत)।",
+        descEn: "1 regular veg chowmein + 4 steamed veg momos with fiery chutney.",
+        category: "Combos",
+        sellingPrice: 75,
+        makingCost: 50,
+        imageUrl: "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80 + https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 41,
+      },
+      {
+        nameHi: "एग चाउमीन + 4 वेज मोमोज़ कॉम्बो",
+        nameEn: "Egg Chowmein + 4 Momos Combo",
+        legacyEn: ["Egg Chowmein + 4 Momos Combo"],
+        descHi: "डबल अंडे वाली गरम एग चाउमीन + 4 स्टीम्ड मोमोज़ चटनी के साथ (₹5 बचत)।",
+        descEn: "Hot double-egg chowmein + 4 steamed momos with spicy red chutney.",
+        category: "Combos",
+        sellingPrice: 95,
+        makingCost: 70,
+        imageUrl: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80 + https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg",
+        inStock: true,
+        isVeg: false,
+        isPopular: false,
+        sortOrder: 42,
+      },
+      {
+        nameHi: "सुबह का नाश्ता कॉम्बो: 2 समोसा + कचौड़ी सब्ज़ी",
+        nameEn: "Morning Nashta Combo (2 Samosa + Kachori Sabzi)",
+        legacyEn: ["Morning Nashta Combo (2 Samosa + Kachori Sabzi)"],
+        descHi: "2 गरम समोसा चटनी के साथ + 1 प्लेट खस्ता कचौड़ी आलू सब्ज़ी (₹5 बचत)।",
+        descEn: "2 hot samosas + 1 plate crispy kachori aloo sabzi.",
+        category: "Combos",
+        sellingPrice: 65,
+        makingCost: 45,
+        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80 + https://media.istockphoto.com/id/2235590451/photo/traditional-indian-kachori-with-aloo-sabzi-and-chole.jpg?s=612x612&w=0&k=20&c=Yc4eJZiX_Ye7A35TzgDi8LgCerOT2kSSnkg2pS1CSJM=",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 43,
+      },
+
+      // 7. NEW DRINK-PAIRED COMBOS (7 Items - Zero Overlap with Existing Combos)
+      {
+        nameHi: "देसी बर्गर + कैंपा ऑरेंज (500 ml)",
+        nameEn: "Desi Burger + Campa Orange (500 ml)",
+        legacyEn: ["Desi Burger + Campa Orange (500 ml)"],
+        descHi: "1 क्रिस्पी मसाला आलू टिक्की बर्गर + 1 ठंडी 500 ml कैंपा ऑरेंज बोतल।",
+        descEn: "1 crispy desi burger + 1 chilled 500 ml Campa Orange PET bottle.",
+        category: "Combos",
+        sellingPrice: 60,
+        makingCost: 41,
+        imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/885e60d8-f76f-4e69-ace7-909fe6d49618/Campa-Orange-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 44,
+      },
+      {
+        nameHi: "देसी बर्गर + पेप्सी (400 ml बोतल)",
+        nameEn: "Desi Burger + Pepsi (400 ml)",
+        legacyEn: ["Desi Burger + Pepsi (400 ml)"],
+        descHi: "1 देसी मसाला बर्गर + 1 चिल्ड 400 ml पेप्सी प्लास्टिक बोतल।",
+        descEn: "1 crispy desi burger + 1 chilled 400 ml Pepsi PET bottle.",
+        category: "Combos",
+        sellingPrice: 60,
+        makingCost: 42,
+        imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1321-1321,pr-true,f-auto,q-40,dpr-2/cms/product_variant/382266af-0452-48f6-bfb9-a1e03c6a053a/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 45,
+      },
+      {
+        nameHi: "वेज चाउमीन (मीडियम) + कैंपा कोला (500 ml)",
+        nameEn: "Veg Chowmein + Campa Cola (500 ml)",
+        legacyEn: ["Veg Chowmein + Campa Cola (500 ml)"],
+        descHi: "1 मीडियम प्लेट मसालेदार वेज चाउमीन + 1 चिल्ड 500 ml कैंपा कोला बोतल।",
+        descEn: "1 regular spicy veg chowmein + 1 chilled 500 ml Campa Cola PET bottle.",
+        category: "Combos",
+        sellingPrice: 66,
+        makingCost: 46,
+        imageUrl: "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/9e8b1724-eaf8-4776-9101-e3921654d47e/Campa-Cola-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 46,
+      },
+      {
+        nameHi: "वेज मोमोज़ (10 पीस) + पेप्सी (400 ml बोतल)",
+        nameEn: "10 Veg Momos + Pepsi (400 ml)",
+        legacyEn: ["10 Veg Momos + Pepsi (400 ml)"],
+        descHi: "10 गरमा-गरम स्टीम्ड वेज मोमोज़ लाल चटनी + 1 ठंडी 400 ml पेप्सी बोतल।",
+        descEn: "10 steamed veg momos with spicy chutney + 1 chilled 400 ml Pepsi PET.",
+        category: "Combos",
+        sellingPrice: 77,
+        makingCost: 57,
+        imageUrl: "https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1321-1321,pr-true,f-auto,q-40,dpr-2/cms/product_variant/382266af-0452-48f6-bfb9-a1e03c6a053a/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 47,
+      },
+      {
+        nameHi: "2 समोसा + कैंपा ऑरेंज (500 ml बोतल)",
+        nameEn: "2 Samosa + Campa Orange (500 ml)",
+        legacyEn: ["2 Samosa + Campa Orange (500 ml)"],
+        descHi: "2 गरम समोसा चटनी के साथ + 1 चिल्ड 500 ml कैंपा ऑरेंज संतरा बोतल।",
+        descEn: "2 hot samosas with chutney + 1 chilled 500 ml Campa Orange PET bottle.",
+        category: "Combos",
+        sellingPrice: 64,
+        makingCost: 46,
+        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/885e60d8-f76f-4e69-ace7-909fe6d49618/Campa-Orange-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 48,
+      },
+      {
+        nameHi: "1 समोसा + 1 बर्गर + कैंपा कोला (500 ml)",
+        nameEn: "Samosa + Burger + Campa Cola Meal",
+        legacyEn: ["Samosa + Burger + Campa Cola Meal"],
+        descHi: "1 गरम समोसा + 1 देसी मसाला बर्गर + 1 ठंडी 500 ml कैंपा कोला बोतल — फुल ईवनिंग मील।",
+        descEn: "1 hot samosa + 1 desi masala burger + 1 chilled 500 ml Campa Cola PET.",
+        category: "Combos",
+        sellingPrice: 76,
+        makingCost: 56,
+        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80 + https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/9e8b1724-eaf8-4776-9101-e3921654d47e/Campa-Cola-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 49,
+      },
+      {
+        nameHi: "चाइनीज़ पार्टी पैक: बड़ी चाउमीन + 10 मोमोज़ + 1L पेप्सी",
+        nameEn: "Chinese Party Pack: Large Chowmein + 10 Momos + 1L Pepsi",
+        legacyEn: ["Chinese Party Pack: Large Chowmein + 10 Momos + 1L Pepsi"],
+        descHi: "1 बड़ी प्लेट वेज चाउमीन + 10 वेज मोमोज़ + 1 बड़ी 1 Litre पेप्सी बोतल — ग्रुप व पार्टी के लिए बेस्ट (₹12 बचत)!",
+        descEn: "1 large veg chowmein + 10 veg momos + 1 big 1 Litre Pepsi PET bottle.",
+        category: "Combos",
+        sellingPrice: 178,
+        makingCost: 138,
+        imageUrl: "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80 + https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-1500-1500,pr-true,f-auto,q-40,dpr-2/cms/product_variant/a154ec68-0d3a-4f46-b845-8d5a3bea11e1/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 50,
+      },
+
+      // 8. EXPANSION PACKS & NEW COMBOS (10 Items -> Total 60 Unique Items, All >= ₹60 Min Order)
+      {
+        nameHi: "जंबो वेज मोमोज़ बॉक्स (12 पीस)",
+        nameEn: "Jumbo Veg Momos (12 Pcs)",
+        legacyEn: ["Jumbo Veg Momos (12 Pcs)"],
+        descHi: "12 गरमा-गरम स्टीम्ड वेज मोमोज़ डबल तीखी लाल चटनी के साथ — दोस्तों के साथ शेयरिंग पैक।",
+        descEn: "12 hot steamed veg momos with double spicy red chutney — sharing box.",
+        category: "Chinese",
+        sellingPrice: 70,
+        makingCost: 50,
+        imageUrl: "https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 51,
+      },
+      {
+        nameHi: "डबल एग चाउमीन फैमिली पैक (2 प्लेट)",
+        nameEn: "Double Egg Chowmein (2 Plates)",
+        legacyEn: ["Double Egg Chowmein (2 Plates)"],
+        descHi: "2 फुल प्लेट अंडा वाली मसाला चाउमीन — अंडा चाउमीन लवर्स के लिए पैसा-वसूल पैक।",
+        descEn: "2 full plates of hot spiced egg chowmein — value pack for 2.",
+        category: "Chinese",
+        sellingPrice: 135,
+        makingCost: 100,
+        imageUrl: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?auto=format&fit=crop&w=600&q=80",
+        inStock: true,
+        isVeg: false,
+        isPopular: false,
+        sortOrder: 52,
+      },
+      {
+        nameHi: "कपल स्नैक बॉक्स: 2 समोसा + 2 आलू पैटीज़",
+        nameEn: "Couple Snack Box (2 Samosa + 2 Aloo Patties)",
+        legacyEn: ["Couple Snack Box (2 Samosa + 2 Aloo Patties)"],
+        descHi: "2 खस्ता समोसा + 2 क्रिस्पी आलू पैटीज़ हरी व मीठी चटनी के साथ — चाय और मेहमानों के लिए बेस्ट।",
+        descEn: "2 crispy samosas + 2 flaky aloo patties with green & sweet chutney.",
+        category: "Combos",
+        sellingPrice: 105,
+        makingCost: 80,
+        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80 + https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5tmlghErwH3kgJN2TChV6qrAt0ox0JnRpmfvO9lxPrfVl9KkSo1p14SM&s=10",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 53,
+      },
+      {
+        nameHi: "2 समोसा + कैंपा कोला (500 ml बोतल)",
+        nameEn: "2 Samosa + Campa Cola (500 ml)",
+        legacyEn: ["2 Samosa + Campa Cola (500 ml)"],
+        descHi: "2 गरमा-गरम समोसा चटनी + 1 चिल्ड 500 ml कैंपा कोला प्लास्टिक बोतल।",
+        descEn: "2 hot samosas with chutney + 1 chilled 500 ml Campa Cola PET bottle.",
+        category: "Combos",
+        sellingPrice: 64,
+        makingCost: 46,
+        imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/9e8b1724-eaf8-4776-9101-e3921654d47e/Campa-Cola-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 54,
+      },
+      {
+        nameHi: "2 आलू पैटीज़ + माउंटेन ड्यू (400 ml बोतल)",
+        nameEn: "2 Aloo Patties + Mountain Dew (400 ml)",
+        legacyEn: ["2 Aloo Patties + Mountain Dew (400 ml)"],
+        descHi: "2 खस्ता मसाला आलू पैटीज़ + 1 ठंडी 400 ml माउंटेन ड्यू प्लास्टिक बोतल।",
+        descEn: "2 flaky aloo patties + 1 chilled 400 ml Mountain Dew PET bottle.",
+        category: "Combos",
+        sellingPrice: 86,
+        makingCost: 67,
+        imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5tmlghErwH3kgJN2TChV6qrAt0ox0JnRpmfvO9lxPrfVl9KkSo1p14SM&s=10 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1000-1000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/fefaf768-d602-49ef-aa9d-28ea8e917336/Mountain-Dew-Soft-Drink-PET-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 55,
+      },
+      {
+        nameHi: "2 ब्रेड पकौड़ा + कैंपा ऑरेंज (500 ml)",
+        nameEn: "2 Bread Pakora + Campa Orange (500 ml)",
+        legacyEn: ["2 Bread Pakora + Campa Orange (500 ml)"],
+        descHi: "2 गरम आलू ब्रेड पकौड़े चटनी के साथ + 1 चिल्ड 500 ml कैंपा ऑरेंज बोतल।",
+        descEn: "2 hot stuffed bread pakoras + 1 chilled 500 ml Campa Orange PET bottle.",
+        category: "Combos",
+        sellingPrice: 85,
+        makingCost: 66,
+        imageUrl: "https://www.vegandietfood.com/wp-content/uploads/2021/10/Bread-Pakora-Recipe.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/885e60d8-f76f-4e69-ace7-909fe6d49618/Campa-Orange-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 56,
+      },
+      {
+        nameHi: "देसी बर्गर + कैंपा गोल्ड बूस्ट कैन (185 ml)",
+        nameEn: "Desi Burger + Campa Gold Can (185 ml)",
+        legacyEn: ["Desi Burger + Campa Gold Can (185 ml)"],
+        descHi: "1 क्रिस्पी देसी आलू टिक्की बर्गर + 1 चिल्ड कैंपा गोल्ड एनर्जी कैन (185 ml)।",
+        descEn: "1 crispy desi burger + 1 chilled 185 ml Campa Gold Boost energy can.",
+        category: "Combos",
+        sellingPrice: 69,
+        makingCost: 49,
+        imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-4167-4167,pr-true,f-auto,q-40,dpr-2/cms/product_variant/4c3e00f1-91d0-460a-ac49-ae5fb29cc823/Campa-Gold-Boost-Energy-Drink.jpg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 57,
+      },
+      {
+        nameHi: "छोटी वेज चाउमीन + पेप्सी (400 ml बोतल)",
+        nameEn: "Small Veg Chowmein + Pepsi (400 ml)",
+        legacyEn: ["Small Veg Chowmein + Pepsi (400 ml)"],
+        descHi: "1 छोटी प्लेट देसी वेज चाउमीन + 1 चिल्ड 400 ml पेप्सी प्लास्टिक बोतल — बजट कॉम्बो।",
+        descEn: "1 small plate spicy veg chowmein + 1 chilled 400 ml Pepsi PET bottle.",
+        category: "Combos",
+        sellingPrice: 60,
+        makingCost: 37,
+        imageUrl: "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&q=80 + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1321-1321,pr-true,f-auto,q-40,dpr-2/cms/product_variant/382266af-0452-48f6-bfb9-a1e03c6a053a/Pepsi-Soft-Drink-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 58,
+      },
+      {
+        nameHi: "वेज मोमोज़ (10 पीस) + माउंटेन ड्यू (400 ml)",
+        nameEn: "10 Veg Momos + Mountain Dew (400 ml)",
+        legacyEn: ["10 Veg Momos + Mountain Dew (400 ml)"],
+        descHi: "10 स्टीम्ड वेज मोमोज़ तीखी लाल चटनी के साथ + 1 चिल्ड 400 ml माउंटेन ड्यू।",
+        descEn: "10 steamed veg momos with spicy red chutney + 1 chilled 400 ml Mountain Dew.",
+        category: "Combos",
+        sellingPrice: 78,
+        makingCost: 57,
+        imageUrl: "https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg + https://cdn.zeptonow.com/production/ik-seo/tr:w-403,ar-1000-1000,pr-true,f-auto,q-40,dpr-2/cms/product_variant/fefaf768-d602-49ef-aa9d-28ea8e917336/Mountain-Dew-Soft-Drink-PET-Carbonated-Beverage.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: false,
+        sortOrder: 59,
+      },
+      {
+        nameHi: "मेगा ग्रुप कॉम्बो: 2 बर्गर + 10 मोमोज़ + 1.25L ड्यू",
+        nameEn: "Mega Group Combo: 2 Burgers + 10 Momos + 1.25L Dew",
+        legacyEn: ["Mega Group Combo: 2 Burgers + 10 Momos + 1.25L Dew"],
+        descHi: "2 देसी बर्गर + 10 वेज मोमोज़ + 1 बड़ी 1.25 Litre माउंटेन ड्यू — दोस्तों और परिवार के लिए सुपरहिट!",
+        descEn: "2 desi burgers + 10 veg momos + 1 big 1.25 Litre Mountain Dew PET bottle.",
+        category: "Combos",
+        sellingPrice: 185,
+        makingCost: 140,
+        imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80 + https://someindiangirl.com/wp-content/uploads/2021/08/Paneer-Momo-Vegetable-Paneer-Momo-17-of-19-scaled.jpg + https://5.imimg.com/data5/SELLER/Default/2022/7/JB/XD/HL/56167907/mountain-dew-soft-drink-bottle.jpeg",
+        inStock: true,
+        isVeg: true,
+        isPopular: true,
+        sortOrder: 60,
+      },
+    ];
+
+    function findDuplicateMenuIds(menuList) {
+      const seen = new Map();
+      const dupIds = new Set();
+      for (const item of menuList) {
+        const keyEn = normalizeMenuName(item.nameEn);
+        const keyHi = normalizeMenuName(item.nameHi);
+        if ((keyEn && seen.has(`en:${keyEn}`)) || (keyHi && seen.has(`hi:${keyHi}`))) {
+          dupIds.add(item._id);
+          const origId = seen.get(`en:${keyEn}`) || seen.get(`hi:${keyHi}`);
+          if (origId) dupIds.add(origId);
+        } else {
+          if (keyEn) seen.set(`en:${keyEn}`, item._id);
+          if (keyHi) seen.set(`hi:${keyHi}`, item._id);
+        }
+      }
+      return dupIds;
+    }
+
     function renderAdminMenu() {
+      const dupIds = findDuplicateMenuIds(state.adminMenu);
+      const catsPresent = [...new Set(state.adminMenu.map((m) => m.category || "Snacks"))].sort((a, b) => {
+        const pa = CATEGORY_PRIORITY[a] || 99;
+        const pb = CATEGORY_PRIORITY[b] || 99;
+        return pa !== pb ? pa - pb : a.localeCompare(b);
+      });
+      const adminCats = ["All", ...catsPresent];
+      if (dupIds.size > 0) adminCats.push("__DUPLICATES__");
+
+      const catBar = document.getElementById("adminMenuCatPills");
+      if (catBar) {
+        if (state.adminMenuCategory !== "All" && !adminCats.includes(state.adminMenuCategory)) {
+          state.adminMenuCategory = "All";
+        }
+        catBar.innerHTML = adminCats
+          .map((cat) => {
+            const active = state.adminMenuCategory === cat;
+            const label = cat === "__DUPLICATES__" ? `${t("dupBadge")} (${dupIds.size})` : getCategoryLabel(cat);
+            return `<button type="button" data-admin-cat="${escapeHtml(cat)}"
+              class="px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap border transition ${
+                active
+                  ? cat === "__DUPLICATES__"
+                    ? "bg-amber-600 text-white border-amber-600"
+                    : "bg-slate-900 text-white border-slate-900"
+                  : "bg-white text-slate-600 border-slate-200 hover:border-orange-300"
+              }">${escapeHtml(label)}</button>`;
+          })
+          .join("");
+        catBar.querySelectorAll("[data-admin-cat]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            state.adminMenuCategory = btn.dataset.adminCat;
+            renderAdminMenu();
+          });
+        });
+      }
+
       const q = state.adminMenuSearch.trim().toLowerCase();
-      const filtered = state.adminMenu.filter(
-        (m) => !q || m.nameHi.toLowerCase().includes(q) || m.nameEn.toLowerCase().includes(q)
+      const filtered = sortMenuItemsForDisplay(
+        state.adminMenu.filter((m) => {
+          if (state.adminMenuCategory === "__DUPLICATES__") {
+            if (!dupIds.has(m._id)) return false;
+          } else if (state.adminMenuCategory !== "All" && (m.category || "Snacks") !== state.adminMenuCategory) {
+            return false;
+          }
+          if (!q) return true;
+          return itemMatchesSearch(m, q);
+        }),
+        true,
+        q
       );
       const list = document.getElementById("adminMenuList");
       list.innerHTML = filtered
         .map((item) => {
-          const profit = item.sellingPrice - item.makingCost;
+          const cost = Number(item.makingCost ?? 0);
+          const profit = item.sellingPrice - cost;
           const marginPct = item.sellingPrice > 0 ? ((profit / item.sellingPrice) * 100).toFixed(0) : 0;
+          const isDup = dupIds.has(item._id);
           const stockTag =
             item.stockCount !== null && item.stockCount !== undefined
               ? `<span class="px-2 py-0.5 rounded bg-blue-50 text-blue-800 font-bold">${escapeHtml(t("stockLeftBadge", item.stockCount))}</span>`
               : "";
-          return `<div class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-sm flex gap-3 items-start">
+          return `<div class="bg-white rounded-2xl border ${isDup ? "border-amber-400" : "border-slate-200"} p-3.5 shadow-sm flex gap-3 items-start">
             <div class="w-16 h-16 rounded-xl overflow-hidden bg-orange-50 shrink-0">
               ${renderItemMediaHtml(item.imageUrl, item.nameHi, { hidePlus: true })}
             </div>
@@ -3204,7 +4797,10 @@
                     ${item.isVeg !== false ? "🟢" : "🔴"} ${escapeHtml(item.nameHi)} / ${escapeHtml(item.nameEn)}
                     ${item.isPopular ? "⭐" : ""}
                   </div>
-                  <div class="text-xs text-slate-500">${escapeHtml(item.category || "Snacks")}</div>
+                  <div class="flex items-center gap-1.5 flex-wrap text-xs text-slate-500">
+                    <span>${escapeHtml(getCategoryLabel(item.category || "Snacks"))}</span>
+                    ${isDup ? `<span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-extrabold">${escapeHtml(t("dupBadge"))}</span>` : ""}
+                  </div>
                 </div>
                 <label class="inline-flex items-center gap-1.5 cursor-pointer shrink-0">
                   <input type="checkbox" data-toggle-stock="${item._id}" ${item.inStock ? "checked" : ""} class="w-4 h-4 accent-emerald-600" />
@@ -3216,8 +4812,8 @@
 
               <div class="flex flex-wrap gap-1.5 text-xs">
                 <span class="px-2 py-0.5 rounded bg-slate-100 font-bold">${escapeHtml(t("sellingPrice"))}: ₹${item.sellingPrice}</span>
-                <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-800 font-bold">${escapeHtml(t("makingCost"))}: ₹${item.makingCost}</span>
-                <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold">${escapeHtml(t("profitPerItem"))}: ₹${profit} (${marginPct}%)</span>
+                <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-800 font-bold">${escapeHtml(t("makingCost"))}: ₹${cost}</span>
+                <span class="px-2 py-0.5 rounded ${profit <= 0 ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700"} font-bold">${escapeHtml(t("profitPerItem"))}: ₹${profit} (${marginPct}%)</span>
                 ${stockTag}
               </div>
 
@@ -3252,8 +4848,10 @@
           document.getElementById("itemDescHi").value = item.descHi || "";
           document.getElementById("itemDescEn").value = item.descEn || "";
           document.getElementById("itemSellingPrice").value = item.sellingPrice;
-          document.getElementById("itemMakingCost").value = item.makingCost;
-          document.getElementById("itemCategory").value = item.category || "Snacks";
+          document.getElementById("itemMakingCost").value = item.makingCost ?? 0;
+          const catEl = document.getElementById("itemCategory");
+          catEl.value = item.category || "Snacks";
+          if (!catEl.value) catEl.value = "Snacks";
           document.getElementById("itemStockCount").value = item.stockCount !== null && item.stockCount !== undefined ? item.stockCount : "";
           document.getElementById("itemImageUrl").value = item.imageUrl || "";
           document.getElementById("itemInStock").checked = item.inStock;
@@ -3283,6 +4881,7 @@
     document.getElementById("openAddItemBtn").addEventListener("click", () => {
       document.getElementById("adminMenuForm").reset();
       document.getElementById("editItemId").value = "";
+      document.getElementById("itemCategory").value = "Snacks";
       document.getElementById("itemInStock").checked = true;
       document.getElementById("itemIsVeg").checked = true;
       document.getElementById("itemIsPopular").checked = false;
@@ -3297,6 +4896,7 @@
       e.preventDefault();
       const editId = document.getElementById("editItemId").value;
       const rawStock = document.getElementById("itemStockCount").value.trim();
+      const selectedCat = document.getElementById("itemCategory").value;
       const payload = {
         nameHi: document.getElementById("itemNameHi").value.trim(),
         nameEn: document.getElementById("itemNameEn").value.trim(),
@@ -3304,13 +4904,25 @@
         descEn: document.getElementById("itemDescEn").value.trim(),
         sellingPrice: Number(document.getElementById("itemSellingPrice").value),
         makingCost: Number(document.getElementById("itemMakingCost").value),
-        category: document.getElementById("itemCategory").value,
+        category: selectedCat,
         stockCount: rawStock === "" ? null : Math.max(0, parseInt(rawStock, 10)),
         imageUrl: document.getElementById("itemImageUrl").value.trim(),
         inStock: document.getElementById("itemInStock").checked,
         isVeg: document.getElementById("itemIsVeg").checked,
         isPopular: document.getElementById("itemIsPopular").checked,
       };
+      if (!editId) {
+        const keyEn = normalizeMenuName(payload.nameEn);
+        const keyHi = normalizeMenuName(payload.nameHi);
+        const existingDup = state.adminMenu.find(
+          (m) => (keyEn && normalizeMenuName(m.nameEn) === keyEn) || (keyHi && normalizeMenuName(m.nameHi) === keyHi)
+        );
+        if (existingDup) {
+          showToast(t("dupItemError"), true);
+          return;
+        }
+        payload.sortOrder = CATEGORY_DEFAULT_SORT[selectedCat] || 100;
+      }
       try {
         if (editId) await apiFetch(`/api/admin/menu/${editId}`, { method: "PUT", body: JSON.stringify(payload) }, true);
         else await apiFetch("/api/admin/menu", { method: "POST", body: JSON.stringify(payload) }, true);
@@ -3321,6 +4933,88 @@
         showToast(err.message, true);
       }
     });
+
+    async function runCleanCatalogSync() {
+      if (!confirm(t("syncConfirm"))) return;
+      const btn = document.getElementById("syncCleanMenuBtn");
+      const statusEl = document.getElementById("syncCleanMenuStatus");
+      btn.disabled = true;
+      statusEl.classList.remove("hidden");
+
+      try {
+        const existingRes = await apiFetch("/api/admin/menu", {}, true);
+        const existingItems = [...(existingRes.menu || [])];
+        const matchedExistingIds = new Set();
+        const totalOpsEstimate = CLEAN_MENU_CATALOG.length;
+        let doneCount = 0;
+
+        for (const spec of CLEAN_MENU_CATALOG) {
+          const aliases = [spec.nameEn, ...(spec.legacyEn || [])].map(normalizeMenuName).filter(Boolean);
+          const hiKey = normalizeMenuName(spec.nameHi);
+          const match = existingItems.find(
+            (ex) =>
+              !matchedExistingIds.has(ex._id) &&
+              (aliases.includes(normalizeMenuName(ex.nameEn)) || (hiKey && normalizeMenuName(ex.nameHi) === hiKey))
+          );
+
+          const bodyPayload = {
+            nameHi: spec.nameHi,
+            nameEn: spec.nameEn,
+            descHi: spec.descHi,
+            descEn: spec.descEn,
+            category: spec.category,
+            sellingPrice: spec.sellingPrice,
+            makingCost: spec.makingCost,
+            imageUrl: spec.imageUrl,
+            inStock: spec.inStock,
+            isVeg: spec.isVeg,
+            isPopular: spec.isPopular,
+            sortOrder: spec.sortOrder,
+          };
+
+          if (match) {
+            matchedExistingIds.add(match._id);
+            await apiFetch(`/api/admin/menu/${match._id}`, { method: "PUT", body: JSON.stringify(bodyPayload) }, true);
+          } else {
+            await apiFetch("/api/admin/menu", { method: "POST", body: JSON.stringify({ ...bodyPayload, stockCount: null }) }, true);
+          }
+          doneCount += 1;
+          statusEl.textContent = t("syncRunning", doneCount, totalOpsEstimate);
+        }
+
+        const toDelete = existingItems.filter((ex) => !matchedExistingIds.has(ex._id));
+        for (const extra of toDelete) {
+          await apiFetch(`/api/admin/menu/${extra._id}`, { method: "DELETE" }, true);
+        }
+
+        // Also ensure StoreSettings reflect ₹199 Free Delivery, ₹60 Min Order & ₹15 Delivery Charge
+        await apiFetch(
+          "/api/admin/settings",
+          {
+            method: "PUT",
+            body: JSON.stringify({
+              deliveryCharge: 15,
+              freeDeliveryAbove: 199,
+              minOrderAmount: 60,
+            }),
+          },
+          true
+        );
+
+        await refreshAdminData();
+        await loadStoreData();
+        const doneMsg = t("syncDone", CLEAN_MENU_CATALOG.length, toDelete.length);
+        statusEl.textContent = doneMsg;
+        showToast(doneMsg);
+      } catch (err) {
+        statusEl.textContent = err.message;
+        showToast(err.message, true);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    document.getElementById("syncCleanMenuBtn").addEventListener("click", runCleanCatalogSync);
 
     // --- ADMIN TAB 3: PROFIT, CASH vs UPI & DAILY EXPENSES ---
     function renderAnalyticsBlock(title, stats) {
@@ -3793,12 +5487,41 @@
       renderAll();
     }
 
+    function openCheckoutModalFromHeaderOrBar() {
+      const { totalItems } = getCartSummary();
+      if (totalItems === 0) {
+        showToast(
+          state.lang === "hi"
+            ? "🛒 आपका कार्ट खाली है — पहले मेनू से आइटम जोड़ें!"
+            : "🛒 Your cart is empty — add items from the menu first!",
+          "info"
+        );
+        const menuEl = document.getElementById("menuGrid");
+        if (menuEl) menuEl.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      document.getElementById("checkoutErrorBox").classList.add("hidden");
+      document.getElementById("phoneErrorMsg").classList.add("hidden");
+      renderCheckoutDrawer();
+      document.getElementById("checkoutModal").classList.remove("hidden");
+    }
+
     document.getElementById("langToggleBtn").addEventListener("click", toggleLanguage);
     document.getElementById("adminLangBtn").addEventListener("click", toggleLanguage);
+    document.getElementById("themeToggleBtn").addEventListener("click", cycleTheme);
+    document.getElementById("headerCartBtn").addEventListener("click", openCheckoutModalFromHeaderOrBar);
     document.getElementById("customerMenuSearch").addEventListener("input", (e) => {
       state.menuSearch = e.target.value;
       state.menuVisibleCount = MENU_PAGE_SIZE;
       renderMenuGrid();
+    });
+    document.getElementById("clearMenuSearchBtn").addEventListener("click", () => {
+      const inp = document.getElementById("customerMenuSearch");
+      inp.value = "";
+      state.menuSearch = "";
+      state.menuVisibleCount = MENU_PAGE_SIZE;
+      renderMenuGrid();
+      inp.focus();
     });
     document.getElementById("adminOrderSearch").addEventListener("input", (e) => {
       state.adminOrderSearch = e.target.value;
@@ -3825,12 +5548,7 @@
     });
 
     document.getElementById("refreshMenuBtn").addEventListener("click", loadStoreData);
-    document.getElementById("openCheckoutBtn").addEventListener("click", () => {
-      document.getElementById("checkoutErrorBox").classList.add("hidden");
-      document.getElementById("phoneErrorMsg").classList.add("hidden");
-      renderCheckoutDrawer();
-      document.getElementById("checkoutModal").classList.remove("hidden");
-    });
+    document.getElementById("openCheckoutBtn").addEventListener("click", openCheckoutModalFromHeaderOrBar);
     document.getElementById("closeCheckoutBtn").addEventListener("click", () => {
       document.getElementById("checkoutModal").classList.add("hidden");
     });
@@ -3902,8 +5620,9 @@
       loadStoreData();
     });
 
+    applyTheme(state.theme);
     renderAll();
     loadStoreData();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5e62598cfc66068',t:'MTc5NTMzMTc2Nw=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5e62598cfc66068',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
