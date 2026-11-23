@@ -776,7 +776,7 @@ async function commitStockDecrements(stockDecrements, enforceStock = true) {
       await MenuItem.updateOne({ _id: updatedItem._id }, { $set: { inStock: false, stockCount: 0 } });
     }
   }
-  return { ok: true };
+  return { ok: true, applied };
 }
 
 // ----------------------------------------------------------------------------
@@ -983,7 +983,7 @@ app.post('/api/orders', orderCreateLimiter, async (req, res) => {
       }
       return res.status(400).json({ code: stockCommit.errorCode, error: stockCommit.error });
     }
-    committedStockDecrements = stockDecrements;
+    committedStockDecrements = stockCommit.applied || [];
 
     let cleanGps = { lat: null, lng: null, mapLink: '' };
     if (
@@ -1425,8 +1425,8 @@ app.post('/api/admin/orders', requireAdmin, async (req, res) => {
     const totalAmount = subtotal + deliveryCharge;
     const allowedStatuses = ['Pending', 'Cooking', 'Out for Delivery', 'Delivered'];
     const initialStatus = allowedStatuses.includes(status) ? status : 'Cooking';
-    await commitStockDecrements(stockDecrements, false);
-    committedStockDecrements = stockDecrements;
+    const stockCommit = await commitStockDecrements(stockDecrements, false);
+    committedStockDecrements = stockCommit.applied || [];
     const randomSuffix = crypto.randomInt(100000, 999999);
 
     const newOrder = await Order.create({
@@ -1932,13 +1932,21 @@ app.post('/api/admin/expenses', requireAdmin, async (req, res) => {
     if (!title || amount === undefined || !Number.isFinite(numAmount) || numAmount < 0) {
       return res.status(400).json({ error: 'Expense title and valid amount are required.' });
     }
+    let parsedExpenseDate = new Date();
+    if (expenseDate) {
+      const dt = new Date(expenseDate);
+      if (Number.isNaN(dt.getTime())) {
+        return res.status(400).json({ error: 'Invalid expense date.' });
+      }
+      parsedExpenseDate = dt;
+    }
     const allowedCats = ['Gas/Fuel', 'Ingredients', 'Packaging', 'Delivery/Petrol', 'Staff', 'Other'];
     const expense = await Expense.create({
       title: String(title).trim(),
       category: allowedCats.includes(category) ? category : 'Other',
       amount: numAmount,
       note: note ? String(note).trim() : '',
-      expenseDate: expenseDate ? new Date(expenseDate) : new Date(),
+      expenseDate: parsedExpenseDate,
     });
     res.status(201).json({ expense });
   } catch (err) {
@@ -2124,6 +2132,9 @@ app.put('/api/admin/coupons/:id', requireAdmin, validateObjectId, async (req, re
       updates.freeDeliveryIncluded = Boolean(req.body.freeDeliveryIncluded);
     }
     if (req.body.discountValue !== undefined) updates.discountValue = Math.max(0, Number(req.body.discountValue) || 0);
+    if (updates.discountType === 'PERCENT' && updates.discountValue !== undefined && (updates.discountValue <= 0 || updates.discountValue > 100)) {
+      return res.status(400).json({ error: 'Percentage discount must be between 1 and 100.' });
+    }
     if (req.body.minOrderAmount !== undefined) updates.minOrderAmount = Math.max(0, Number(req.body.minOrderAmount) || 0);
     if (req.body.maxDiscount !== undefined) updates.maxDiscount = Math.max(0, Number(req.body.maxDiscount) || 0);
     if (req.body.usageLimit !== undefined) updates.usageLimit = Math.max(0, parseInt(req.body.usageLimit, 10) || 0);
@@ -2137,7 +2148,15 @@ app.put('/api/admin/coupons/:id', requireAdmin, validateObjectId, async (req, re
       updates.applicableItemIds = req.body.applicableItemIds.filter((id) => mongoose.Types.ObjectId.isValid(String(id)));
     }
     if (req.body.expiresAt !== undefined) {
-      updates.expiresAt = req.body.expiresAt ? new Date(req.body.expiresAt) : null;
+      if (req.body.expiresAt) {
+        const dt = new Date(req.body.expiresAt);
+        if (Number.isNaN(dt.getTime())) {
+          return res.status(400).json({ error: 'Invalid expiry date.' });
+        }
+        updates.expiresAt = dt;
+      } else {
+        updates.expiresAt = null;
+      }
     }
     const coupon = await Coupon.findByIdAndUpdate(req.params.id, updates, { returnDocument: 'after' }).lean();
     if (!coupon) return res.status(404).json({ error: 'Coupon not found.' });

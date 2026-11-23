@@ -45,7 +45,7 @@
         padding: 0 !important;
         margin: 0 auto !important;
         width: 100% !important;
-        max-width: 340px !important;
+        max-width: 540px !important;
       }
       #receiptModalCard {
         box-shadow: none !important;
@@ -72,7 +72,8 @@
         width: 100% !important;
         background: #ffffff !important;
         color: #0f172a !important;
-        padding: 12px !important;
+        padding: 14px 16px !important;
+        font-size: 13px !important;
         overflow: visible !important;
         max-height: none !important;
         page-break-inside: avoid !important;
@@ -1175,7 +1176,7 @@
   <!-- ===================================================================== -->
   <div id="receiptModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
     <div id="receiptModalCard" class="bg-white rounded-2xl max-w-sm w-full max-h-[92vh] max-h-[92dvh] flex flex-col overflow-hidden shadow-2xl">
-      <div id="receiptPrintArea" class="relative overflow-y-auto flex-1 min-h-0 bg-white p-4 sm:p-5 font-mono text-xs text-slate-900"></div>
+      <div id="receiptPrintArea" class="relative overflow-y-auto flex-1 min-h-0 bg-white p-4 sm:p-5 text-xs text-slate-900"></div>
       <div id="receiptModalFooter" class="p-3 bg-slate-50 border-t border-slate-200 flex gap-2 shrink-0">
         <button id="printReceiptBtn" type="button" class="flex-1 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs">🖨️ Print</button>
         <button id="copyReceiptBtn" type="button" class="flex-1 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs">📋 Copy</button>
@@ -2796,8 +2797,8 @@
       let requireVeg = false;
       let requireNonVeg = false;
 
-      const underMatch = q.match(/\b(?:under|below|upto|less than)\s+(\d+)\b/) ||
-        q.match(/\b(\d+)\s+(?:ke andar|se kam|under|below|tk|tak)\b/) ||
+      const underMatch = q.match(/(?:^|\s)(?:under|below|upto|less than)\s+(\d+)(?=\s|$)/) ||
+        q.match(/(?:^|\s)(\d+)\s+(?:ke andar|ke niche|se kam|under|below|tk|tak|के अंदर|के अन्दर|के नीचे|से कम|तक)(?=\s|$)/) ||
         q.match(/^(?:<|<=)\s*(\d+)$/);
       if (underMatch) {
         maxPrice = Number(underMatch[1]);
@@ -2834,65 +2835,175 @@
       };
     }
 
-    function normalizeMenuName(str) {
-      return normalizeSearchText(str);
+    const _itemSearchIdxCache = new WeakMap();
+
+    function normalizeTitleForSearch(str) {
+      return normalizeSearchText(str)
+        .replace(/\b(\d+)\s*ml\b/g, "$1ml")
+        .replace(/\b1\.25\s*(ltr|litre|liter|l)\b/g, "1.25l")
+        .replace(/\b1\s*(ltr|litre|liter|l)\b/g, "1l");
     }
 
-    function wordMatchesToken(hayWords, tok) {
-      if (!tok) return false;
-      const isNum = /^\d/.test(tok);
-      for (const w of hayWords) {
-        if (w === tok) return true;
-        if (!isNum && isFuzzyTokenMatch(tok, w)) return true;
-      }
-      return false;
-    }
+    function getItemSearchIndex(item) {
+      const cat = item.category || "Snacks";
+      const cacheKey = `${state.lang}|${item.updatedAt || ""}|${item.nameHi}|${item.nameEn}|${cat}`;
+      const cached = _itemSearchIdxCache.get(item);
+      if (cached && cached.cacheKey === cacheKey) return cached;
 
-    function getSearchMatchScore(item, rawQuery) {
-      const intent = parseSearchIntent(rawQuery);
-      if (intent.exactPrice !== null) {
-        if ((item.sellingPrice || 0) === intent.exactPrice) return 110;
-        return Math.max(20, 90 - Math.abs(intent.exactPrice - (item.sellingPrice || 0)));
-      }
-      const q = intent.cleanQuery || intent.originalNormalized;
-      if (!q) return 0;
-      const hi = normalizeSearchText(item.nameHi).replace(/\b(\d+)\s*ml\b/g, "$1ml").replace(/\b1\.25\s*(ltr|litre|liter|l)\b/g, "1.25l").replace(/\b1\s*(ltr|litre|liter|l)\b/g, "1l");
-      const en = normalizeSearchText(item.nameEn).replace(/\b(\d+)\s*ml\b/g, "$1ml").replace(/\b1\.25\s*(ltr|litre|liter|l)\b/g, "1.25l").replace(/\b1\s*(ltr|litre|liter|l)\b/g, "1l");
-      const titleCombined = `${hi} ${en}`;
-      const titleWords = titleCombined.split(/\s+/).filter(Boolean);
-      const wantsCombo = /(combo|pack|box|party|family|feast|double|duo|2 cans|कॉम्बो|पैक|बॉक्स|पार्टी|फैमिली)/.test(q);
+      const hiRaw = normalizeSearchText(item.nameHi);
+      const enRaw = normalizeSearchText(item.nameEn);
+      const hi = normalizeTitleForSearch(item.nameHi);
+      const en = normalizeTitleForSearch(item.nameEn);
+      const titleCombined = `${hi} ${en} ${hiRaw} ${enRaw}`.trim();
+      const titleWords = [...new Set(titleCombined.split(/\s+/).filter(Boolean))];
+      const titleWordSet = new Set(titleWords);
+      const rawHay = normalizeSearchText(
+        [
+          item.nameHi,
+          item.nameEn,
+          item.descHi,
+          item.descEn,
+          cat,
+          getCategoryLabel(cat),
+          TRANSLATIONS.hi["cat" + cat.replace(/\s+/g, "")] || "",
+          TRANSLATIONS.en["cat" + cat.replace(/\s+/g, "")] || "",
+        ].join(" ")
+      );
+      const haystack = `${normalizeTitleForSearch(rawHay)} ${rawHay}`.trim();
+      const hayWords = [...new Set(haystack.split(/\s+/).filter(Boolean))];
+      const hayWordSet = new Set(hayWords);
+      const catWords = `${normalizeSearchText(cat)} ${normalizeSearchText(getCategoryLabel(cat))}`.split(/\s+/).filter(Boolean);
       const isSingleCore =
         !(item.nameEn || "").includes("+") &&
         item.category !== "Combos" &&
         !/\b(2 cans|pack|box|duo|double|4 pack)\b/i.test(item.nameEn || "");
+
+      const entry = {
+        cacheKey,
+        hi,
+        en,
+        titleCombined,
+        titleWords,
+        titleWordSet,
+        haystack,
+        hayWords,
+        hayWordSet,
+        catWords,
+        isSingleCore,
+      };
+      _itemSearchIdxCache.set(item, entry);
+      return entry;
+    }
+
+    function fastWordMatch(words, wordSet, tok, allowFuzzy = true) {
+      if (!tok) return false;
+      if (wordSet && wordSet.has(tok)) return true;
+      if (/^\d/.test(tok)) return false;
+      const canPrefix = tok.length >= 3;
+      const canShortFuzzy = allowFuzzy && tok.length >= 3;
+      const canFuzzy = allowFuzzy && tok.length >= 4;
+      for (let i = 0; i < words.length; i++) {
+        const w = words[i];
+        if (w === tok) return true;
+        if (/^\d/.test(w)) continue;
+        if (canPrefix && w.startsWith(tok)) return true;
+        if (canShortFuzzy && w.length >= 3 && Math.max(tok.length, w.length) >= 4 && Math.abs(tok.length - w.length) <= 1) {
+          if (damerauLevenshtein(tok, w, 1) <= 1) return true;
+        }
+        if (canFuzzy && w.length >= 4) {
+          const maxDist = tok.length >= 7 && w.length >= 7 ? 2 : 1;
+          if (Math.abs(tok.length - w.length) <= maxDist && damerauLevenshtein(tok, w, maxDist) <= maxDist) return true;
+        }
+      }
+      return false;
+    }
+
+    const _queryPlanCache = new Map();
+    function buildSearchPlan(rawQuery) {
+      const key = String(rawQuery || "");
+      if (_queryPlanCache.has(key)) return _queryPlanCache.get(key);
+      if (_queryPlanCache.size > 120) _queryPlanCache.clear();
+
+      const intent = parseSearchIntent(rawQuery);
+      const q = intent.cleanQuery;
+      const scoreQ = intent.cleanQuery || intent.originalNormalized;
+      const tokens = q ? q.split(/\s+/).filter(Boolean) : [];
+      const scoreTokens = scoreQ ? scoreQ.split(/\s+/).filter(Boolean) : [];
+      const hasDrinkBrand = tokens.some((tok) => DRINK_BRAND_HINTS.has(tok));
+      const fullExpanded = scoreQ ? expandSearchTerms(scoreQ) : [];
+      const tokenPlans = tokens.map((tok) => ({
+        tok,
+        expanded: expandSearchTerms(tok).map((term) => ({
+          term,
+          isPhrase: term.includes(" "),
+        })),
+      }));
+      const scoreTokenPlans = scoreTokens.map((tok) => ({
+        tok,
+        expanded: expandSearchTerms(tok).map((term) => ({
+          term,
+          isPhrase: term.includes(" "),
+        })),
+      }));
+      const primaryTok = scoreTokens.find((tk) => !/^\d+$/.test(tk)) || scoreTokens[0] || "";
+      const primaryExp = primaryTok ? expandSearchTerms(primaryTok) : [];
+      const wantsCombo = /(combo|pack|box|party|family|feast|double|duo|2 cans|कॉम्बो|पैक|बॉक्स|पार्टी|फैमिली)/.test(scoreQ);
+      const qtyPcsRegex = scoreTokens.length > 0 && /^\d+$/.test(scoreTokens[0]) ? new RegExp(`\\b${scoreTokens[0]}\\s*pcs?\\b`, "i") : null;
+
+      const plan = {
+        intent,
+        q,
+        scoreQ,
+        tokens,
+        scoreTokens,
+        hasDrinkBrand,
+        fullExpanded,
+        tokenPlans,
+        scoreTokenPlans,
+        primaryExp,
+        wantsCombo,
+        qtyPcsRegex,
+      };
+      _queryPlanCache.set(key, plan);
+      return plan;
+    }
+
+    function getSearchMatchScore(item, rawQueryOrPlan) {
+      const plan = typeof rawQueryOrPlan === "string" ? buildSearchPlan(rawQueryOrPlan) : rawQueryOrPlan;
+      const { intent, scoreQ, scoreTokens, hasDrinkBrand, fullExpanded, scoreTokenPlans, primaryExp, wantsCombo, qtyPcsRegex } = plan;
+      if (intent.exactPrice !== null) {
+        if ((item.sellingPrice || 0) === intent.exactPrice) return 110;
+        return Math.max(20, 90 - Math.abs(intent.exactPrice - (item.sellingPrice || 0)));
+      }
+      if (!scoreQ) return 0;
+
+      const idx = getItemSearchIndex(item);
+      const { hi, en, titleCombined, titleWords, titleWordSet, catWords, isSingleCore } = idx;
       const singleBonus = !wantsCombo ? (isSingleCore ? 22 : -10) : 0;
 
-      if (hi === q || en === q) return 100 + singleBonus;
-      const expanded = expandSearchTerms(q);
-      if (expanded.some((term) => hi === term || en === term)) return 98 + singleBonus;
-      if (hi.startsWith(q) || en.startsWith(q)) return 95 + singleBonus;
+      const origQ = intent.originalNormalized;
+      if (origQ && (hi === origQ || en === origQ)) return 120;
+      if (hi === scoreQ || en === scoreQ) return 100 + singleBonus;
+      if (fullExpanded.some((term) => hi === term || en === term)) return 98 + singleBonus;
+      if (hi.startsWith(scoreQ) || en.startsWith(scoreQ)) return 95 + singleBonus;
 
-      const tokens = q.split(/\s+/).filter(Boolean);
-      const hasDrinkBrand = tokens.some((tok) => DRINK_BRAND_HINTS.has(tok));
-      if (tokens.length > 1) {
-        const allTokensInTitle = tokens.every((tok) => {
-          if (wordMatchesToken(titleWords, tok)) return true;
+      if (scoreTokens.length > 1) {
+        const allTokensInTitle = scoreTokenPlans.every(({ tok, expanded }) => {
+          if (fastWordMatch(titleWords, titleWordSet, tok, true)) return true;
           if (hasDrinkBrand && SMALL_BOTTLE_HINTS.has(tok)) {
-            if (["400ml", "500ml", "250ml", "185ml"].some((sz) => titleWords.includes(sz))) return true;
+            if (["400ml", "500ml", "250ml", "185ml"].some((sz) => titleWordSet.has(sz))) return true;
           }
           if (hasDrinkBrand && LARGE_BOTTLE_HINTS.has(tok)) {
-            if (["1l", "1.25l", "litre", "family"].some((sz) => titleWords.includes(sz))) return true;
+            if (["1l", "1.25l", "litre", "family"].some((sz) => titleWordSet.has(sz))) return true;
           }
-          const tokExp = expandSearchTerms(tok);
-          return tokExp.some((term) => (term.includes(" ") ? titleCombined.includes(term) : wordMatchesToken(titleWords, term)));
+          return expanded.some(({ term, isPhrase }) =>
+            isPhrase ? titleCombined.includes(term) : fastWordMatch(titleWords, titleWordSet, term, false)
+          );
         });
         if (allTokensInTitle) {
           const isSingleBoxOrDrink = !(item.nameEn || "").includes("+");
           const boxBoost = isSingleBoxOrDrink ? 8 : 0;
-          const qtyMatchBoost =
-            /^\d+$/.test(tokens[0]) && new RegExp(`\\b${tokens[0]}\\s*pcs?\\b`, "i").test(titleCombined) ? 14 : 0;
-          const primaryTok = tokens.find((tk) => !/^\d+$/.test(tk)) || tokens[0];
-          const primaryExp = expandSearchTerms(primaryTok);
+          const qtyMatchBoost = qtyPcsRegex && qtyPcsRegex.test(titleCombined) ? 14 : 0;
           if (primaryExp.some((term) => hi.startsWith(term) || en.startsWith(term))) {
             return 84 + boxBoost + qtyMatchBoost + singleBonus;
           }
@@ -2900,31 +3011,37 @@
         }
       }
 
-      if (hi.includes(q) || en.includes(q)) return 72 + singleBonus;
+      if (hi.includes(scoreQ) || en.includes(scoreQ)) return 72 + singleBonus;
 
-      if (tokens.length === 1 && expanded.some((term) => hi.startsWith(term) || en.startsWith(term))) {
+      if (scoreTokens.length === 1 && fullExpanded.some((term) => hi.startsWith(term) || en.startsWith(term))) {
         return 62 + singleBonus;
       }
-      if (expanded.some((term) => (term.includes(" ") ? titleCombined.includes(term) : wordMatchesToken(titleWords, term)))) {
+      if (fullExpanded.some((term) => (term.includes(" ") ? titleCombined.includes(term) : fastWordMatch(titleWords, titleWordSet, term, false)))) {
         return 50 + singleBonus;
       }
 
-      const cat = normalizeSearchText(item.category || "");
-      const catLbl = normalizeSearchText(getCategoryLabel(item.category || "Snacks"));
-      const catWords = `${cat} ${catLbl}`.split(/\s+/).filter(Boolean);
-      if (wordMatchesToken(catWords, q) || expanded.some((term) => wordMatchesToken(catWords, term))) return 35 + singleBonus;
+      if (fastWordMatch(catWords, null, scoreQ, true) || fullExpanded.some((term) => fastWordMatch(catWords, null, term, false))) {
+        return 35 + singleBonus;
+      }
       return 20;
     }
 
     function sortMenuItemsForDisplay(items, byCategoryOrder = true, searchQuery = "") {
       const q = normalizeSearchText(searchQuery);
+      const plan = q ? buildSearchPlan(searchQuery) : null;
+      const scoreMap = new Map();
+      if (plan) {
+        for (const it of items) {
+          scoreMap.set(it, getSearchMatchScore(it, plan));
+        }
+      }
       return [...items].sort((a, b) => {
         const aIn = a.inStock !== false && a.stockCount !== 0 ? 0 : 1;
         const bIn = b.inStock !== false && b.stockCount !== 0 ? 0 : 1;
         if (aIn !== bIn) return aIn - bIn;
 
-        if (q) {
-          const scoreDiff = getSearchMatchScore(b, q) - getSearchMatchScore(a, q);
+        if (plan) {
+          const scoreDiff = (scoreMap.get(b) || 0) - (scoreMap.get(a) || 0);
           if (scoreDiff !== 0) return scoreDiff;
         }
 
@@ -2975,57 +3092,41 @@
     }
 
     function itemMatchesSearch(item, rawQuery) {
-      const intent = parseSearchIntent(rawQuery);
+      const plan = buildSearchPlan(rawQuery);
+      const { intent, q, tokens, hasDrinkBrand, tokenPlans, fullExpanded } = plan;
       if (intent.maxPrice !== null && (item.sellingPrice || 0) > intent.maxPrice) return false;
       if (intent.requireVeg && item.isVeg === false) return false;
       if (intent.requireNonVeg && item.isVeg !== false) return false;
+      const idx = getItemSearchIndex(item);
       if (intent.exactPrice !== null) {
         if ((item.sellingPrice || 0) === intent.exactPrice) return true;
-        const priceHay = normalizeSearchText(`${item.nameHi} ${item.nameEn}`).split(/\s+/);
-        if (priceHay.includes(String(intent.exactPrice))) return true;
+        if (idx.titleWordSet.has(String(intent.exactPrice))) return true;
         if (intent.exactPrice >= 20 && intent.exactPrice % 10 === 0 && (item.sellingPrice || 0) <= intent.exactPrice) return true;
         return false;
       }
 
-      const q = intent.cleanQuery;
       if (!q) {
         return intent.maxPrice !== null || intent.requireVeg || intent.requireNonVeg;
       }
 
-      const cat = item.category || "Snacks";
-      const haystack = normalizeSearchText(
-        [
-          item.nameHi,
-          item.nameEn,
-          item.descHi,
-          item.descEn,
-          cat,
-          getCategoryLabel(cat),
-          TRANSLATIONS.hi["cat" + cat.replace(/\s+/g, "")] || "",
-          TRANSLATIONS.en["cat" + cat.replace(/\s+/g, "")] || "",
-        ].join(" ")
-      ).replace(/\b(\d+)\s*ml\b/g, "$1ml").replace(/\b1\.25\s*(ltr|litre|liter|l)\b/g, "1.25l").replace(/\b1\s*(ltr|litre|liter|l)\b/g, "1l");
-      const hayWords = haystack.split(/\s+/).filter(Boolean);
-      const tokens = q.split(/\s+/).filter(Boolean);
-      const hasDrinkBrand = tokens.some((tok) => DRINK_BRAND_HINTS.has(tok));
-
+      const { haystack, hayWords, hayWordSet } = idx;
       if (tokens.length > 1) {
-        return tokens.every((tok) => {
-          if (wordMatchesToken(hayWords, tok)) return true;
+        return tokenPlans.every(({ tok, expanded }) => {
+          if (fastWordMatch(hayWords, hayWordSet, tok, true)) return true;
           if (hasDrinkBrand && SMALL_BOTTLE_HINTS.has(tok)) {
-            if (["400ml", "500ml", "250ml", "185ml"].some((sz) => hayWords.includes(sz) || haystack.includes(sz))) return true;
+            if (["400ml", "500ml", "250ml", "185ml"].some((sz) => hayWordSet.has(sz))) return true;
           }
           if (hasDrinkBrand && LARGE_BOTTLE_HINTS.has(tok)) {
-            if (["1l", "1.25l", "litre", "family"].some((sz) => hayWords.includes(sz) || haystack.includes(sz))) return true;
+            if (["1l", "1.25l", "litre", "family"].some((sz) => hayWordSet.has(sz))) return true;
           }
-          const tokExp = expandSearchTerms(tok);
-          return tokExp.some((term) => (term.includes(" ") ? haystack.includes(term) : wordMatchesToken(hayWords, term)));
+          return expanded.some(({ term, isPhrase }) =>
+            isPhrase ? haystack.includes(term) : fastWordMatch(hayWords, hayWordSet, term, false)
+          );
         });
       }
 
-      if (wordMatchesToken(hayWords, q)) return true;
-      const expanded = expandSearchTerms(q);
-      return expanded.some((term) => (term.includes(" ") ? haystack.includes(term) : wordMatchesToken(hayWords, term)));
+      if (fastWordMatch(hayWords, hayWordSet, q, true)) return true;
+      return fullExpanded.some((term) => (term.includes(" ") ? haystack.includes(term) : fastWordMatch(hayWords, hayWordSet, term, false)));
     }
 
     function getCategoryLabel(cat) {
@@ -5427,19 +5528,20 @@
       const siteUrl = "gaonrasoi.github.io";
       const safeOrderId = escapeHtml(String(ord._id || ord.orderNumber || "rcpt").replace(/[^a-zA-Z0-9_-]/g, ""));
       const patternId = `grWmPattern_${safeOrderId}`;
+      const sealFontSize = shopName.length > 12 ? 12.5 : 15.5;
       const rows = (ord.items || [])
         .map(
-          (it) => `<div class="flex justify-between gap-2">
-            <span class="font-medium text-slate-800">${escapeHtml(it.nameEn)} x${it.quantity}</span>
-            <span class="font-bold text-slate-900 shrink-0">₹${it.sellingPrice * it.quantity}</span>
+          (it) => `<div class="flex justify-between gap-2 text-xs sm:text-[13px]">
+            <span class="font-semibold text-slate-800">${escapeHtml(it.nameEn)} <span class="font-mono font-bold">x${it.quantity}</span></span>
+            <span class="font-mono font-extrabold text-slate-900 shrink-0">₹${it.sellingPrice * it.quantity}</span>
           </div>`
         )
         .join("");
       const kotRows = (ord.items || [])
         .map(
-          (it) => `<div class="flex items-center justify-between gap-2 py-0.5">
-            <span class="font-extrabold text-slate-900 text-[12px] leading-snug">${escapeHtml(it.nameHi)} / ${escapeHtml(it.nameEn)}</span>
-            <span class="px-2 py-0.5 rounded-md bg-orange-100/90 border border-orange-300 text-orange-900 font-black text-xs shrink-0">× ${it.quantity}</span>
+          (it) => `<div class="flex items-center justify-between gap-2 py-1">
+            <span class="font-extrabold text-slate-900 text-[13px] leading-snug">${escapeHtml(it.nameHi)} / ${escapeHtml(it.nameEn)}</span>
+            <span class="px-2 py-0.5 rounded-md bg-orange-100/80 border border-orange-400 text-orange-950 font-mono font-black text-xs shrink-0">× ${it.quantity}</span>
           </div>`
         )
         .join("");
@@ -5447,14 +5549,14 @@
       document.getElementById("receiptPrintArea").innerHTML = `
         <div class="relative overflow-hidden bg-white">
           <!-- Micro Tiled Blended Watermarks: Mini Logo + Shop Name + Website -->
-          <svg aria-hidden="true" class="pointer-events-none select-none absolute inset-0 w-full h-full opacity-[0.075]" style="mix-blend-mode:multiply;">
+          <svg aria-hidden="true" class="pointer-events-none select-none absolute inset-0 w-full h-full">
             <defs>
-              <pattern id="${patternId}" width="150" height="76" patternUnits="userSpaceOnUse" patternTransform="rotate(-24)">
-                <g fill="none" stroke="#ea580c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" transform="translate(8,14) scale(0.72)">
+              <pattern id="${patternId}" width="138" height="66" patternUnits="userSpaceOnUse" patternTransform="rotate(-24)">
+                <g fill="none" stroke="#ea580c" stroke-opacity="0.16" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" transform="translate(8,12) scale(0.68)">
                   <path d="M3 11h18M5 11a7 7 0 0 0 14 0M12 4v2M8 5l.5 1.5M16 5l-.5 1.5M7 19h10" />
                 </g>
-                <text x="30" y="25" fill="#ea580c" font-size="9.5" font-weight="800" font-family="system-ui, sans-serif">${escapeHtml(shopName)}</text>
-                <text x="30" y="36" fill="#334155" font-size="7.2" font-weight="700" font-family="monospace">${siteUrl}</text>
+                <text x="29" y="22" fill="#c2410c" fill-opacity="0.16" font-size="9.5" font-weight="800" font-family="Plus Jakarta Sans, Noto Sans Devanagari, system-ui, sans-serif">${escapeHtml(shopName)}</text>
+                <text x="29" y="33" fill="#334155" fill-opacity="0.15" font-size="7.5" font-weight="700" font-family="monospace">${siteUrl}</text>
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#${patternId})" />
@@ -5462,36 +5564,36 @@
 
           <!-- Big Center Blended Brand Seal Watermark -->
           <div aria-hidden="true" class="pointer-events-none select-none absolute inset-0 flex items-center justify-center">
-            <svg viewBox="0 0 220 220" class="w-56 h-56 opacity-[0.095]" style="mix-blend-mode:multiply;">
-              <circle cx="110" cy="110" r="102" fill="none" stroke="#ea580c" stroke-width="4" stroke-dasharray="6 4" />
-              <circle cx="110" cy="110" r="90" fill="#fed7aa" fill-opacity="0.35" stroke="#ea580c" stroke-width="2" />
-              <g transform="translate(52,44) scale(4.8)" fill="none" stroke="#c2410c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 260 260" class="w-60 h-60 sm:w-64 sm:h-64">
+              <circle cx="130" cy="130" r="118" fill="none" stroke="#ea580c" stroke-opacity="0.16" stroke-width="4" stroke-dasharray="7 5" />
+              <circle cx="130" cy="130" r="106" fill="#fed7aa" fill-opacity="0.14" stroke="#ea580c" stroke-opacity="0.18" stroke-width="2" />
+              <g transform="translate(68,48) scale(5.1)" fill="none" stroke="#c2410c" stroke-opacity="0.18" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 11h18M5 11a7 7 0 0 0 14 0M12 4v2M8 5l.5 1.5M16 5l-.5 1.5M7 19h10" />
               </g>
-              <text x="110" y="168" text-anchor="middle" fill="#9a3412" font-size="15" font-weight="900" font-family="system-ui, sans-serif">${escapeHtml(shopName)}</text>
-              <text x="110" y="185" text-anchor="middle" fill="#475569" font-size="10.5" font-weight="700" font-family="monospace">${siteUrl}</text>
+              <text x="130" y="190" text-anchor="middle" fill="#9a3412" fill-opacity="0.20" font-size="${sealFontSize}" font-weight="900" font-family="Plus Jakarta Sans, Noto Sans Devanagari, system-ui, sans-serif">${escapeHtml(shopName)}</text>
+              <text x="130" y="210" text-anchor="middle" fill="#334155" fill-opacity="0.18" font-size="11" font-weight="700" font-family="monospace">${siteUrl}</text>
             </svg>
           </div>
 
           <!-- Foreground Receipt + Kitchen KOT Content -->
           <div class="relative z-10 space-y-2.5">
-            <!-- Top Brand Header with Logo -->
+            <!-- Top Brand Header with Crisp SVG Logo -->
             <div class="text-center border-b border-dashed border-slate-400 pb-2.5 space-y-1">
-              <div class="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-md shadow-orange-200 mx-auto">
-                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+              <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-md shadow-orange-200 mx-auto">
+                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M3 11h18M5 11a7 7 0 0 0 14 0M12 4v2M8 5l.5 1.5M16 5l-.5 1.5M7 19h10" />
                 </svg>
               </div>
-              <div class="text-base font-extrabold tracking-tight text-slate-900">${escapeHtml(shopName)}</div>
-              <div class="text-[10px] font-bold text-orange-700 tracking-wide">${siteUrl}</div>
-              <div class="text-[11px] font-bold text-slate-800 pt-0.5">Order: ${escapeHtml(ord.orderNumber)} (${escapeHtml(ord.source || "Website")})</div>
-              <div class="text-[10px] text-slate-600">${escapeHtml(formatIST(ord.createdAt))}</div>
+              <div class="text-lg font-extrabold tracking-tight text-slate-900">${escapeHtml(shopName)}</div>
+              <div class="font-mono text-[11px] font-bold text-orange-700 tracking-wide">${siteUrl}</div>
+              <div class="font-mono text-xs font-extrabold text-slate-800 pt-0.5">Order: ${escapeHtml(ord.orderNumber)} (${escapeHtml(ord.source || "Website")})</div>
+              <div class="font-mono text-[11px] text-slate-600">${escapeHtml(formatIST(ord.createdAt))}</div>
             </div>
 
             <!-- Customer Details -->
-            <div class="border-b border-dashed border-slate-400 pb-2 space-y-0.5 text-slate-800">
+            <div class="border-b border-dashed border-slate-400 pb-2 space-y-0.5 text-slate-800 text-xs sm:text-[13px]">
               <div><span class="font-bold">Customer:</span> ${escapeHtml(ord.customerName)}</div>
-              <div><span class="font-bold">Phone:</span> ${escapeHtml(ord.phone)}</div>
+              <div><span class="font-bold">Phone:</span> <span class="font-mono font-semibold">${escapeHtml(ord.phone)}</span></div>
               <div><span class="font-bold">Addr:</span> ${escapeHtml(ord.address)}</div>
             </div>
 
@@ -5499,33 +5601,49 @@
             <div class="border-b border-dashed border-slate-400 pb-2 space-y-1">${rows}</div>
 
             <!-- Totals -->
-            <div class="space-y-1">
-              <div class="flex justify-between text-slate-700"><span>Subtotal</span><span>₹${ord.subtotal}</span></div>
-              ${ord.discountAmount ? `<div class="flex justify-between text-emerald-700 font-bold"><span>Discount</span><span>-₹${ord.discountAmount}</span></div>` : ""}
-              <div class="flex justify-between text-slate-700"><span>Delivery</span><span>₹${ord.deliveryCharge}</span></div>
-              <div class="flex justify-between font-extrabold text-sm text-slate-900 border-t border-slate-300 pt-1"><span>TOTAL (COD)</span><span>₹${ord.totalAmount}</span></div>
+            <div class="space-y-1 text-xs sm:text-[13px]">
+              <div class="flex justify-between text-slate-700"><span>Subtotal</span><span class="font-mono font-bold">₹${ord.subtotal}</span></div>
+              ${ord.discountAmount ? `<div class="flex justify-between text-emerald-700 font-bold"><span>Discount</span><span class="font-mono">-₹${ord.discountAmount}</span></div>` : ""}
+              <div class="flex justify-between text-slate-700"><span>Delivery</span><span class="font-mono font-bold">₹${ord.deliveryCharge}</span></div>
+              <div class="flex justify-between font-extrabold text-sm sm:text-base text-slate-900 border-t border-slate-300 pt-1"><span>TOTAL (COD)</span><span class="font-mono">₹${ord.totalAmount}</span></div>
             </div>
 
-            ${state.settings.upiId ? `<div class="text-center text-[11px] font-semibold text-slate-700">UPI: ${escapeHtml(state.settings.upiId)}</div>` : ""}
-            <div class="text-center text-[10px] font-semibold text-slate-600">Thank you! Visit again 🙏 • ${siteUrl}</div>
+            ${state.settings.upiId ? `<div class="text-center font-mono text-[11px] font-semibold text-slate-700">UPI: ${escapeHtml(state.settings.upiId)}</div>` : ""}
+            <div class="text-center text-[11px] font-semibold text-slate-600">Thank you! Visit again • <span class="font-mono font-bold text-orange-700">${siteUrl}</span></div>
 
-            <!-- Unified Perforated Cut Line + KITCHEN KOT Section -->
-            <div class="pt-1.5">
-              <div class="flex items-center gap-1.5 text-[10px] font-black text-slate-500 uppercase tracking-wider">
-                <span>✂️</span>
+            <!-- Unified Perforated Cut Line + KITCHEN KOT Section (SVG Icons for Print-Perfect PDF) -->
+            <div class="pt-1">
+              <div class="flex items-center gap-1.5 text-[11px] font-black text-slate-700 uppercase tracking-wider">
+                <svg class="w-4 h-4 text-slate-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="6" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><line x1="20" y1="4" x2="8.12" y2="15.88" /><line x1="14.47" y1="14.48" x2="20" y2="20" /><line x1="8.12" y1="8.12" x2="12" y2="12" />
+                </svg>
                 <span class="flex-1 border-t-2 border-dashed border-slate-400"></span>
-                <span class="px-2 py-0.5 rounded-full bg-amber-100/90 text-amber-900 border border-amber-300">🍳 KITCHEN KOT</span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-100/80 text-amber-950 border border-amber-400">
+                  <svg class="w-3.5 h-3.5 text-orange-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12h18M5 12a7 7 0 0 0 14 0M12 5v2M8 6l.5 1.5M16 6l-.5 1.5" />
+                  </svg>
+                  <span>KITCHEN KOT</span>
+                </span>
                 <span class="flex-1 border-t-2 border-dashed border-slate-400"></span>
               </div>
             </div>
 
-            <div class="rounded-xl border border-dashed border-amber-400 bg-amber-50/40 p-2.5 space-y-2">
-              <div class="flex items-center justify-between gap-2 text-[10px] font-bold text-slate-700 border-b border-dashed border-amber-300 pb-1">
+            <div class="rounded-xl border border-dashed border-amber-500/80 bg-amber-50/20 p-2.5 space-y-2">
+              <div class="flex items-center justify-between gap-2 font-mono text-[11px] font-bold text-slate-700 border-b border-dashed border-amber-300 pb-1">
                 <span>${escapeHtml(ord.orderNumber)} • ${escapeHtml(ord.customerName)}</span>
                 <span>${escapeHtml(formatIST(ord.createdAt))}</span>
               </div>
               <div class="space-y-1 divide-y divide-amber-200/70">${kotRows}</div>
-              ${ord.customerNote ? `<div class="p-2 rounded-lg bg-amber-100/90 border border-amber-300 font-extrabold text-amber-950 text-[11px]">📝 NOTE: ${escapeHtml(ord.customerNote)}</div>` : ""}
+              ${
+                ord.customerNote
+                  ? `<div class="p-2 rounded-lg bg-amber-100/75 border border-amber-400 font-extrabold text-amber-950 text-xs flex items-start gap-1.5">
+                      <svg class="w-4 h-4 text-amber-800 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                      </svg>
+                      <span>NOTE: ${escapeHtml(ord.customerNote)}</span>
+                    </div>`
+                  : ""
+              }
             </div>
           </div>
         </div>
@@ -8386,5 +8504,5 @@
     renderAll();
     loadStoreData();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5efee8b6a31d90e',t:'MTc5NTQzNDM2OQ=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5efee8b6a31d90e',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5f050c25f2f3a58',t:'MTc5NTQzODM5Mg=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5f050c25f2f3a58',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
