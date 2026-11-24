@@ -974,8 +974,17 @@
                 <input id="couponPerUserLimit" type="number" min="0" placeholder="जैसे: 1 बार (0=असीमित)" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm font-bold" />
               </div>
               <div>
-                <label class="block text-[11px] font-bold text-slate-700 mb-1">कब तक वैध (Expiry Date)</label>
-                <input id="couponExpiresAt" type="date" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm" />
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">कब तक वैध (तारीख व समय / Expiry Date &amp; Time)</label>
+                <div class="grid grid-cols-2 gap-1.5">
+                  <input id="couponExpiresAt" type="date" class="w-full rounded-xl border border-slate-300 px-2.5 py-2 text-xs sm:text-sm" />
+                  <input id="couponExpiresTime" type="time" title="कितने बजे तक वैध" class="w-full rounded-xl border border-slate-300 px-2.5 py-2 text-xs sm:text-sm" />
+                </div>
+                <div class="flex flex-wrap gap-1 mt-1.5">
+                  <button type="button" data-cp-preset-mins="60" class="px-2 py-0.5 rounded-md bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-800 text-[10px] font-bold">⏱️ +1 घंटा</button>
+                  <button type="button" data-cp-preset-mins="120" class="px-2 py-0.5 rounded-md bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-800 text-[10px] font-bold">⏱️ +2 घंटे</button>
+                  <button type="button" data-cp-preset-today="22:00" class="px-2 py-0.5 rounded-md bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 text-[10px] font-bold">🌙 आज 10 PM</button>
+                  <button type="button" data-cp-preset-clear="1" class="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] font-bold">🧹 हटाएं</button>
+                </div>
               </div>
             </div>
 
@@ -1338,6 +1347,14 @@
         couponNeedMore: (diff) => `₹${diff} और जोड़ें`,
         couponFirstOrderBadge: "1st Order",
         couponPerUserBadge: (n) => `${n}x/Mobile`,
+        couponFreeDeliveryBadge: "फ़्री डिलीवरी",
+        couponBothFreeDel: (disc) => `${disc} + फ़्री डिलीवरी`,
+        couponFreeDelOnMin: (amt) => `₹${amt}+ पर फ़्री डिलीवरी`,
+        couponFreeDelAll: "सभी ऑर्डर पर फ़्री डिलीवरी",
+        couponMinOrderLabel: (amt) => `₹${amt}+ ऑर्डर पर`,
+        couponAllOrdersLabel: "सभी ऑर्डर पर",
+        couponEndsIn: (timeStr) => `⏳ ${timeStr} में समाप्त`,
+        couponExpiredToast: (code) => `⏳ कूपन ${code} का समय समाप्त हो गया।`,
         couponAppliedMsg: (code, disc) => `✅ कूपन ${code} लागू! ₹${disc} की बचत हुई।`,
         couponBothAppliedMsg: (code, disc) => `✅ कूपन ${code} लागू! ₹${disc} आइटम छूट + डिलीवरी फ़्री!`,
         couponFreeDelMsg: (code) => `✅ कूपन ${code} लागू! डिलीवरी फ़्री हो गई।`,
@@ -1654,6 +1671,14 @@
         couponNeedMore: (diff) => `Add ₹${diff} more`,
         couponFirstOrderBadge: "1st Order",
         couponPerUserBadge: (n) => `${n}x/Mobile`,
+        couponFreeDeliveryBadge: "Free Delivery",
+        couponBothFreeDel: (disc) => `${disc} + Free Delivery`,
+        couponFreeDelOnMin: (amt) => `Free Delivery on ₹${amt}+`,
+        couponFreeDelAll: "Free Delivery on All Orders",
+        couponMinOrderLabel: (amt) => `Min ₹${amt}`,
+        couponAllOrdersLabel: "All Orders",
+        couponEndsIn: (timeStr) => `⏳ Ends in ${timeStr}`,
+        couponExpiredToast: (code) => `⏳ Coupon ${code} has expired.`,
         couponAppliedMsg: (code, disc) => `✅ Coupon ${code} applied! You save ₹${disc}.`,
         couponBothAppliedMsg: (code, disc) => `✅ Coupon ${code} applied! ₹${disc} item discount + FREE delivery!`,
         couponFreeDelMsg: (code) => `✅ Coupon ${code} applied! Delivery is FREE.`,
@@ -1884,6 +1909,7 @@
       },
       clockOffsetMs: 0,
       liveTimerInterval: null,
+      couponTimerInterval: null,
       orderTrackTimerInterval: null,
       menu: [],
       coupons: [],
@@ -2257,6 +2283,112 @@
       }
     }
 
+    function formatCouponCountdown(ms) {
+      const totalSec = Math.max(0, Math.floor(ms / 1000));
+      const d = Math.floor(totalSec / 86400);
+      const h = Math.floor((totalSec % 86400) / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+      const pad = (n) => String(n).padStart(2, "0");
+      if (d > 0) return `${d}d ${pad(h)}h ${pad(m)}m`;
+      return `${pad(h)}:${pad(m)}:${pad(s)}`;
+    }
+
+    function toISTDateAndTimeInputs(dateInput) {
+      const d = dateInput instanceof Date ? dateInput : new Date(dateInput);
+      if (Number.isNaN(d.getTime())) return { dateStr: "", timeStr: "" };
+      const dateStr = d.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+      const timeParts = d.toLocaleTimeString("en-GB", {
+        timeZone: "Asia/Kolkata",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+      const timeStr = timeParts.startsWith("24:") ? `00:${timeParts.slice(3, 5)}` : timeParts.slice(0, 5);
+      return { dateStr, timeStr };
+    }
+
+    function formatISTDateTimeShort(dateInput) {
+      const d = dateInput instanceof Date ? dateInput : new Date(dateInput);
+      if (Number.isNaN(d.getTime())) return "";
+      const datePart = d.toLocaleDateString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        day: "numeric",
+        month: "short",
+      });
+      const timePart = d.toLocaleTimeString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+      return `${datePart}, ${timePart}`;
+    }
+
+    function updateCouponTimersUI() {
+      const nowServer = Date.now() - state.clockOffsetMs;
+      const els = document.querySelectorAll("[data-cp-timer]");
+      let anyFuture = false;
+      let storefrontExpired = false;
+
+      els.forEach((el) => {
+        const expMs = Number(el.dataset.cpTimer || 0);
+        if (!expMs) return;
+        const remaining = expMs - nowServer;
+        if (remaining <= 0) {
+          if (el.dataset.cpScope === "storefront") {
+            storefrontExpired = true;
+          } else {
+            el.textContent = state.lang === "hi" ? "⏳ समाप्त" : "⏳ Expired";
+            el.classList.remove("bg-amber-100", "text-amber-800", "border-amber-200");
+            el.classList.add("bg-red-100", "text-red-700", "border-red-200");
+          }
+        } else {
+          anyFuture = true;
+          const formatted = formatCouponCountdown(remaining);
+          el.textContent = el.dataset.cpScope === "admin" ? `⏳ ${formatted}` : t("couponEndsIn", formatted);
+        }
+      });
+
+      if (storefrontExpired) {
+        const prevAppliedCode = state.appliedCoupon ? state.appliedCoupon.code : "";
+        const stillValid = (state.coupons || []).filter((c) => !c.expiresAt || new Date(c.expiresAt).getTime() > nowServer);
+        state.coupons = stillValid;
+        if (prevAppliedCode && !stillValid.some((c) => c.code === prevAppliedCode)) {
+          state.appliedCoupon = null;
+          showToast(t("couponExpiredToast", prevAppliedCode), "info");
+        }
+        renderStorefrontCoupons(true);
+        renderFloatingCart();
+        renderCheckoutDrawer();
+        startCouponTimerLoop(true);
+        return;
+      }
+
+      if (!anyFuture && state.couponTimerInterval) {
+        clearInterval(state.couponTimerInterval);
+        state.couponTimerInterval = null;
+      }
+    }
+
+    function startCouponTimerLoop(skipImmediate = false) {
+      if (state.couponTimerInterval) {
+        clearInterval(state.couponTimerInterval);
+        state.couponTimerInterval = null;
+      }
+      const nowServer = Date.now() - state.clockOffsetMs;
+      const hasStorefrontExpiry = (state.coupons || []).some(
+        (c) => c.expiresAt && new Date(c.expiresAt).getTime() > nowServer
+      );
+      const hasAdminExpiry = (state.adminCoupons || []).some(
+        (c) => c.expiresAt && new Date(c.expiresAt).getTime() > nowServer
+      );
+      if (hasStorefrontExpiry || hasAdminExpiry) {
+        if (!skipImmediate) updateCouponTimersUI();
+        state.couponTimerInterval = setInterval(updateCouponTimersUI, 1000);
+      }
+    }
+
     function applyTheme(themeName) {
       const allowed = ["light", "dark", "warm"];
       const next = allowed.includes(themeName) ? themeName : "light";
@@ -2452,6 +2584,7 @@
         saveCart();
         renderAll();
         startLiveTimerLoop();
+        startCouponTimerLoop();
         if (state.customerPhone) {
           syncCustomerOrderHistory(state.customerPhone, false);
         } else if (state.recentOrder && ["Pending", "Cooking", "Out for Delivery"].includes(state.recentOrder.status)) {
@@ -2851,15 +2984,15 @@
       let requireVeg = false;
       let requireNonVeg = false;
 
-      const underMatch = q.match(/(?:^|\s)(?:under|below|upto|less than)\s+(\d+)(?=\s|$)/) ||
-        q.match(/(?:^|\s)(\d+)\s+(?:ke andar|ke niche|se kam|under|below|tk|tak|के अंदर|के अन्दर|के नीचे|से कम|तक)(?=\s|$)/) ||
+      const underMatch = q.match(/(?:^|\s)(?:under|below|upto|less than)\s+(?:rs|rupees|rupaye|रुपये|रुपए)?\s*(\d+)(?=\s|$)/) ||
+        q.match(/(?:^|\s)(\d+)\s+(?:(?:rs|rupees|rupaye|रुपये|रुपए)\s+)?(?:ke andar|ke niche|se kam|under|below|tk|tak|के अंदर|के अन्दर|के नीचे|से कम|तक)(?=\s|$)/) ||
         q.match(/^(?:<|<=)\s*(\d+)$/);
       if (underMatch) {
         maxPrice = Number(underMatch[1]);
         q = q.replace(underMatch[0], " ").replace(/\s+/g, " ").trim();
-      } else if (/^(?:sasta|cheap|budget)$/.test(q)) {
+      } else if (/(?:^|\s)(?:sasta|cheap|budget|सस्ता|सस्ते)(?=\s|$)/.test(q)) {
         maxPrice = 40;
-        q = "";
+        q = q.replace(/(?:^|\s)(?:sasta|cheap|budget|सस्ता|सस्ते)(?=\s|$)/g, " ").replace(/\s+/g, " ").trim();
       } else if (/^\d{2,3}$/.test(q)) {
         const n = Number(q);
         if (n >= 10 && n <= 999 && n !== 199 && n !== 185 && n !== 250 && n !== 400 && n !== 500) {
@@ -4598,7 +4731,7 @@
       const target =
         c.applyTarget ||
         (c.discountType === "FREE_DELIVERY" ? "FREE_DELIVERY" : c.freeDeliveryIncluded ? "BOTH" : "ITEMS");
-      if (target === "FREE_DELIVERY" || c.discountType === "FREE_DELIVERY") return t("freeDeliveryApplied");
+      if (target === "FREE_DELIVERY" || c.discountType === "FREE_DELIVERY") return t("couponFreeDeliveryBadge");
       let discLabel = "";
       if (c.discountType === "PERCENT") {
         const cap = c.maxDiscount > 0 ? ` (Max ₹${c.maxDiscount})` : "";
@@ -4606,15 +4739,30 @@
       } else {
         discLabel = `₹${c.discountValue} OFF`;
       }
-      return target === "BOTH" ? `${discLabel} + Free Delivery` : discLabel;
+      return target === "BOTH" ? t("couponBothFreeDel", discLabel) : discLabel;
     }
 
-    function renderStorefrontCoupons() {
+    function getCouponRuleLine(c, customTitle) {
+      const target =
+        c.applyTarget ||
+        (c.discountType === "FREE_DELIVERY" ? "FREE_DELIVERY" : c.freeDeliveryIncluded ? "BOTH" : "ITEMS");
+      const minAmt = Number(c.minOrderAmount || 0);
+      if (target === "FREE_DELIVERY" || c.discountType === "FREE_DELIVERY") {
+        const rule = minAmt > 0 ? t("couponFreeDelOnMin", minAmt) : t("couponFreeDelAll");
+        return customTitle ? `${customTitle} (${rule})` : rule;
+      }
+      const minPart = minAmt > 0 ? t("couponMinOrderLabel", minAmt) : t("couponAllOrdersLabel");
+      return customTitle ? (minAmt > 0 ? `${customTitle} (${minPart})` : customTitle) : minPart;
+    }
+
+    function renderStorefrontCoupons(skipTimerLoop = false) {
       const bar = document.getElementById("storefrontCouponsBar");
       const list = document.getElementById("storefrontCouponsList");
       if (!bar || !list) return;
-      const coupons = state.coupons || [];
+      const nowServer = Date.now() - state.clockOffsetMs;
+      const coupons = (state.coupons || []).filter((c) => !c.expiresAt || new Date(c.expiresAt).getTime() > nowServer);
       if (coupons.length === 0) {
+        list.innerHTML = "";
         bar.classList.add("hidden");
         return;
       }
@@ -4622,7 +4770,7 @@
         .map((c) => {
           const badge = formatCouponBadgeText(c);
           const customTitle = (state.lang === "hi" ? c.titleHi : c.titleEn) || c.titleHi || c.titleEn || "";
-          const minPart = c.minOrderAmount > 0 ? `Min ₹${c.minOrderAmount}` : "All Orders";
+          const ruleLine = getCouponRuleLine(c, customTitle);
           const catArr = Array.isArray(c.applicableCategories) ? c.applicableCategories.filter(Boolean) : [];
           const catLabel =
             catArr.length >= 6
@@ -4630,6 +4778,13 @@
               : catArr.map((cat) => getCategoryLabel(cat)).join(" / ");
           const catTag = catLabel ? ` • ${catLabel}` : "";
           const firstTag = c.firstOrderOnly ? ` • ${t("couponFirstOrderBadge")}` : "";
+          const expMs = c.expiresAt ? new Date(c.expiresAt).getTime() : 0;
+          const timerHtml =
+            expMs > nowServer
+              ? `<div class="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-100/90 border border-amber-200 text-amber-900 text-[10px] font-extrabold tabular-nums" data-cp-timer="${expMs}" data-cp-scope="storefront">${escapeHtml(
+                  t("couponEndsIn", formatCouponCountdown(expMs - nowServer))
+                )}</div>`
+              : "";
           return `<button type="button" data-sf-coupon="${escapeHtml(c.code)}"
             class="shrink-0 text-left rounded-2xl bg-gradient-to-r from-orange-50 to-amber-50 hover:from-orange-100 hover:to-amber-100 border border-orange-200 px-3 py-2 shadow-sm transition active:scale-95">
             <div class="flex items-center gap-1.5">
@@ -4637,12 +4792,14 @@
               <span class="text-xs font-extrabold text-orange-900">${escapeHtml(badge)}</span>
             </div>
             <div class="text-[10px] font-semibold text-slate-600 mt-0.5 leading-snug">
-              ${escapeHtml(customTitle || minPart)}${customTitle && c.minOrderAmount > 0 ? ` (${minPart})` : ""}${escapeHtml(catTag)}${escapeHtml(firstTag)}
+              ${escapeHtml(ruleLine)}${escapeHtml(catTag)}${escapeHtml(firstTag)}
             </div>
+            ${timerHtml}
           </button>`;
         })
         .join("");
       bar.classList.remove("hidden");
+      if (!skipTimerLoop) startCouponTimerLoop();
 
       list.querySelectorAll("[data-sf-coupon]").forEach((btn) => {
         btn.addEventListener("click", () => {
@@ -4664,8 +4821,10 @@
       const wrap = document.getElementById("checkoutAvailableCouponsWrap");
       const list = document.getElementById("checkoutAvailableCouponsList");
       if (!wrap || !list) return;
-      const coupons = state.coupons || [];
+      const nowServer = Date.now() - state.clockOffsetMs;
+      const coupons = (state.coupons || []).filter((c) => !c.expiresAt || new Date(c.expiresAt).getTime() > nowServer);
       if (coupons.length === 0) {
+        list.innerHTML = "";
         wrap.classList.add("hidden");
         return;
       }
@@ -4688,18 +4847,26 @@
           const ready = diff === 0 && hasMatchingCat;
           const badge = formatCouponBadgeText(c);
           const title = (state.lang === "hi" ? c.titleHi : c.titleEn) || c.titleHi || c.titleEn || "";
+          const ruleLine = getCouponRuleLine(c, title);
           const catLabel =
             cats.length >= 6
               ? (state.lang === "hi" ? "सभी आइटम" : "All items")
               : cats.map((cat) => getCategoryLabel(cat)).join(" / ");
           const tags = [
-            minAmt > 0 ? `Min ₹${minAmt}` : "",
+            ruleLine,
             catLabel,
             c.firstOrderOnly ? t("couponFirstOrderBadge") : "",
             c.perUserLimit > 0 ? t("couponPerUserBadge", c.perUserLimit) : "",
           ]
             .filter(Boolean)
             .join(" • ");
+          const expMs = c.expiresAt ? new Date(c.expiresAt).getTime() : 0;
+          const timerPill =
+            expMs > nowServer
+              ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded bg-amber-100 border border-amber-200 text-amber-900 text-[9px] font-extrabold tabular-nums" data-cp-timer="${expMs}" data-cp-scope="storefront">${escapeHtml(
+                  t("couponEndsIn", formatCouponCountdown(expMs - nowServer))
+                )}</span>`
+              : "";
           const btnLabel = isApplied
             ? t("couponAppliedBtn")
             : !hasMatchingCat
@@ -4715,9 +4882,10 @@
               <div class="flex items-center gap-1.5 flex-wrap">
                 <span class="px-1.5 py-0.5 rounded bg-orange-100 text-orange-800 text-[10px] font-black">${escapeHtml(c.code)}</span>
                 <span class="text-xs font-extrabold text-slate-900">${escapeHtml(badge)}</span>
+                ${timerPill}
               </div>
-              <div class="text-[10px] text-slate-500 font-semibold truncate mt-0.5">
-                ${escapeHtml(title ? `${title}${tags ? ` • ${tags}` : ""}` : tags || "Special Offer")}
+              <div class="text-[10px] text-slate-500 font-semibold mt-0.5 leading-snug">
+                ${escapeHtml(tags || "Special Offer")}
               </div>
             </div>
             <button type="button" data-pick-coupon="${escapeHtml(c.code)}" ${!ready && !isApplied ? "disabled" : ""}
@@ -4733,6 +4901,7 @@
           </div>`;
         })
         .join("");
+      startCouponTimerLoop(true);
 
       list.querySelectorAll("[data-pick-coupon]").forEach((btn) => {
         btn.addEventListener("click", () => {
@@ -8010,13 +8179,26 @@
           ? ` • कुल ${totalLim} बार के बाद अपने-आप बंद हो जाएगा`
           : " • कुल उपयोग: असीमित";
       const userTxt = userLim > 0 ? ` • 1 नंबर: ${userLim} बार` : "";
-      prevEl.textContent = `📋 नियम सारांश: कोड ${code} → ${minTxt} ${benefitTxt}${catTxt}${capTxt}${userTxt}`;
+      const rawDate = document.getElementById("couponExpiresAt")?.value || "";
+      const rawTime = document.getElementById("couponExpiresTime")?.value || "";
+      let expTxt = "";
+      if (rawDate || rawTime) {
+        const effectiveDate = rawDate || toISTDateAndTimeInputs(new Date(Date.now() - state.clockOffsetMs)).dateStr;
+        const effectiveTime = rawTime || "23:59";
+        const expDateObj = new Date(`${effectiveDate}T${effectiveTime}:00+05:30`);
+        if (!Number.isNaN(expDateObj.getTime())) {
+          expTxt = ` • ⏳ ${formatISTDateTimeShort(expDateObj)} तक वैध`;
+        }
+      }
+      prevEl.textContent = `📋 नियम सारांश: कोड ${code} → ${minTxt} ${benefitTxt}${catTxt}${capTxt}${userTxt}${expTxt}`;
     }
 
     function resetAdminCouponForm() {
       const form = document.getElementById("adminCouponForm");
       if (form) form.reset();
       document.getElementById("editCouponId").value = "";
+      const timeEl = document.getElementById("couponExpiresTime");
+      if (timeEl) timeEl.value = "";
       document.getElementById("couponFormTitle").textContent = "🎟️ अपना खुद का कूपन कोड बनाएं";
       document.getElementById("addCouponBtnText").textContent = "✅ कूपन सेव करें";
       document.getElementById("cancelCouponEditBtn").classList.add("hidden");
@@ -8033,10 +8215,12 @@
         )}</div>`;
         return;
       }
+      const nowServer = Date.now() - state.clockOffsetMs;
       list.innerHTML = state.adminCoupons
         .map((c) => {
           const desc = formatCouponBadgeText(c);
-          const isExpired = c.expiresAt && new Date(c.expiresAt) < new Date();
+          const expMs = c.expiresAt ? new Date(c.expiresAt).getTime() : 0;
+          const isExpired = Boolean(expMs && expMs <= nowServer);
           const isLimitFull = c.usageLimit > 0 && (c.usedCount || 0) >= c.usageLimit;
           const usageStr = c.usageLimit > 0 ? `${c.usedCount || 0} / ${c.usageLimit}` : `${c.usedCount || 0} / ∞`;
           const cats = Array.isArray(c.applicableCategories) ? c.applicableCategories.filter(Boolean) : [];
@@ -8046,11 +8230,19 @@
             c.perUserLimit > 0 ? `${c.perUserLimit}x/Mob` : "",
             cats.length > 0 ? `🏷️ ${cats.join(", ")}` : "All Items",
             c.firstOrderOnly ? "🎯 1st Order" : "",
-            c.expiresAt ? `⏳ ${new Date(c.expiresAt).toLocaleDateString("en-IN")}${isExpired ? " (Expired)" : ""}` : "",
+            c.expiresAt ? `⏳ ${formatISTDateTimeShort(c.expiresAt)}${isExpired ? " (Expired)" : ""}` : "",
           ]
             .filter(Boolean)
             .join(" • ");
           const tagline = (state.lang === "hi" ? c.titleHi : c.titleEn) || c.titleHi || c.titleEn || "";
+          const adminTimerBadge =
+            expMs > nowServer
+              ? `<span class="px-1.5 py-0.5 rounded bg-amber-100 border border-amber-200 text-amber-900 text-[10px] font-black tabular-nums" data-cp-timer="${expMs}" data-cp-scope="admin">⏳ ${escapeHtml(
+                  formatCouponCountdown(expMs - nowServer)
+                )}</span>`
+              : isExpired
+              ? `<span class="px-1.5 py-0.5 rounded bg-red-100 text-red-700 text-[10px] font-black">⏳ समाप्त</span>`
+              : "";
 
           return `<div class="bg-white rounded-2xl border ${
             isExpired || isLimitFull ? "border-red-300 bg-red-50/30" : "border-slate-200"
@@ -8062,6 +8254,7 @@
                 <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${
                   c.showOnStorefront !== false ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"
                 }">${c.showOnStorefront !== false ? "👁️ Public" : "🔒 Secret"}</span>
+                ${adminTimerBadge}
                 ${
                   isLimitFull
                     ? `<span class="px-1.5 py-0.5 rounded bg-red-100 text-red-700 text-[10px] font-black">🔴 सीमा पूरी — बंद</span>`
@@ -8082,6 +8275,7 @@
           </div>`;
         })
         .join("");
+      startCouponTimerLoop();
 
       list.querySelectorAll("[data-edit-cp]").forEach((btn) => {
         btn.addEventListener("click", () => {
@@ -8099,9 +8293,10 @@
           document.getElementById("couponMinOrder").value = c.minOrderAmount || 0;
           document.getElementById("couponUsageLimit").value = c.usageLimit || "";
           document.getElementById("couponPerUserLimit").value = c.perUserLimit || "";
-          document.getElementById("couponExpiresAt").value = c.expiresAt
-            ? new Date(c.expiresAt).toISOString().slice(0, 10)
-            : "";
+          const { dateStr, timeStr } = c.expiresAt ? toISTDateAndTimeInputs(c.expiresAt) : { dateStr: "", timeStr: "" };
+          document.getElementById("couponExpiresAt").value = dateStr;
+          const timeEl = document.getElementById("couponExpiresTime");
+          if (timeEl) timeEl.value = timeStr;
           document.getElementById("couponTitleHi").value = c.titleHi || "";
           document.getElementById("couponTitleEn").value = c.titleEn || "";
           document.getElementById("couponFirstOrderOnly").checked = Boolean(c.firstOrderOnly);
@@ -8159,11 +8354,45 @@
     document.getElementById("cancelCouponEditBtn").addEventListener("click", resetAdminCouponForm);
     document.getElementById("couponApplyTarget").addEventListener("change", syncCouponBuilderUI);
     document.getElementById("couponType").addEventListener("change", syncCouponBuilderUI);
-    ["couponCode", "couponValue", "couponMaxDiscount", "couponMinOrder", "couponUsageLimit", "couponPerUserLimit"].forEach(
+    ["couponCode", "couponValue", "couponMaxDiscount", "couponMinOrder", "couponUsageLimit", "couponPerUserLimit", "couponExpiresAt", "couponExpiresTime"].forEach(
       (id) => {
         document.getElementById(id)?.addEventListener("input", updateCouponRulePreview);
+        document.getElementById(id)?.addEventListener("change", updateCouponRulePreview);
       }
     );
+    document.getElementById("couponExpiresTime")?.addEventListener("change", () => {
+      const dateEl = document.getElementById("couponExpiresAt");
+      const timeEl = document.getElementById("couponExpiresTime");
+      if (timeEl && timeEl.value && dateEl && !dateEl.value) {
+        dateEl.value = toISTDateAndTimeInputs(new Date(Date.now() - state.clockOffsetMs)).dateStr;
+        updateCouponRulePreview();
+      }
+    });
+    document.querySelectorAll("[data-cp-preset-mins]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const mins = Number(btn.dataset.cpPresetMins || 60);
+        const target = new Date(Date.now() - state.clockOffsetMs + mins * 60 * 1000);
+        const { dateStr, timeStr } = toISTDateAndTimeInputs(target);
+        document.getElementById("couponExpiresAt").value = dateStr;
+        document.getElementById("couponExpiresTime").value = timeStr;
+        updateCouponRulePreview();
+      });
+    });
+    document.querySelectorAll("[data-cp-preset-today]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const { dateStr } = toISTDateAndTimeInputs(new Date(Date.now() - state.clockOffsetMs));
+        document.getElementById("couponExpiresAt").value = dateStr;
+        document.getElementById("couponExpiresTime").value = btn.dataset.cpPresetToday || "22:00";
+        updateCouponRulePreview();
+      });
+    });
+    document.querySelectorAll("[data-cp-preset-clear]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.getElementById("couponExpiresAt").value = "";
+        document.getElementById("couponExpiresTime").value = "";
+        updateCouponRulePreview();
+      });
+    });
     document.querySelectorAll(".cp-cat-cb").forEach((cb) => {
       cb.addEventListener("change", updateCouponRulePreview);
     });
@@ -8175,7 +8404,19 @@
       const applyTarget = document.getElementById("couponApplyTarget").value;
       const rawDiscountType = document.getElementById("couponType").value;
       const discountType = applyTarget === "FREE_DELIVERY" ? "FREE_DELIVERY" : rawDiscountType;
-      const rawExpiry = document.getElementById("couponExpiresAt").value;
+      const rawDate = document.getElementById("couponExpiresAt").value;
+      const rawTime = document.getElementById("couponExpiresTime")?.value || "";
+      let expiresAt = null;
+      if (rawDate || rawTime) {
+        const effDate = rawDate || toISTDateAndTimeInputs(new Date(Date.now() - state.clockOffsetMs)).dateStr;
+        const effTime = rawTime || "23:59";
+        const parsedExp = new Date(`${effDate}T${effTime}:00+05:30`);
+        if (Number.isNaN(parsedExp.getTime())) {
+          showToast("कृपया सही समाप्ति तारीख और समय चुनें।", true);
+          return;
+        }
+        expiresAt = parsedExp.toISOString();
+      }
       const applicableCategories = Array.from(document.querySelectorAll(".cp-cat-cb:checked")).map((cb) => cb.value);
 
       const payload = {
@@ -8192,7 +8433,7 @@
         usageLimit: Number(document.getElementById("couponUsageLimit").value || 0),
         perUserLimit: Number(document.getElementById("couponPerUserLimit").value || 0),
         applicableCategories,
-        expiresAt: rawExpiry ? `${rawExpiry}T23:59:59+05:30` : null,
+        expiresAt,
         titleHi: document.getElementById("couponTitleHi").value.trim(),
         titleEn: document.getElementById("couponTitleEn").value.trim(),
         firstOrderOnly: document.getElementById("couponFirstOrderOnly").checked,
@@ -8588,5 +8829,5 @@
     renderAll();
     loadStoreData();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5f090d1d9878171',t:'MTc5NTQ0MTAxNg=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5f090d1d9878171',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5f57287fde03292',t:'MTc5NTQ5MjIwNA=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5f57287fde03292',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

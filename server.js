@@ -881,6 +881,8 @@ app.post('/api/coupons/validate', couponValidateLimiter, async (req, res) => {
       perUserLimit: result.appliedCoupon.perUserLimit || 0,
       usageLimit: result.appliedCoupon.usageLimit || 0,
       usedCount: result.appliedCoupon.usedCount || 0,
+      expiresAt: result.appliedCoupon.expiresAt || null,
+      serverNow: new Date().toISOString(),
       deliveryCharge: result.deliveryCharge,
       totalAmount: result.totalAmount,
       discountType: result.appliedCoupon.discountType,
@@ -2016,7 +2018,7 @@ app.get('/api/admin/customers', requireAdmin, async (req, res) => {
 app.get('/api/admin/coupons', requireAdmin, async (req, res) => {
   try {
     const coupons = await Coupon.find({}).sort({ createdAt: -1 }).lean();
-    res.json({ coupons });
+    res.json({ coupons, serverNow: new Date().toISOString() });
   } catch (err) {
     console.error('GET /api/admin/coupons error:', err);
     res.status(500).json({ error: 'Failed to load coupons.' });
@@ -2124,6 +2126,10 @@ app.put('/api/admin/coupons/:id', requireAdmin, validateObjectId, async (req, re
     }
     if (req.body.discountType !== undefined && ['FLAT', 'PERCENT', 'FREE_DELIVERY'].includes(req.body.discountType)) {
       updates.discountType = req.body.discountType;
+    }
+    if (updates.applyTarget === 'FREE_DELIVERY') {
+      updates.discountType = 'FREE_DELIVERY';
+      updates.discountValue = 0;
     }
     if (req.body.isActive !== undefined) updates.isActive = Boolean(req.body.isActive);
     if (req.body.showOnStorefront !== undefined) updates.showOnStorefront = Boolean(req.body.showOnStorefront);
