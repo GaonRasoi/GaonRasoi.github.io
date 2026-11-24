@@ -2,8 +2,33 @@
 <html lang="hi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#ea580c" />
+  <meta name="description" content="Khoh गाँव रसोई (Gaon Rasoi) — खोह और आसपास के गाँवों में ताज़ा समोसा, बर्गर, चाउमीन, मोमोज़, कचौड़ी सब्ज़ी, कॉम्बो व कोल्ड ड्रिंक्स की तेज़ होम डिलीवरी (COD / UPI)।" />
+  <meta name="keywords" content="Gaon Rasoi, Khoh Gaon Rasoi, village food delivery, samosa delivery, burger, chowmein, momos, kachori sabzi, Khoh food order online" />
+  <link rel="canonical" href="https://gaonrasoi.github.io/" />
+  <meta property="og:title" content="गाँव रसोई | Khoh Gaon Rasoi - Fresh Village Food Delivery" />
+  <meta property="og:description" content="ताज़ा और गरमागरम नाश्ता, बर्गर, चाउमीन, मोमोज़ व कॉम्बो सीधे आपके घर पर। आसान COD / UPI ऑर्डर।" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://gaonrasoi.github.io/" />
   <title>गाँव रसोई | Gaon Rasoi - Village Food Delivery</title>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Restaurant",
+    "name": "Khoh गाँव रसोई (Gaon Rasoi)",
+    "url": "https://gaonrasoi.github.io/",
+    "email": "khohgaonrasoi123@gmail.com",
+    "servesCuisine": ["Indian", "Snacks", "Fast Food", "Chinese", "Beverages"],
+    "priceRange": "₹",
+    "paymentAccepted": "Cash, UPI",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Khoh",
+      "addressCountry": "IN"
+    }
+  }
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,6 +37,7 @@
     body {
       font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, -apple-system, sans-serif;
       -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -150,7 +176,8 @@
     html[data-theme="dark"] #adminDashboard {
       background-color: #0b1120 !important;
     }
-    html[data-theme="dark"] #categoryPills button[data-cat].bg-slate-900 {
+    html[data-theme="dark"] #categoryPills button[data-cat].bg-slate-900,
+    html[data-theme="dark"] #legalPageTabs button[data-legal-tab].bg-slate-900 {
       background-color: #ea580c !important;
       border-color: #ea580c !important;
       color: #ffffff !important;
@@ -363,6 +390,47 @@
         <p id="menuAllLoadedText" class="hidden text-[11px] font-semibold text-slate-400 py-1"></p>
       </div>
     </section>
+
+    <!-- Storefront Trust & Essential Info Footer -->
+    <footer id="siteFooter" class="mt-4 rounded-3xl bg-white border border-orange-100/90 shadow-sm p-4 sm:p-5 space-y-3.5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-100 pb-3">
+        <div class="space-y-0.5">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span id="footerBrandTitle" class="text-sm sm:text-base font-extrabold text-slate-900">🍛 Khoh गाँव रसोई</span>
+            <span id="footerFreshBadge" class="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-bold">🌿 ताज़ा व साफ़-सुथरा खाना</span>
+          </div>
+          <p id="footerBrandSub" class="text-[11px] text-slate-500 font-medium">खोह और आसपास के क्षेत्रों में तेज़, भरोसेमंद और किफ़ायती होम डिलीवरी।</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-1.5">
+          <a href="/cdn-cgi/l/email-protection#3a515255525d5b5554485b4955530b08097a5d575b535614595557" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-800 text-[11px] font-bold transition">
+            <span>✉️</span>
+            <span><span class="__cf_email__" data-cfemail="03686b6c6b64626c6d7162706c6a32313043646e626a6f2d606c6e">[email&#160;protected]</span></span>
+          </a>
+          <a id="footerCallLink" href="#" class="hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-[11px] font-bold transition">
+            <span>📞</span>
+            <span id="footerCallLabel">कॉल करें</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <div id="footerLinksTitle" class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">महत्वपूर्ण जानकारी व नीतियाँ</div>
+        <nav aria-label="Footer Links" class="flex flex-wrap gap-1.5">
+          <button type="button" data-legal-page="about" class="footer-legal-link px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-orange-50 border border-slate-200 hover:border-orange-200 text-slate-700 hover:text-orange-800 text-[11px] font-bold transition"></button>
+          <button type="button" data-legal-page="contact" class="footer-legal-link px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-orange-50 border border-slate-200 hover:border-orange-200 text-slate-700 hover:text-orange-800 text-[11px] font-bold transition"></button>
+          <button type="button" data-legal-page="privacy" class="footer-legal-link px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-orange-50 border border-slate-200 hover:border-orange-200 text-slate-700 hover:text-orange-800 text-[11px] font-bold transition"></button>
+          <button type="button" data-legal-page="terms" class="footer-legal-link px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-orange-50 border border-slate-200 hover:border-orange-200 text-slate-700 hover:text-orange-800 text-[11px] font-bold transition"></button>
+          <button type="button" data-legal-page="refund" class="footer-legal-link px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-orange-50 border border-slate-200 hover:border-orange-200 text-slate-700 hover:text-orange-800 text-[11px] font-bold transition"></button>
+          <button type="button" data-legal-page="delivery" class="footer-legal-link px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-orange-50 border border-slate-200 hover:border-orange-200 text-slate-700 hover:text-orange-800 text-[11px] font-bold transition"></button>
+          <button type="button" data-legal-page="faq" class="footer-legal-link px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-orange-50 border border-slate-200 hover:border-orange-200 text-slate-700 hover:text-orange-800 text-[11px] font-bold transition"></button>
+        </nav>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-[10px] text-slate-400 font-semibold">
+        <span id="footerCopyrightText">© 2026 Khoh गाँव रसोई (Gaon Rasoi) • सर्वाधिकार सुरक्षित</span>
+        <span id="footerPaymentText">💵 कैश (COD) एवं 📲 UPI उपलब्ध</span>
+      </div>
+    </footer>
   </main>
 
   <!-- ===================================================================== -->
@@ -682,6 +750,39 @@
           <div id="pdLineTotalVal" class="hidden text-[11px] font-bold text-orange-600"></div>
         </div>
         <div id="pdActionWrap" class="flex items-center gap-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6A. ESSENTIAL INFO & LEGAL PAGES MODAL (About, Contact, Privacy, Terms, Refund, Delivery, FAQ) -->
+  <div id="legalPageModal" class="hidden fixed inset-0 z-50 bg-slate-900/65 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full sm:max-w-2xl sm:rounded-3xl rounded-t-3xl max-h-[92vh] max-h-[92dvh] flex flex-col shadow-2xl animate-slide-up overflow-hidden">
+      <div class="px-4 sm:px-5 py-3.5 border-b border-slate-100 bg-white shrink-0 space-y-2.5">
+        <div class="flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <h3 id="legalModalTitle" class="text-base sm:text-lg font-extrabold text-slate-900 truncate">गाँव रसोई — जानकारी</h3>
+            <p id="legalModalSubtitle" class="text-[11px] text-slate-500 font-medium">Khoh गाँव रसोई • आधिकारिक जानकारी व नीतियाँ</p>
+          </div>
+          <button id="closeLegalPageBtn" type="button" aria-label="Close" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center shrink-0">✕</button>
+        </div>
+        <div id="legalPageTabs" class="flex gap-1.5 overflow-x-auto no-scrollbar pb-0.5"></div>
+      </div>
+
+      <div id="legalPageBody" class="p-4 sm:p-5 overflow-y-auto space-y-3.5 flex-1 min-h-0 overscroll-contain text-xs sm:text-sm text-slate-700 leading-relaxed"></div>
+
+      <div class="px-4 sm:px-5 py-3 border-t border-slate-100 bg-slate-50 shrink-0 flex items-center justify-between gap-2 flex-wrap">
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <a href="/cdn-cgi/l/email-protection#28434047404f4947465a495b4741191a1b684f45494144064b4745" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-extrabold shadow-sm transition">
+            <span>✉️</span>
+            <span><span class="__cf_email__" data-cfemail="c1aaa9aea9a6a0aeafb3a0b2aea8f0f3f281a6aca0a8adefa2aeac">[email&#160;protected]</span></span>
+          </a>
+          <button id="copySupportEmailBtn" type="button" class="px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold transition">
+            📋 <span id="copySupportEmailText">ईमेल कॉपी करें</span>
+          </button>
+        </div>
+        <button id="legalDoneBtn" type="button" class="px-4 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold transition">
+          <span id="legalDoneBtnText">बंद करें</span>
+        </button>
       </div>
     </div>
   </div>
@@ -1204,7 +1305,7 @@
   <!-- ===================================================================== -->
   <!-- 10. APPLICATION JAVASCRIPT                                            -->
   <!-- ===================================================================== -->
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     // =========================================================================
     // CONFIGURATION: Live Render Backend URL (Gaon Rasoi)
     // =========================================================================
@@ -1322,6 +1423,23 @@
         popularBadge: "⭐ लोकप्रिय",
         addBtn: "+ जोड़ें",
         addToCartBtn: "+ कार्ट में जोड़ें",
+        footerFreshBadge: "🌿 ताज़ा व साफ़-सुथरा खाना",
+        footerBrandSub: "खोह और आसपास के क्षेत्रों में तेज़, भरोसेमंद और किफ़ायती होम डिलीवरी।",
+        footerCallLabel: "कॉल करें",
+        footerLinksTitle: "महत्वपूर्ण जानकारी व नीतियाँ",
+        footerCopyrightText: "© 2026 Khoh गाँव रसोई (Gaon Rasoi) • सर्वाधिकार सुरक्षित",
+        footerPaymentText: "💵 कैश (COD) एवं 📲 UPI उपलब्ध",
+        legalModalSubtitle: "Khoh गाँव रसोई • आधिकारिक जानकारी व नीतियाँ",
+        copySupportEmailText: "ईमेल कॉपी करें",
+        emailCopiedToast: "✅ ईमेल कॉपी हो गया: khohgaonrasoi123@gmail.com",
+        legalDoneBtnText: "बंद करें",
+        legalTabAbout: "🏠 हमारे बारे में",
+        legalTabContact: "📞 संपर्क करें",
+        legalTabPrivacy: "🔒 गोपनीयता नीति",
+        legalTabTerms: "📜 नियम व शर्तें",
+        legalTabRefund: "↩️ रिफ़ंड व कैंसिल",
+        legalTabDelivery: "🛵 डिलीवरी नीति",
+        legalTabFaq: "❓ सहायता (FAQ)",
         pdDescLabel: "पूरा विवरण (Details)",
         pdNoDesc: "ताज़ा और स्वादिष्ट घरेलू स्टाइल में तैयार।",
         pdVegLabel: "🟢 शुद्ध शाकाहारी (Veg)",
@@ -1646,6 +1764,23 @@
         popularBadge: "⭐ Popular",
         addBtn: "+ Add",
         addToCartBtn: "+ Add to Cart",
+        footerFreshBadge: "🌿 Fresh & Hygienic Kitchen",
+        footerBrandSub: "Fast, reliable & affordable home food delivery in Khoh and nearby areas.",
+        footerCallLabel: "Call Us",
+        footerLinksTitle: "Essential Pages & Policies",
+        footerCopyrightText: "© 2026 Khoh Gaon Rasoi • All Rights Reserved",
+        footerPaymentText: "💵 Cash on Delivery (COD) & 📲 UPI",
+        legalModalSubtitle: "Khoh Gaon Rasoi • Official Information & Policies",
+        copySupportEmailText: "Copy Email",
+        emailCopiedToast: "✅ Email copied: khohgaonrasoi123@gmail.com",
+        legalDoneBtnText: "Close",
+        legalTabAbout: "🏠 About Us",
+        legalTabContact: "📞 Contact Us",
+        legalTabPrivacy: "🔒 Privacy Policy",
+        legalTabTerms: "📜 Terms & Conditions",
+        legalTabRefund: "↩️ Refund & Cancel",
+        legalTabDelivery: "🛵 Delivery Policy",
+        legalTabFaq: "❓ FAQs & Help",
         pdDescLabel: "Full Details",
         pdNoDesc: "Freshly prepared homestyle dish.",
         pdVegLabel: "🟢 Pure Veg",
@@ -1911,6 +2046,7 @@
       liveTimerInterval: null,
       couponTimerInterval: null,
       orderTrackTimerInterval: null,
+      activeLegalPage: "about",
       menu: [],
       coupons: [],
       pendingCouponCode: "",
@@ -2713,6 +2849,7 @@
       if (!document.getElementById("orderSuccessModal").classList.contains("hidden")) {
         renderOrderSuccessModal();
       }
+      renderFooterAndLegalSync();
 
       // Admin UI Translations (100% coverage)
       document.getElementById("adminLoginTitle").textContent = t("adminLoginTitle");
@@ -8798,11 +8935,415 @@
       { passive: true }
     );
 
-    ["checkoutModal", "orderSuccessModal", "orderTrackModal", "productDetailModal", "adminLoginModal", "manualOrderModal", "receiptModal"].forEach((modalId) => {
+    ["checkoutModal", "orderSuccessModal", "orderTrackModal", "productDetailModal", "legalPageModal", "adminLoginModal", "manualOrderModal", "receiptModal"].forEach((modalId) => {
       const mEl = document.getElementById(modalId);
       mEl.addEventListener("click", (e) => {
-        if (e.target === mEl) mEl.classList.add("hidden");
+        if (e.target === mEl) {
+          if (modalId === "legalPageModal") closeLegalPage();
+          else mEl.classList.add("hidden");
+        }
       });
+    });
+
+    const LEGAL_EMAIL = "khohgaonrasoi123@gmail.com";
+    const LEGAL_PAGE_KEYS = ["about", "contact", "privacy", "terms", "refund", "delivery", "faq"];
+    const LEGAL_HASH_MAP = {
+      about: "about",
+      "about-us": "about",
+      contact: "contact",
+      "contact-us": "contact",
+      privacy: "privacy",
+      "privacy-policy": "privacy",
+      terms: "terms",
+      "terms-and-conditions": "terms",
+      refund: "refund",
+      "refund-policy": "refund",
+      "cancellation-policy": "refund",
+      delivery: "delivery",
+      "shipping-policy": "delivery",
+      faq: "faq",
+      help: "faq",
+    };
+
+    function getLegalTabLabel(key) {
+      const map = {
+        about: t("legalTabAbout"),
+        contact: t("legalTabContact"),
+        privacy: t("legalTabPrivacy"),
+        terms: t("legalTabTerms"),
+        refund: t("legalTabRefund"),
+        delivery: t("legalTabDelivery"),
+        faq: t("legalTabFaq"),
+      };
+      return map[key] || key;
+    }
+
+    function buildLegalPageContent(key) {
+      const s = state.settings || {};
+      const shopName = state.lang === "hi" ? (s.shopNameHi || "Khoh गाँव रसोई") : (s.shopNameEn || "Khoh Gaon Rasoi");
+      const minOrd = Number(s.minOrderAmount || 60);
+      const delFee = Number(s.deliveryCharge || 10);
+      const freeAbove = Number(s.freeDeliveryAbove || 199);
+      const radiusKm = Number(s.deliveryRadiusKm || 2);
+      const hrs = (state.lang === "hi" ? s.openHoursHi : s.openHoursEn) || (state.lang === "hi" ? "सुबह 9:00 से रात 9:30 बजे तक" : "9:00 AM to 9:30 PM");
+      const phone = normalizeIndianPhone(s.supportPhone || "");
+      const phoneRow = phone ? `<a href="tel:${escapeHtml(phone)}" class="font-extrabold text-emerald-700 underline">+91 ${escapeHtml(phone)}</a>` : (state.lang === "hi" ? "वेबसाइट/ईमेल के माध्यम से उपलब्ध" : "Available via Email / Order Tracking");
+      const isHi = state.lang === "hi";
+
+      if (key === "about") {
+        return isHi
+          ? `<div class="space-y-3">
+              <div class="rounded-2xl bg-orange-50/70 border border-orange-100 p-3.5 space-y-1.5">
+                <h4 class="font-extrabold text-orange-900 text-sm sm:text-base">🍛 ${escapeHtml(shopName)} — हमारा परिचय</h4>
+                <p><b>${escapeHtml(shopName)}</b> खोह और आसपास के गाँवों की अपनी स्थानीय, साफ़-सुथरी और भरोसेमंद रसोई सेवा है। हमारा उद्देश्य गाँव और कस्बे के परिवारों तक ताज़ा, गरमागरम और स्वादिष्ट नाश्ता, फास्ट फूड, चाइनीज़, खाना, कॉम्बो पैक और ठंडे पेय सही दाम पर सीधे घर पहुँचाना है।</p>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 space-y-1">
+                  <div class="font-extrabold text-slate-900">🌿 ताज़गी और स्वच्छता</div>
+                  <p class="text-xs text-slate-600">हर ऑर्डर ताज़ा सामग्री, साफ़ रसोई और सुरक्षित पैकिंग के साथ तैयार किया जाता है।</p>
+                </div>
+                <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 space-y-1">
+                  <div class="font-extrabold text-slate-900">🛵 तेज़ गाँव डिलीवरी</div>
+                  <p class="text-xs text-slate-600">मोहल्ला, गली या GPS लोकेशन के सहारे हमारा राइडर सीधे आपके दरवाज़े तक पहुँचता है।</p>
+                </div>
+                <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 space-y-1">
+                  <div class="font-extrabold text-slate-900">🧾 पक्का बिल व पारदर्शी दाम</div>
+                  <p class="text-xs text-slate-600">बिना किसी छुपे चार्ज के साफ़ बिल, कूपन ऑफर और COD / UPI भुगतान की सुविधा।</p>
+                </div>
+                <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 space-y-1">
+                  <div class="font-extrabold text-slate-900">💬 सीधा ग्राहक सहयोग</div>
+                  <p class="text-xs text-slate-600">किसी भी सुझाव या शिकायत के लिए सीधे <a href="mailto:${LEGAL_EMAIL}" class="font-bold text-orange-700 underline">${LEGAL_EMAIL}</a> पर संपर्क करें।</p>
+                </div>
+              </div>
+            </div>`
+          : `<div class="space-y-3">
+              <div class="rounded-2xl bg-orange-50/70 border border-orange-100 p-3.5 space-y-1.5">
+                <h4 class="font-extrabold text-orange-900 text-sm sm:text-base">🍛 About ${escapeHtml(shopName)}</h4>
+                <p><b>${escapeHtml(shopName)}</b> is a local kitchen & doorstep food delivery service built for Khoh and nearby village neighborhoods. Our goal is to serve fresh, hygienic, and affordable snacks, fast food, Chinese dishes, homestyle meals, combo packs, and chilled beverages straight to your home.</p>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 space-y-1">
+                  <div class="font-extrabold text-slate-900">🌿 Fresh & Hygienic Preparation</div>
+                  <p class="text-xs text-slate-600">Orders are prepared fresh with clean cooking practices and neat food-grade packaging.</p>
+                </div>
+                <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 space-y-1">
+                  <div class="font-extrabold text-slate-900">🛵 Fast Local Delivery</div>
+                  <p class="text-xs text-slate-600">Our local riders deliver accurately using your Mohalla, landmark, or optional live GPS pin.</p>
+                </div>
+                <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 space-y-1">
+                  <div class="font-extrabold text-slate-900">🧾 Transparent Pricing & Billing</div>
+                  <p class="text-xs text-slate-600">Clear itemised bills with no hidden charges, promo coupons, and convenient Cash (COD) or UPI options.</p>
+                </div>
+                <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 space-y-1">
+                  <div class="font-extrabold text-slate-900">💬 Dedicated Support</div>
+                  <p class="text-xs text-slate-600">Have feedback or an order issue? Email us anytime at <a href="mailto:${LEGAL_EMAIL}" class="font-bold text-orange-700 underline">${LEGAL_EMAIL}</a>.</p>
+                </div>
+              </div>
+            </div>`;
+      }
+
+      if (key === "contact") {
+        return isHi
+          ? `<div class="space-y-3">
+              <div class="rounded-2xl bg-orange-50/70 border border-orange-100 p-3.5 space-y-1">
+                <h4 class="font-extrabold text-orange-900 text-sm sm:text-base">📞 संपर्क और ग्राहक सहायता (Contact Us)</h4>
+                <p>ऑर्डर, पेमेंट, फ़ीडबैक, बिज़नेस पूछताछ या शिकायत के लिए हमसे नीचे दिए विवरण पर संपर्क करें। हम 24 घंटे के भीतर जवाब देने का प्रयास करते हैं।</p>
+              </div>
+              <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3.5 space-y-2.5">
+                <div><span class="font-bold text-slate-900">🏪 दुकान का नाम:</span> ${escapeHtml(shopName)}</div>
+                <div><span class="font-bold text-slate-900">✉️ आधिकारिक ईमेल:</span> <a href="mailto:${LEGAL_EMAIL}" class="font-extrabold text-orange-700 underline">${LEGAL_EMAIL}</a></div>
+                <div><span class="font-bold text-slate-900">📞 सहायता फ़ोन:</span> ${phoneRow}</div>
+                <div><span class="font-bold text-slate-900">🕒 खुलने का समय:</span> ${escapeHtml(hrs)}</div>
+                <div><span class="font-bold text-slate-900">📍 सेवा क्षेत्र:</span> खोह (Khoh) और ${radiusKm} किमी दायरे के नज़दीकी क्षेत्र</div>
+              </div>
+              <p class="text-xs text-slate-500">टिप: किसी ऑर्डर से जुड़ी सहायता के लिए ईमेल में अपना <b>ऑर्डर नंबर (जैसे GR-...)</b> और <b>मोबाइल नंबर</b> ज़रूर लिखें।</p>
+            </div>`
+          : `<div class="space-y-3">
+              <div class="rounded-2xl bg-orange-50/70 border border-orange-100 p-3.5 space-y-1">
+                <h4 class="font-extrabold text-orange-900 text-sm sm:text-base">📞 Contact & Customer Support</h4>
+                <p>Reach out to us for order help, billing questions, feedback, or business inquiries. We aim to respond to all emails within 24 hours.</p>
+              </div>
+              <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3.5 space-y-2.5">
+                <div><span class="font-bold text-slate-900">🏪 Kitchen Name:</span> ${escapeHtml(shopName)}</div>
+                <div><span class="font-bold text-slate-900">✉️ Official Email:</span> <a href="mailto:${LEGAL_EMAIL}" class="font-extrabold text-orange-700 underline">${LEGAL_EMAIL}</a></div>
+                <div><span class="font-bold text-slate-900">📞 Support Phone:</span> ${phoneRow}</div>
+                <div><span class="font-bold text-slate-900">🕒 Operating Hours:</span> ${escapeHtml(hrs)}</div>
+                <div><span class="font-bold text-slate-900">📍 Service Area:</span> Khoh & nearby areas within ~${radiusKm} km radius</div>
+              </div>
+              <p class="text-xs text-slate-500">Tip: When emailing about an order, please mention your <b>Order Number (e.g., GR-...)</b> and registered mobile number for faster resolution.</p>
+            </div>`;
+      }
+
+      if (key === "privacy") {
+        return isHi
+          ? `<div class="space-y-3">
+              <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3.5 space-y-1">
+                <h4 class="font-extrabold text-slate-900 text-sm sm:text-base">🔒 गोपनीयता नीति (Privacy Policy)</h4>
+                <p class="text-[11px] text-slate-500">अंतिम अपडेट: नवंबर 2026 • ${escapeHtml(shopName)}</p>
+              </div>
+              <div class="space-y-2">
+                <p><b>1. हम कौन-सी जानकारी लेते हैं:</b> ऑर्डर पूरा करने के लिए हम आपका नाम, 10 अंकों का मोबाइल नंबर, डिलीवरी पता/पहचान, खाने के निर्देश और (केवल आपकी अनुमति से क्लिक करने पर) लाइव GPS लोकेशन लेते हैं।</p>
+                <p><b>2. जानकारी का उपयोग:</b> आपके डेटा का उपयोग केवल खाना तैयार करने, डिलीवरी राइडर को पता देने, लाइव ऑर्डर ट्रैकिंग, कूपन सीमा जाँचने और ग्राहक सहायता के लिए किया जाता है। हम आपका डेटा किसी भी तीसरे पक्ष को न बेचते हैं और न किराए पर देते हैं।</p>
+                <p><b>3. ब्राउज़र स्टोरेज (Local Storage):</b> आपका कार्ट, पसंदीदा भाषा (हिंदी/English), थीम और हाल के ऑर्डर की सूची केवल आपके फ़ोन के लोकल स्टोरेज में सुरक्षित रहती है ताकि अगली बार वेबसाइट तेज़ी से खुले।</p>
+                <p><b>4. डेटा सुरक्षा व हटाने का अनुरोध:</b> आपका ऑर्डर डेटा सुरक्षित सर्वर पर रखा जाता है। यदि आप अपना डेटा सुधारना या हटवाना चाहते हैं, तो <a href="mailto:${LEGAL_EMAIL}" class="font-bold text-orange-700 underline">${LEGAL_EMAIL}</a> पर ईमेल करें।</p>
+              </div>
+            </div>`
+          : `<div class="space-y-3">
+              <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3.5 space-y-1">
+                <h4 class="font-extrabold text-slate-900 text-sm sm:text-base">🔒 Privacy Policy</h4>
+                <p class="text-[11px] text-slate-500">Last Updated: November 2026 • ${escapeHtml(shopName)}</p>
+              </div>
+              <div class="space-y-2">
+                <p><b>1. Information We Collect:</b> When you place an order, we collect your name, 10-digit Indian mobile number, delivery address/landmark, optional cooking instructions, and (only when you explicitly tap Share GPS) your live location coordinates.</p>
+                <p><b>2. How We Use Information:</b> Your details are used strictly to prepare and deliver your food order, provide live order tracking, validate coupon eligibility, prevent spam/fake orders, and provide support. We never sell or rent your personal data to third-party marketers.</p>
+                <p><b>3. Browser Local Storage:</b> We store your cart items, language preference, display theme, and recent order history locally in your browser for a faster, smoother experience.</p>
+                <p><b>4. Data Retention & Deletion Rights:</b> To request access, correction, or deletion of your order contact information, please email us at <a href="mailto:${LEGAL_EMAIL}" class="font-bold text-orange-700 underline">${LEGAL_EMAIL}</a>.</p>
+              </div>
+            </div>`;
+      }
+
+      if (key === "terms") {
+        return isHi
+          ? `<div class="space-y-3">
+              <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3.5 space-y-1">
+                <h4 class="font-extrabold text-slate-900 text-sm sm:text-base">📜 नियम और शर्तें (Terms &amp; Conditions)</h4>
+                <p class="text-[11px] text-slate-500">वेबसाइट का उपयोग करने पर आप नीचे दिए गए नियमों से सहमत होते हैं।</p>
+              </div>
+              <div class="space-y-2">
+                <p><b>1. ऑर्डर और कीमतें:</b> सभी कीमतें भारतीय रुपये (₹) में हैं। न्यूनतम ऑर्डर मूल्य ₹${minOrd} (डिलीवरी चार्ज छोड़कर) है। समय-समय पर मेनू कीमतें व स्टॉक उपलब्धता बदल सकती हैं।</p>
+                <p><b>2. सही पता व नंबर:</b> ऑर्डर करते समय सही मोबाइल नंबर और पूरा पता/मोहल्ला भरना ग्राहक की ज़िम्मेदारी है। फ़र्ज़ी ऑर्डर या बार-बार बिना कारण ऑर्डर लेने से मना करने पर नंबर ब्लॉक किया जा सकता है।</p>
+                <p><b>3. भुगतान (COD / UPI):</b> आप डिलीवरी के समय नकद (Cash on Delivery) या सत्यापित UPI के माध्यम से भुगतान कर सकते हैं।</p>
+                <p><b>4. कूपन नियम:</b> प्रत्येक कूपन अपने न्यूनतम ऑर्डर, कैटेगरी, उपयोग सीमा और वैधता समय के अधीन है। एक ऑर्डर में एक ही कूपन लागू होता है।</p>
+                <p><b>5. संपर्क:</b> किसी भी विवाद या प्रश्न के लिए <a href="mailto:${LEGAL_EMAIL}" class="font-bold text-orange-700 underline">${LEGAL_EMAIL}</a> पर लिखें।</p>
+              </div>
+            </div>`
+          : `<div class="space-y-3">
+              <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3.5 space-y-1">
+                <h4 class="font-extrabold text-slate-900 text-sm sm:text-base">📜 Terms &amp; Conditions</h4>
+                <p class="text-[11px] text-slate-500">By placing an order on ${escapeHtml(shopName)}, you agree to the terms below.</p>
+              </div>
+              <div class="space-y-2">
+                <p><b>1. Orders &amp; Pricing:</b> All prices are listed in INR (₹). The current minimum items subtotal is ₹${minOrd} (excluding delivery fee). Item prices and stock availability may update in real time.</p>
+                <p><b>2. Accurate Information:</b> Customers must provide an active 10-digit mobile number and reachable delivery address. Repeated fake or uncollected COD orders may lead to restriction of the phone number.</p>
+                <p><b>3. Payments:</b> Orders are payable via Cash on Delivery (COD) or verified UPI upon delivery.</p>
+                <p><b>4. Promo Coupons:</b> Coupons are governed by minimum order value, item/category eligibility, per-user limits, and expiry timers. Only one coupon can be applied per order.</p>
+                <p><b>5. Contact:</b> For clarifications or disputes, contact <a href="mailto:${LEGAL_EMAIL}" class="font-bold text-orange-700 underline">${LEGAL_EMAIL}</a>.</p>
+              </div>
+            </div>`;
+      }
+
+      if (key === "refund") {
+        return isHi
+          ? `<div class="space-y-3">
+              <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3.5 space-y-1">
+                <h4 class="font-extrabold text-slate-900 text-sm sm:text-base">↩️ रिफ़ंड और रद्दीकरण नीति (Refund &amp; Cancellation)</h4>
+              </div>
+              <div class="space-y-2">
+                <p><b>1. 5 मिनट में आसान कैंसिल:</b> ऑर्डर करने के बाद <b>5 मिनट के भीतर</b> आप सीधे वेबसाइट के "मेरे ऑर्डर (📦)" सेक्शन से अपना ऑर्डर स्वयं कैंसिल कर सकते हैं (बशर्ते ऑर्डर डिलीवरी के लिए निकला न हो)।</p>
+                <p><b>2. खाना बनने के बाद:</b> चूँकि सभी आइटम ताज़ा बनाए जाते हैं, 5 मिनट के बाद या डिलीवरी निकल जाने पर सामान्य स्थिति में रद्दीकरण संभव नहीं है।</p>
+                <p><b>3. गलत / कम / खराब आइटम:</b> यदि आपको कोई गलत आइटम मिला हो, कोई आइटम कम हो या गुणवत्ता में कोई समस्या हो, तो डिलीवरी के <b>2 घंटे के भीतर</b> ऑर्डर नंबर और फोटो के साथ <a href="mailto:${LEGAL_EMAIL}" class="font-bold text-orange-700 underline">${LEGAL_EMAIL}</a> पर ईमेल करें (या राइडर/सपोर्ट नंबर पर बताएं)।</p>
+                <p><b>4. रिफ़ंड प्रक्रिया:</b> जाँच सही पाए जाने पर तुरंत दोबारा सही आइटम भेजा जाएगा या आपके UPI/अगले ऑर्डर में 24–48 घंटे के अंदर राशि समायोजित/रिफ़ंड की जाएगी।</p>
+              </div>
+            </div>`
+          : `<div class="space-y-3">
+              <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3.5 space-y-1">
+                <h4 class="font-extrabold text-slate-900 text-sm sm:text-base">↩️ Refund &amp; Cancellation Policy</h4>
+              </div>
+              <div class="space-y-2">
+                <p><b>1. 5-Minute Self-Cancellation Window:</b> You may cancel your order directly from the "My Orders (📦)" popup within <b>5 minutes</b> of placing it, provided it has not already been dispatched or delivered.</p>
+                <p><b>2. After Preparation / Dispatch:</b> Because food is freshly prepared to order, cancellations are not accepted once preparation is complete or the rider is out for delivery.</p>
+                <p><b>3. Missing, Wrong, or Damaged Items:</b> If an item is missing, incorrect, or compromised in quality, please report it within <b>2 hours of delivery</b> by emailing <a href="mailto:${LEGAL_EMAIL}" class="font-bold text-orange-700 underline">${LEGAL_EMAIL}</a> with your Order Number and a clear photo.</p>
+                <p><b>4. Resolution &amp; Refunds:</b> Verified claims are resolved via prompt item replacement or a refund/credit via UPI within 24–48 hours.</p>
+              </div>
+            </div>`;
+      }
+
+      if (key === "delivery") {
+        const freeRuleHi = freeAbove > 0 ? `₹${freeAbove}+ के ऑर्डर पर डिलीवरी <b>बिल्कुल फ़्री</b> है (अन्यथा डिलीवरी शुल्क ₹${delFee})।` : `वर्तमान डिलीवरी शुल्क ₹${delFee} है।`;
+        const freeRuleEn = freeAbove > 0 ? `Delivery is <b>FREE</b> on orders of ₹${freeAbove}+ (standard delivery fee is ₹${delFee}).` : `Standard delivery fee is ₹${delFee}.`;
+        return isHi
+          ? `<div class="space-y-3">
+              <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3.5 space-y-1">
+                <h4 class="font-extrabold text-slate-900 text-sm sm:text-base">🛵 डिलीवरी नीति (Delivery Policy)</h4>
+              </div>
+              <div class="space-y-2">
+                <p><b>1. डिलीवरी क्षेत्र:</b> हम मुख्य रूप से खोह (Khoh) और लगभग <b>${radiusKm} किमी</b> के आसपास के मोहल्लों व क्षेत्रों में डिलीवरी करते हैं।</p>
+                <p><b>2. डिलीवरी शुल्क व फ़्री डिलीवरी:</b> ${freeRuleHi} फ़्री डिलीवरी कूपन लगाने पर भी डिलीवरी शुल्क माफ़ हो जाता है।</p>
+                <p><b>3. अनुमानित समय:</b> सामान्यतः ऑर्डर <b>25 से 45 मिनट</b> में पहुँचाया जाता है। भीड़, मौसम या बड़े पार्टी ऑर्डर में थोड़ा अतिरिक्त समय लग सकता है।</p>
+                <p><b>4. तेज़ डिलीवरी के लिए टिप:</b> चेकआउट में सही मोहल्ला/पास की पहचान लिखें या <b>📍 लाइव GPS लोकेशन</b> साझा करें ताकि राइडर बिना रुकावट सीधे घर पहुँच सके।</p>
+              </div>
+            </div>`
+          : `<div class="space-y-3">
+              <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3.5 space-y-1">
+                <h4 class="font-extrabold text-slate-900 text-sm sm:text-base">🛵 Delivery &amp; Shipping Policy</h4>
+              </div>
+              <div class="space-y-2">
+                <p><b>1. Service Coverage:</b> We deliver across Khoh and nearby neighborhoods within approximately <b>${radiusKm} km</b>.</p>
+                <p><b>2. Delivery Charges &amp; Free Delivery:</b> ${freeRuleEn} Valid free-delivery promo coupons also waive the delivery fee.</p>
+                <p><b>3. Estimated Delivery Time:</b> Most orders arrive within <b>25 to 45 minutes</b>, depending on kitchen volume, distance, and weather conditions.</p>
+                <p><b>4. Smooth Handover:</b> Provide a clear landmark/Mohalla or share your <b>📍 Live GPS Location</b> at checkout so our rider reaches your doorstep quickly.</p>
+              </div>
+            </div>`;
+      }
+
+      // faq
+      return isHi
+        ? `<div class="space-y-2.5">
+            <h4 class="font-extrabold text-orange-900 text-sm sm:text-base">❓ अक्सर पूछे जाने वाले प्रश्न (FAQs)</h4>
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 space-y-1">
+              <div class="font-extrabold text-slate-900">प्र. ऑर्डर कैसे करें?</div>
+              <p class="text-xs text-slate-600">मेनू से आइटम "+ जोड़ें" पर क्लिक करें, नीचे काले कार्ट बार पर जाएँ, अपना नाम/नंबर/पता भरें और "COD ऑर्डर पक्का करें" दबाएँ।</p>
+            </div>
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 space-y-1">
+              <div class="font-extrabold text-slate-900">प्र. अपना लाइव ऑर्डर कैसे ट्रैक करें?</div>
+              <p class="text-xs text-slate-600">ऊपर हेडर में <b>📦 ऑर्डर आइकन</b> पर क्लिक करें — वहाँ आप ऑर्डर का ताज़ा स्टेटस, पक्का बिल और कैंसिल विकल्प देख सकते हैं।</p>
+            </div>
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 space-y-1">
+              <div class="font-extrabold text-slate-900">प्र. फ़्री डिलीवरी कब मिलती है?</div>
+              <p class="text-xs text-slate-600">${freeAbove > 0 ? `₹${freeAbove}+ के ऑर्डर पर अपने-आप फ़्री डिलीवरी मिलती है, ` : ""}या आप स्टोरफ्रंट/चेकआउट में उपलब्ध फ़्री डिलीवरी कूपन लगा सकते हैं।</p>
+            </div>
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 space-y-1">
+              <div class="font-extrabold text-slate-900">प्र. पेमेंट कैसे कर सकते हैं और मदद के लिए कहाँ लिखें?</div>
+              <p class="text-xs text-slate-600">डिलीवरी पर नकद (COD) या UPI से पेमेंट कर सकते हैं। किसी भी मदद के लिए <a href="mailto:${LEGAL_EMAIL}" class="font-bold text-orange-700 underline">${LEGAL_EMAIL}</a> पर ईमेल करें।</p>
+            </div>
+          </div>`
+        : `<div class="space-y-2.5">
+            <h4 class="font-extrabold text-orange-900 text-sm sm:text-base">❓ Frequently Asked Questions (FAQs)</h4>
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 space-y-1">
+              <div class="font-extrabold text-slate-900">Q. How do I place an order?</div>
+              <p class="text-xs text-slate-600">Tap "+ Add" on your favorite items, open the cart bar at the bottom, enter your name, 10-digit mobile number &amp; address, and tap Place COD Order.</p>
+            </div>
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 space-y-1">
+              <div class="font-extrabold text-slate-900">Q. How do I track or cancel my order?</div>
+              <p class="text-xs text-slate-600">Tap the <b>📦 Orders icon</b> in the top header to view live status, your bill, or cancel within 5 minutes of ordering.</p>
+            </div>
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 space-y-1">
+              <div class="font-extrabold text-slate-900">Q. How do I get Free Delivery?</div>
+              <p class="text-xs text-slate-600">${freeAbove > 0 ? `Orders of ₹${freeAbove}+ get Free Delivery automatically, ` : ""}or you can tap &amp; apply an active Free Delivery promo coupon at checkout.</p>
+            </div>
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 space-y-1">
+              <div class="font-extrabold text-slate-900">Q. What payment methods are accepted &amp; how do I contact support?</div>
+              <p class="text-xs text-slate-600">We accept Cash on Delivery (COD) and UPI at delivery. Email <a href="mailto:${LEGAL_EMAIL}" class="font-bold text-orange-700 underline">${LEGAL_EMAIL}</a> anytime for help.</p>
+            </div>
+          </div>`;
+    }
+
+    function renderFooterAndLegalSync() {
+      const s = state.settings || {};
+      const brandEl = document.getElementById("footerBrandTitle");
+      if (brandEl) brandEl.textContent = `🍛 ${state.lang === "hi" ? (s.shopNameHi || "Khoh गाँव रसोई") : (s.shopNameEn || "Khoh Gaon Rasoi")}`;
+      const mapIds = {
+        footerFreshBadge: "footerFreshBadge",
+        footerBrandSub: "footerBrandSub",
+        footerCallLabel: "footerCallLabel",
+        footerLinksTitle: "footerLinksTitle",
+        footerCopyrightText: "footerCopyrightText",
+        footerPaymentText: "footerPaymentText",
+        legalModalSubtitle: "legalModalSubtitle",
+        copySupportEmailText: "copySupportEmailText",
+        legalDoneBtnText: "legalDoneBtnText",
+      };
+      for (const [id, key] of Object.entries(mapIds)) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = t(key);
+      }
+      const callLink = document.getElementById("footerCallLink");
+      const cleanPhone = normalizeIndianPhone(s.supportPhone || "");
+      if (callLink) {
+        if (cleanPhone) {
+          callLink.href = `tel:${cleanPhone}`;
+          callLink.classList.remove("hidden");
+        } else {
+          callLink.classList.add("hidden");
+        }
+      }
+      document.querySelectorAll("[data-legal-page]").forEach((btn) => {
+        btn.textContent = getLegalTabLabel(btn.dataset.legalPage);
+      });
+      const modal = document.getElementById("legalPageModal");
+      if (modal && !modal.classList.contains("hidden")) {
+        renderLegalPageModal(state.activeLegalPage || "about");
+      }
+    }
+
+    function renderLegalPageModal(pageKey) {
+      const key = LEGAL_PAGE_KEYS.includes(pageKey) ? pageKey : "about";
+      state.activeLegalPage = key;
+      const titleEl = document.getElementById("legalModalTitle");
+      const tabsEl = document.getElementById("legalPageTabs");
+      const bodyEl = document.getElementById("legalPageBody");
+      if (titleEl) titleEl.textContent = getLegalTabLabel(key);
+      if (tabsEl) {
+        tabsEl.innerHTML = LEGAL_PAGE_KEYS.map((k) => {
+          const active = k === key;
+          return `<button type="button" data-legal-tab="${k}" class="px-2.5 py-1.5 rounded-xl text-[11px] font-bold whitespace-nowrap border transition ${
+            active
+              ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+              : "bg-slate-50 hover:bg-orange-50 text-slate-700 border-slate-200"
+          }">${escapeHtml(getLegalTabLabel(k))}</button>`;
+        }).join("");
+        tabsEl.querySelectorAll("[data-legal-tab]").forEach((btn) => {
+          btn.addEventListener("click", () => openLegalPage(btn.dataset.legalTab));
+        });
+      }
+      if (bodyEl) {
+        bodyEl.innerHTML = buildLegalPageContent(key);
+        bodyEl.scrollTop = 0;
+      }
+    }
+
+    function openLegalPage(pageKey, updateHash = true) {
+      const key = LEGAL_PAGE_KEYS.includes(pageKey) ? pageKey : "about";
+      renderLegalPageModal(key);
+      document.getElementById("legalPageModal").classList.remove("hidden");
+      if (updateHash && window.history && typeof window.history.replaceState === "function") {
+        const hashSlug = key === "privacy" ? "privacy-policy" : key === "about" ? "about-us" : key === "contact" ? "contact-us" : key;
+        try { window.history.replaceState(null, "", `#${hashSlug}`); } catch (_) {}
+      }
+    }
+
+    function closeLegalPage() {
+      document.getElementById("legalPageModal").classList.add("hidden");
+      if (window.location && window.location.hash && window.history && typeof window.history.replaceState === "function") {
+        try { window.history.replaceState(null, "", window.location.pathname + window.location.search); } catch (_) {}
+      }
+    }
+
+    function checkLegalHashOnLoad() {
+      const raw = String((window.location && window.location.hash) || "").replace(/^#/, "").trim().toLowerCase();
+      if (raw && LEGAL_HASH_MAP[raw]) {
+        openLegalPage(LEGAL_HASH_MAP[raw], false);
+      }
+    }
+
+    document.querySelectorAll("[data-legal-page]").forEach((btn) => {
+      btn.addEventListener("click", () => openLegalPage(btn.dataset.legalPage));
+    });
+    document.getElementById("closeLegalPageBtn").addEventListener("click", closeLegalPage);
+    document.getElementById("legalDoneBtn").addEventListener("click", closeLegalPage);
+    document.getElementById("copySupportEmailBtn").addEventListener("click", async () => {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(LEGAL_EMAIL);
+        } else {
+          const ta = document.createElement("textarea");
+          ta.value = LEGAL_EMAIL;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          ta.remove();
+        }
+        showToast(t("emailCopiedToast"));
+      } catch (_) {
+        showToast(t("emailCopiedToast"));
+      }
+    });
+    window.addEventListener("hashchange", checkLegalHashOnLoad);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        const lm = document.getElementById("legalPageModal");
+        if (lm && !lm.classList.contains("hidden")) closeLegalPage();
+      }
     });
 
     setInterval(() => {
@@ -8827,7 +9368,8 @@
 
     applyTheme(state.theme);
     renderAll();
+    checkLegalHashOnLoad();
     loadStoreData();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5f57287fde03292',t:'MTc5NTQ5MjIwNA=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5f57287fde03292',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
