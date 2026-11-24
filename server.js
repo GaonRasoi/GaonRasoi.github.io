@@ -201,7 +201,7 @@ const couponValidateLimiter = createRateLimiter({
   errorMessage: 'Too many coupon checks. Please wait a moment.',
 });
 const orderLookupLimiter = createRateLimiter({
-  max: 60,
+  max: 300,
   windowMs: 5 * 60 * 1000,
   errorMessage: 'Too many order lookup requests. Please wait a moment.',
 });
@@ -1100,12 +1100,24 @@ async function applyScheduledOrderTransition(orderDoc, now = new Date()) {
 
   if (nextStatus !== orderDoc.status) {
     const updateSet = { status: nextStatus };
-    if (nextStatus === 'Delivered' && (!orderDoc.paymentCollectedMode || orderDoc.paymentCollectedMode === 'Pending')) {
-      updateSet.paymentCollectedMode = 'Cash';
+    if (nextStatus === 'Delivered') {
+      if (!orderDoc.paymentCollectedMode || orderDoc.paymentCollectedMode === 'Pending') {
+        updateSet.paymentCollectedMode = 'Cash';
+      }
+      updateSet.statusSchedule = {
+        cookingAt: null,
+        outForDeliveryAt: null,
+        deliveredAt: null,
+        etaEndsAt: null,
+        noteHi: '',
+        noteEn: '',
+        updatedAt: null,
+      };
     }
     await Order.updateOne({ _id: orderDoc._id, status: orderDoc.status }, { $set: updateSet });
     orderDoc.status = nextStatus;
     if (updateSet.paymentCollectedMode) orderDoc.paymentCollectedMode = updateSet.paymentCollectedMode;
+    if (updateSet.statusSchedule) orderDoc.statusSchedule = updateSet.statusSchedule;
   }
   return orderDoc;
 }
@@ -1198,7 +1210,7 @@ app.get('/api/orders/track/:orderNumber', orderLookupLimiter, async (req, res) =
       phone: cleanPhone,
     })
       .select(
-        'orderNumber customerName address status totalAmount discountAmount couponCode assignedRider statusSchedule cancelDeadlineAt cancelledBy cancelledAt items createdAt updatedAt'
+        'orderNumber customerName phone address status totalAmount discountAmount couponCode assignedRider statusSchedule cancelDeadlineAt cancelledBy cancelledAt items createdAt updatedAt'
       )
       .lean();
 
@@ -1379,7 +1391,12 @@ app.get('/api/admin/orders', requireAdmin, async (req, res) => {
     const now = new Date();
     const activeScheduled = await Order.find({
       status: { $in: ['Pending', 'Cooking', 'Out for Delivery'] },
-      'statusSchedule.updatedAt': { $ne: null },
+      $or: [
+        { 'statusSchedule.updatedAt': { $ne: null } },
+        { 'statusSchedule.cookingAt': { $ne: null } },
+        { 'statusSchedule.outForDeliveryAt': { $ne: null } },
+        { 'statusSchedule.deliveredAt': { $ne: null } },
+      ],
     }).lean();
     for (const ord of activeScheduled) {
       await applyScheduledOrderTransition(ord, now);

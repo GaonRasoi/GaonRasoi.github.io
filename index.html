@@ -1353,6 +1353,7 @@
         refreshTrack: "स्थिति देखें",
         checkingTrack: "जाँच रहे हैं...",
         trackStatusToast: (st) => `✅ ऑर्डर की ताज़ा स्थिति: ${st}`,
+        historyRefreshedToast: "✅ ऑर्डर सूची अपडेट हो गई।",
         trackNotFoundToast: "⚠️ यह ऑर्डर अब उपलब्ध नहीं है या हटाया जा चुका है।",
         orderTimerLabel: "⏱️ अनुमानित डिलीवरी / अपडेट टाइमर",
         orderTimerNextStage: (st) => `⏳ अगला अपडेट (${st})`,
@@ -1692,6 +1693,7 @@
         refreshTrack: "Check Status",
         checkingTrack: "Checking...",
         trackStatusToast: (st) => `✅ Current order status: ${st}`,
+        historyRefreshedToast: "✅ Order history refreshed.",
         trackNotFoundToast: "⚠️ This order is no longer found or was removed.",
         orderTimerLabel: "⏱️ Delivery / Update Timer",
         orderTimerNextStage: (st) => `⏳ Next stage (${st})`,
@@ -2574,41 +2576,54 @@
     }
 
     // Migrate any legacy single gr_recent_order into customerOrders on startup
+    if (state.customerPhone) {
+      state.customerPhone = normalizeIndianPhone(state.customerPhone) || state.customerPhone;
+    }
     if (state.recentOrder && state.recentOrder.orderNumber) {
       const exists = state.customerOrders.some((x) => x.orderNumber === state.recentOrder.orderNumber);
       if (!exists) state.customerOrders.unshift(state.recentOrder);
       if (!state.customerPhone && state.recentOrder.phone) {
-        state.customerPhone = state.recentOrder.phone;
+        state.customerPhone = normalizeIndianPhone(state.recentOrder.phone) || state.recentOrder.phone;
         localStorage.setItem("gr_customer_phone", state.customerPhone);
       }
       saveCustomerOrders();
     } else if (!state.customerPhone && state.customerOrders.length > 0 && state.customerOrders[0].phone) {
-      state.customerPhone = state.customerOrders[0].phone;
+      state.customerPhone = normalizeIndianPhone(state.customerOrders[0].phone) || state.customerOrders[0].phone;
       localStorage.setItem("gr_customer_phone", state.customerPhone);
     }
 
     async function syncCustomerOrderHistory(phoneOverride = "", isManual = false) {
+      if (!isManual && state._autoTrackSyncing) return false;
       const targetPhone = normalizeIndianPhone(phoneOverride || state.customerPhone || state.recentOrder?.phone || "");
       const btn = document.getElementById("refreshAllOrdersBtn");
       const btnText = document.getElementById("refreshAllOrdersText");
-      if (isManual && btn && btnText) {
-        btn.disabled = true;
-        btnText.textContent = t("checkingTrack");
+      if (isManual) {
+        state._autoTrackBackoffMs = 0;
+        if (btn && btnText) {
+          btn.disabled = true;
+          btnText.textContent = t("checkingTrack");
+        }
       }
+      state._autoTrackSyncing = true;
       try {
         if (!targetPhone) {
           if (state.recentOrder) await syncRecentOrderStatus(isManual);
           return false;
         }
+        state._lastAutoTrackSyncAt = Date.now();
         const res = await apiFetch(`/api/orders/history?phone=${encodeURIComponent(targetPhone)}`);
+        state._autoTrackBackoffMs = 0;
         if (res.serverNow) {
           state.clockOffsetMs = Date.now() - new Date(res.serverNow).getTime();
         }
         state.customerPhone = targetPhone;
         localStorage.setItem("gr_customer_phone", targetPhone);
         const serverOrders = Array.isArray(res.orders) ? res.orders : [];
-        // Replace orders for this phone cleanly with server truth (respecting hiddenByCustomer)
-        const otherOrders = state.customerOrders.filter((o) => o.phone && o.phone !== targetPhone);
+        // Replace orders for this phone cleanly with server truth (including deletions & hiddenByCustomer)
+        const otherOrders = state.customerOrders.filter((o) => {
+          const op = normalizeIndianPhone(o && o.phone);
+          return op && op !== targetPhone;
+        });
         state.customerOrders = [...serverOrders, ...otherOrders];
         saveCustomerOrders();
         if (serverOrders.length > 0) {
@@ -2618,15 +2633,21 @@
         if (!document.getElementById("orderSuccessModal").classList.contains("hidden")) {
           renderOrderSuccessModal();
         }
-        if (isManual && state.recentOrder) {
-          const stLabel = TRANSLATIONS[state.lang].statuses[state.recentOrder.status] || state.recentOrder.status;
-          showToast(t("trackStatusToast", stLabel));
+        if (isManual) {
+          if (state.recentOrder) {
+            const stLabel = TRANSLATIONS[state.lang].statuses[state.recentOrder.status] || state.recentOrder.status;
+            showToast(t("trackStatusToast", stLabel));
+          } else {
+            showToast(t("historyRefreshedToast"), "info");
+          }
         }
         return { ok: true, count: serverOrders.length };
       } catch (err) {
+        state._autoTrackBackoffMs = Math.min(60000, state._autoTrackBackoffMs ? state._autoTrackBackoffMs * 2 : 15000);
         if (isManual) showToast((err && err.message) || t("serverError"), true);
         return { ok: false, count: 0 };
       } finally {
+        state._autoTrackSyncing = false;
         if (isManual && btn && btnText) {
           btn.disabled = false;
           btnText.textContent = t("refresh");
@@ -4104,44 +4125,84 @@
       return overdue ? { ...overdue, triggerSync: true } : null;
     }
 
+    function applyClientScheduledPreview(order, nowMs) {
+      if (!order || !order.statusSchedule) return false;
+      const st = order.status || "Pending";
+      if (st === "Delivered" || st === "Cancelled") return false;
+      const sch = order.statusSchedule;
+      const rank = { Pending: 0, Cooking: 1, "Out for Delivery": 2, Delivered: 3, Cancelled: 99 };
+      const curRank = rank[st] ?? 0;
+      let nextStatus = st;
+      if (sch.deliveredAt && nowMs >= new Date(sch.deliveredAt).getTime()) {
+        nextStatus = "Delivered";
+      } else if (sch.outForDeliveryAt && nowMs >= new Date(sch.outForDeliveryAt).getTime() && curRank < 2) {
+        nextStatus = "Out for Delivery";
+      } else if (sch.cookingAt && nowMs >= new Date(sch.cookingAt).getTime() && curRank < 1) {
+        nextStatus = "Cooking";
+      }
+      if (nextStatus !== st) {
+        order.status = nextStatus;
+        return true;
+      }
+      return false;
+    }
+
     function updateOrderTrackTimerUI() {
       const listEl = document.getElementById("customerOrdersList");
-      if (!listEl) return;
       const now = Date.now() - state.clockOffsetMs;
       let needsSync = false;
+      let previewAdvanced = false;
 
-      listEl.querySelectorAll("[data-co-sched-box]").forEach((box) => {
-        const orderNum = box.dataset.coSchedBox;
-        const ord = state.customerOrders.find((x) => x.orderNumber === orderNum);
-        const clockEl = box.querySelector("[data-co-sched-clock]");
-        const labelEl = box.querySelector("[data-co-sched-label]");
-        if (!ord || !ord.statusSchedule || ["Delivered", "Cancelled"].includes(ord.status || "Pending")) {
-          box.classList.add("hidden");
-          return;
-        }
-        const target = getNextScheduledTarget(ord);
-        if (!target) {
-          box.classList.add("hidden");
-          return;
-        }
-        if (target.triggerSync) {
+      for (const ord of state.customerOrders || []) {
+        if (applyClientScheduledPreview(ord, now)) {
+          previewAdvanced = true;
           needsSync = true;
-          if (clockEl) clockEl.textContent = "00:00";
-        } else if (clockEl) {
-          clockEl.textContent = formatCountdown(target.ts - now);
         }
-        if (labelEl) {
-          if (target.stage && target.stage !== "Delivered") {
-            const stName = TRANSLATIONS[state.lang].statuses[target.stage] || target.stage;
-            labelEl.textContent = t("orderTimerNextStage", stName);
-          } else {
-            labelEl.textContent = t("orderTimerLabel");
-          }
+      }
+      if (previewAdvanced) {
+        saveCustomerOrders();
+        renderRecentOrderCard();
+        if (!document.getElementById("orderSuccessModal").classList.contains("hidden")) {
+          renderOrderSuccessModal();
         }
-      });
+      }
 
-      if (needsSync && !state._autoTrackSyncing) {
+      if (listEl) {
+        listEl.querySelectorAll("[data-co-sched-box]").forEach((box) => {
+          const orderNum = box.dataset.coSchedBox;
+          const ord = state.customerOrders.find((x) => x.orderNumber === orderNum);
+          const clockEl = box.querySelector("[data-co-sched-clock]");
+          const labelEl = box.querySelector("[data-co-sched-label]");
+          if (!ord || !ord.statusSchedule || ["Delivered", "Cancelled"].includes(ord.status || "Pending")) {
+            box.classList.add("hidden");
+            return;
+          }
+          const target = getNextScheduledTarget(ord);
+          if (!target) {
+            box.classList.add("hidden");
+            return;
+          }
+          if (target.triggerSync) {
+            needsSync = true;
+            if (clockEl) clockEl.textContent = "00:00";
+          } else if (clockEl) {
+            clockEl.textContent = formatCountdown(target.ts - now);
+          }
+          if (labelEl) {
+            if (target.stage && target.stage !== "Delivered") {
+              const stName = TRANSLATIONS[state.lang].statuses[target.stage] || target.stage;
+              labelEl.textContent = t("orderTimerNextStage", stName);
+            } else {
+              labelEl.textContent = t("orderTimerLabel");
+            }
+          }
+        });
+      }
+
+      const cooldownMs = 12000 + (state._autoTrackBackoffMs || 0);
+      if (needsSync && !state._autoTrackSyncing && Date.now() - (state._lastAutoTrackSyncAt || 0) >= cooldownMs) {
         state._autoTrackSyncing = true;
+        state._lastAutoTrackSyncAt = Date.now();
         syncCustomerOrderHistory(state.customerPhone, false).finally(() => {
           state._autoTrackSyncing = false;
         });
@@ -9352,5 +9413,5 @@
     checkLegalHashOnLoad();
     loadStoreData();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5f5ba973ebf57be',t:'MTc5NTQ5NTE1Ng=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5f5ba973ebf57be',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5f5d49dc8215a05',t:'MTc5NTQ5NjIyMg=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5f5d49dc8215a05',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
