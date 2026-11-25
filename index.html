@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#ea580c" />
+  <meta name="author" content="Pawan Verma" />
+  <meta name="copyright" content="© 2026 Khoh Gaon Rasoi — Developed by Pawan Verma" />
   <meta name="description" content="Khoh गाँव रसोई (Gaon Rasoi) — खोह और आसपास के गाँवों में ताज़ा समोसा, बर्गर, चाउमीन, मोमोज़, कचौड़ी सब्ज़ी, कॉम्बो व कोल्ड ड्रिंक्स की तेज़ होम डिलीवरी (COD / UPI)।" />
   <meta name="keywords" content="Gaon Rasoi, Khoh Gaon Rasoi, village food delivery, samosa delivery, burger, chowmein, momos, kachori sabzi, Khoh food order online" />
   <link rel="canonical" href="https://gaonrasoi.github.io/" />
@@ -19,6 +21,10 @@
     "@context": "https://schema.org",
     "@type": "Restaurant",
     "name": "Khoh गाँव रसोई (Gaon Rasoi)",
+    "founder": {
+      "@type": "Person",
+      "name": "Pawan Verma"
+    },
     "url": "https://gaonrasoi.github.io/",
     "email": "khohgaonrasoi123@gmail.com",
     "servesCuisine": ["Indian", "Snacks", "Fast Food", "Chinese", "Beverages"],
@@ -483,7 +489,7 @@
       </div>
 
       <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-[10px] text-slate-400 font-semibold">
-        <span id="footerCopyrightText">© 2026 Khoh गाँव रसोई (Gaon Rasoi) • सर्वाधिकार सुरक्षित</span>
+        <span id="footerCopyrightText">© 2026 Khoh गाँव रसोई (Gaon Rasoi) • सर्वाधिकार सुरक्षित • Developed by Pawan Verma</span>
         <span id="footerPaymentText">💵 कैश (COD) एवं 📲 UPI उपलब्ध</span>
       </div>
     </footer>
@@ -1475,7 +1481,7 @@
         footerBrandSub: "खोह और आसपास के क्षेत्रों में तेज़, भरोसेमंद और किफ़ायती होम डिलीवरी।",
         footerCallLabel: "कॉल करें",
         footerLinksTitle: "महत्वपूर्ण जानकारी व नीतियाँ",
-        footerCopyrightText: "© 2026 Khoh गाँव रसोई (Gaon Rasoi) • सर्वाधिकार सुरक्षित",
+        footerCopyrightText: "© 2026 Khoh गाँव रसोई (Gaon Rasoi) • सर्वाधिकार सुरक्षित • Developed by Pawan Verma",
         footerPaymentText: "💵 कैश (COD) एवं 📲 UPI उपलब्ध",
         legalModalSubtitle: "Khoh गाँव रसोई • आधिकारिक जानकारी व नीतियाँ",
         legalDoneBtnText: "बंद करें",
@@ -1815,7 +1821,7 @@
         footerBrandSub: "Fast, reliable & affordable home food delivery in Khoh and nearby areas.",
         footerCallLabel: "Call Us",
         footerLinksTitle: "Essential Pages & Policies",
-        footerCopyrightText: "© 2026 Khoh Gaon Rasoi • All Rights Reserved",
+        footerCopyrightText: "© 2026 Khoh Gaon Rasoi • All Rights Reserved • Developed by Pawan Verma",
         footerPaymentText: "💵 Cash on Delivery (COD) & 📲 UPI",
         legalModalSubtitle: "Khoh Gaon Rasoi • Official Information & Policies",
         legalDoneBtnText: "Close",
@@ -2110,6 +2116,8 @@
       appliedCoupon: null,
       gps: null,
       isInitialStoreLoading: true,
+      isLiveServerSynced: false,
+      isPlacingOrder: false,
       lastPlacedOrderNumber: "",
       checkoutClientOrderId: "",
       orderTokens: safeStorageJson("gr_order_tokens_v1", {}),
@@ -2807,11 +2815,13 @@
       const hadCachedMenu = Array.isArray(state.menu) && state.menu.length > 0;
 
       const slowTimer = setTimeout(() => {
-        if (!hadCachedMenu) {
-          banner.className = "rounded-2xl p-3 text-xs sm:text-sm font-semibold border bg-blue-50 border-blue-200 text-blue-800";
-          banner.textContent = t("serverWaking");
-          banner.classList.remove("hidden");
-        }
+        banner.className = "rounded-2xl p-3 text-xs sm:text-sm font-semibold border bg-blue-50 border-blue-200 text-blue-800";
+        banner.textContent = hadCachedMenu
+          ? (state.lang === "hi"
+              ? "⏳ दुकान का सर्वर जाग रहा है — लाइव कीमतें व स्टॉक जुड़ रहे हैं, कृपया कुछ सेकंड प्रतीक्षा करें..."
+              : "⏳ Waking up shop server — syncing live prices & stock, please wait a few seconds...")
+          : t("serverWaking");
+        banner.classList.remove("hidden");
       }, 2200);
 
       try {
@@ -2819,6 +2829,7 @@
         clearTimeout(slowTimer);
         banner.classList.add("hidden");
         state.isInitialStoreLoading = false;
+        state.isLiveServerSynced = true;
         if (data.serverNow) {
           state.clockOffsetMs = Date.now() - new Date(data.serverNow).getTime();
         }
@@ -2872,11 +2883,9 @@
       } catch (err) {
         clearTimeout(slowTimer);
         if (retryAttempt < 1) {
-          if (!hadCachedMenu) {
-            banner.className = "rounded-2xl p-3 text-xs sm:text-sm font-semibold border bg-blue-50 border-blue-200 text-blue-800";
-            banner.textContent = t("serverWaking");
-            banner.classList.remove("hidden");
-          }
+          banner.className = "rounded-2xl p-3 text-xs sm:text-sm font-semibold border bg-blue-50 border-blue-200 text-blue-800";
+          banner.textContent = t("serverWaking");
+          banner.classList.remove("hidden");
           setTimeout(() => loadStoreData(retryAttempt + 1), 2000);
           return;
         }
@@ -5085,7 +5094,15 @@
       const submitBtn = document.getElementById("placeOrderBtn");
       const submitBtnText = document.getElementById("placeOrderBtnText");
 
-      if (!state.settings.isOpen) {
+      if (!state.isLiveServerSynced) {
+        minWarn.textContent =
+          state.lang === "hi"
+            ? "⏳ दुकान का सर्वर जाग रहा है (10–25 सेकंड)... लाइव जुड़ते ही ऑर्डर बटन अपने-आप चालू हो जाएगा। कृपया पेज बंद न करें।"
+            : "⏳ Waking up shop server (10–25s)... The order button will activate automatically once connected. Please keep this page open.";
+        minWarn.classList.remove("hidden");
+        submitBtn.disabled = true;
+        submitBtnText.textContent = state.lang === "hi" ? "⏳ सर्वर से जुड़ रहा है..." : "⏳ Connecting to server...";
+      } else if (!state.settings.isOpen) {
         minWarn.textContent = t("errShopClosed");
         minWarn.classList.remove("hidden");
         submitBtn.disabled = true;
@@ -5455,10 +5472,20 @@
         return;
       }
 
+      if (!state.isLiveServerSynced) {
+        errBox.textContent =
+          state.lang === "hi"
+            ? "⏳ दुकान का सर्वर अभी जाग रहा है — कृपया कुछ सेकंड इंतज़ार करें।"
+            : "⏳ Shop server is still waking up — please wait a few seconds.";
+        errBox.classList.remove("hidden");
+        return;
+      }
+
       const btn = document.getElementById("placeOrderBtn");
       const btnText = document.getElementById("placeOrderBtnText");
       const coldHint = document.getElementById("coldStartHint");
 
+      state.isPlacingOrder = true;
       btn.disabled = true;
       btnText.textContent = t("placingOrderBtn");
       const coldTimer = setTimeout(() => {
@@ -5564,6 +5591,7 @@
         } else errBox.textContent = err.message || t("serverError");
         errBox.classList.remove("hidden");
       } finally {
+        state.isPlacingOrder = false;
         btnText.textContent = t("placeOrderBtn");
         renderCheckoutDrawer();
       }
@@ -7718,6 +7746,9 @@
                   <p class="text-xs text-slate-600">किसी भी सुझाव या जानकारी के लिए ${emailSpan} पर संपर्क करें।</p>
                 </div>
               </div>
+              <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 text-xs text-slate-600">
+                <b>© 2026 ${escapeHtml(shopName)}</b> • वेबसाइट डिज़ाइन व विकास: <b>Pawan Verma</b> (सर्वाधिकार सुरक्षित)।
+              </div>
             </div>`
           : `<div class="space-y-3">
               <div class="rounded-2xl bg-orange-50/70 border border-orange-100 p-3.5 space-y-1.5">
@@ -7741,6 +7772,9 @@
                   <div class="font-extrabold text-slate-900">💬 Dedicated Support</div>
                   <p class="text-xs text-slate-600">Have feedback or a question? Reach us anytime at ${emailSpan}.</p>
                 </div>
+              </div>
+              <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 text-xs text-slate-600">
+                <b>© 2026 ${escapeHtml(shopName)}</b> • Website Designed &amp; Developed by <b>Pawan Verma</b> (All Rights Reserved).
               </div>
             </div>`;
       }
@@ -7818,6 +7852,7 @@
                 <p><b>3. भुगतान (COD / UPI):</b> आप डिलीवरी के समय नकद (Cash on Delivery) या सत्यापित UPI के माध्यम से भुगतान कर सकते हैं।</p>
                 <p><b>4. रिफ़ंड की कोई गारंटी नहीं:</b> खाना ऑर्डर के बाद ताज़ा तैयार किया जाता है, इसलिए ऑर्डर बनने या डिलीवर होने के बाद रिफ़ंड या पैसे वापसी की कोई गारंटी नहीं है।</p>
                 <p><b>5. कूपन नियम व संपर्क:</b> प्रत्येक कूपन न्यूनतम ऑर्डर, कैटेगरी, उपयोग सीमा और समय सीमा के अधीन है। किसी भी प्रश्न के लिए ${emailSpan} पर लिखें।</p>
+                <p><b>6. कॉपीराइट व ट्रेडमार्क:</b> इस वेबसाइट का मूल कोड, डिज़ाइन और सामग्री © 2026 ${escapeHtml(shopName)} (Developed by Pawan Verma) की संपत्ति है। पैक्ड कोल्ड ड्रिंक्स/पेय पदार्थों के ब्रांड नाम उनके संबंधित कंपनियों के ट्रेडमार्क हैं।</p>
               </div>
             </div>`
           : `<div class="space-y-3">
@@ -7831,6 +7866,7 @@
                 <p><b>3. Payments:</b> Orders are payable via Cash on Delivery (COD) or verified UPI upon delivery.</p>
                 <p><b>4. No Refund Guarantee:</b> Food is freshly cooked upon order; therefore, there is strictly no guarantee of refund or return once preparation, dispatch, or delivery has occurred.</p>
                 <p><b>5. Coupons &amp; Contact:</b> Coupons are governed by minimum order, eligibility, usage limits, and expiry timers. For questions, contact ${emailSpan}.</p>
+                <p><b>6. Copyright &amp; Trademarks:</b> The original website code, design, and storefront content belong to © 2026 ${escapeHtml(shopName)} (Developed by Pawan Verma). All packaged beverage brand names and trademarks belong to their respective owners.</p>
               </div>
             </div>`;
       }
@@ -8075,11 +8111,18 @@
       loadStoreData();
     });
 
+    window.addEventListener("beforeunload", (e) => {
+      if (state.isPlacingOrder) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    });
+
     applyTheme(state.theme);
     hydrateStoreFromCache();
     renderAll();
     checkLegalHashOnLoad();
     loadStoreData();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5fd9f7c1d2b8aec',t:'MTc5NTU3NzkzMg=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5fd9f7c1d2b8aec',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5fe7caa79514bda',t:'MTc5NTU4Njk5MQ=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5fe7caa79514bda',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
