@@ -352,6 +352,20 @@
   <!-- 2. MAIN CUSTOMER VIEW                                                 -->
   <!-- ===================================================================== -->
   <main class="max-w-3xl mx-auto px-3.5 pt-3 space-y-3.5">
+    <!-- Multi-Village & Multi-Shop Switcher Bar -->
+    <div id="marketplaceTopBar" class="rounded-2xl bg-white border border-orange-100 px-3 py-2 shadow-sm flex items-center justify-between gap-2">
+      <div class="min-w-0 flex items-center gap-1.5 text-xs font-bold text-slate-700 truncate">
+        <span class="shrink-0">📍</span>
+        <span id="currentVillageBadge" class="text-orange-700 font-extrabold truncate">खोह</span>
+        <span class="text-slate-300 shrink-0">•</span>
+        <span id="currentShopBadge" class="truncate text-slate-800">गाँव रसोई</span>
+      </div>
+      <button id="openMarketplaceBtn" type="button" class="shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-800 text-[11px] font-extrabold transition active:scale-95">
+        <span>🏘️</span>
+        <span id="openMarketplaceBtnText">गाँव / दुकान बदलें</span>
+        <span id="marketplaceCountPill" class="hidden ml-0.5 px-1.5 py-0.5 rounded-full bg-orange-600 text-white text-[9px] font-black">1</span>
+      </button>
+    </div>
     <div id="serverBanner" class="hidden rounded-2xl p-3 text-xs sm:text-sm font-medium border"></div>
 
     <div id="announcementBanner" class="hidden rounded-2xl bg-amber-50 border border-amber-200 px-3.5 py-2.5 text-amber-900 text-xs sm:text-sm font-bold flex items-center gap-2">
@@ -472,6 +486,10 @@
             <span>📞</span>
             <span id="footerCallLabel">कॉल करें</span>
           </a>
+          <button id="footerVendorLoginBtn" type="button" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-orange-50 border border-slate-200 hover:border-orange-200 text-slate-700 hover:text-orange-800 text-[11px] font-bold transition">
+            <span>🏪</span>
+            <span id="footerVendorLoginLabel">दुकानदार लॉगिन</span>
+          </button>
         </div>
       </div>
 
@@ -840,16 +858,27 @@
     </div>
   </div>
 
-  <!-- 6. SECRET ADMIN PASSWORD LOGIN MODAL -->
+  <!-- 6. DUAL ROLE LOGIN MODAL (SUPER ADMIN + SHOP VENDOR) -->
   <div id="adminLoginModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl animate-slide-up">
       <div class="flex items-center justify-between">
-        <h3 id="adminLoginTitle" class="text-lg font-extrabold text-slate-900">🔐 एडमिन लॉगिन</h3>
+        <h3 id="adminLoginTitle" class="text-lg font-extrabold text-slate-900">🔐 पैनल लॉगिन</h3>
         <button id="closeAdminLoginBtn" type="button" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 font-bold">✕</button>
       </div>
-      <p id="adminLoginDesc" class="text-xs text-slate-500">डैशबोर्ड खोलने के लिए एडमिन पासवर्ड दर्ज करें।</p>
+      <div class="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-slate-100 border border-slate-200">
+        <button id="loginModeSuperBtn" type="button" class="py-2 rounded-xl text-xs font-extrabold bg-slate-900 text-white shadow-sm transition">👑 सुपर एडमिन</button>
+        <button id="loginModeVendorBtn" type="button" class="py-2 rounded-xl text-xs font-extrabold text-slate-600 hover:text-slate-900 transition">🏪 दुकानदार</button>
+      </div>
+      <p id="adminLoginDesc" class="text-xs text-slate-500">डैशबोर्ड खोलने के लिए सुपर एडमिन पासवर्ड दर्ज करें।</p>
       <form id="adminLoginForm" class="space-y-3">
-        <input id="adminPasswordInput" type="password" required autocomplete="current-password" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900" placeholder="••••••••" />
+        <div id="vendorPhoneWrap" class="hidden">
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">दुकानदार मोबाइल नंबर (10 अंक)</label>
+          <input id="vendorPhoneInput" type="tel" inputmode="numeric" maxlength="13" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="9876543210" />
+        </div>
+        <div>
+          <label id="adminPasswordLabel" class="block text-[11px] font-bold text-slate-600 mb-1">पासवर्ड</label>
+          <input id="adminPasswordInput" type="password" required autocomplete="current-password" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900" placeholder="••••••••" />
+        </div>
         <div id="adminLoginError" class="hidden text-xs text-red-600 font-semibold"></div>
         <button id="adminLoginSubmitBtn" type="submit" class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm transition">
           <span id="adminLoginSubmitText">लॉगिन करें</span>
@@ -859,14 +888,14 @@
   </div>
 
   <!-- ===================================================================== -->
-  <!-- 7. FULL-SCREEN SECRET ADMIN DASHBOARD (7 MANAGEMENT TABS)             -->
+  <!-- 7. FULL-SCREEN ADMIN / VENDOR / SUPER-ADMIN DASHBOARD                 -->
   <!-- ===================================================================== -->
   <div id="adminDashboard" class="hidden fixed inset-0 z-50 bg-slate-100 overflow-y-auto">
     <div class="sticky top-0 z-20 bg-slate-900 text-white px-4 py-3 shadow-md">
       <div class="max-w-6xl mx-auto flex items-center justify-between gap-2 flex-wrap">
-        <div class="flex items-center gap-2.5">
-          <span class="px-2 py-0.5 rounded-md bg-orange-500 text-xs font-extrabold">ADMIN</span>
-          <h2 id="adminHeaderTitle" class="font-extrabold text-base sm:text-lg">गाँव रसोई - एडमिन पैनल</h2>
+        <div class="flex items-center gap-2.5 min-w-0">
+          <span id="adminRoleBadge" class="px-2 py-0.5 rounded-md bg-orange-500 text-xs font-extrabold shrink-0">👑 SUPER ADMIN</span>
+          <h2 id="adminHeaderTitle" class="font-extrabold text-base sm:text-lg truncate">गाँव रसोई - एडमिन पैनल</h2>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
           <button id="adminAutoRefreshBtn" type="button" class="px-2.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-xs font-bold border border-emerald-500">
@@ -879,8 +908,16 @@
         </div>
       </div>
 
-      <!-- 7 Admin Tabs -->
+      <!-- Super Admin Active Shop Switcher -->
+      <div id="superShopSwitcherBar" class="hidden max-w-6xl mx-auto mt-2.5 flex items-center gap-2 flex-wrap bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-1.5">
+        <span class="text-[11px] font-bold text-amber-300 shrink-0">🏪 सक्रिय दुकान:</span>
+        <select id="superActiveShopSelect" class="flex-1 min-w-[200px] bg-slate-900 text-white text-xs font-bold rounded-lg border border-slate-600 px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-orange-500"></select>
+        <button id="superCopyActiveShopLinkBtn" type="button" class="px-2.5 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-[11px] font-bold text-slate-100 shrink-0">🔗 लिंक कॉपी</button>
+      </div>
+
+      <!-- 8 Admin Tabs (Network tab visible only for Super Admin) -->
       <div class="max-w-6xl mx-auto mt-3 flex gap-2 overflow-x-auto no-scrollbar pb-1">
+        <button id="tabBtnNetwork" data-admin-tab="network" class="hidden admin-tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-slate-800 text-slate-300">🌐 <span id="tabNetworkText">गाँव व दुकानें (₹5 नेटवर्क)</span></button>
         <button data-admin-tab="orders" class="admin-tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-orange-500 text-white">📋 <span id="tabOrdersText">लाइव ऑर्डर</span></button>
         <button data-admin-tab="menu" class="admin-tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-slate-800 text-slate-300">🍔 <span id="tabMenuText">मेनू और स्टॉक</span></button>
         <button data-admin-tab="analytics" class="admin-tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-slate-800 text-slate-300">📈 <span id="tabAnalyticsText">लाभ और ख़र्च</span></button>
@@ -892,6 +929,98 @@
     </div>
 
     <div class="max-w-6xl mx-auto p-3.5 sm:p-5 space-y-4">
+      <!-- Prepaid Vendor Wallet Status Banner -->
+      <div id="vendorWalletBanner" class="hidden rounded-2xl bg-gradient-to-r from-slate-900 to-slate-800 text-white p-3.5 sm:p-4 shadow-md flex flex-wrap items-center justify-between gap-3">
+        <div class="space-y-0.5">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs font-bold text-slate-300">💰 प्रीपेड प्लेटफॉर्म वॉलेट:</span>
+            <span id="vendorWalletBalanceText" class="text-lg sm:text-xl font-black text-emerald-400">₹0</span>
+            <span id="vendorWalletStatusPill" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✅ सक्रिय</span>
+          </div>
+          <p id="vendorWalletSubText" class="text-[11px] text-slate-300">हर डिलीवर्ड ऑर्डर पर ₹5 प्लेटफॉर्म फ़ीस अपने-आप कटती है।</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="openVendorWalletLedgerBtn" type="button" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-extrabold border border-white/20 transition">📜 वॉलेट खाता देखें</button>
+        </div>
+      </div>
+
+      <!-- TAB 0: SUPER ADMIN MASTER NETWORK (50+ VILLAGES, 100+ SHOPS, ₹5 WALLET) -->
+      <section id="adminTabNetwork" class="hidden space-y-5">
+        <!-- Platform Revenue & Scale KPIs -->
+        <div id="superKpiGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></div>
+
+        <!-- Village Manager -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm space-y-3.5">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h3 class="font-extrabold text-slate-900 text-sm sm:text-base">🏘️ गाँव मैनेजर (50+ गाँव जोड़ें)</h3>
+              <p class="text-[11px] text-slate-500">हर गाँव में 2 या जितनी चाहें दुकानें जोड़ें — ग्राहकों को अपने गाँव की दुकानें दिखेंगी।</p>
+            </div>
+          </div>
+          <form id="superAddVillageForm" class="grid grid-cols-1 sm:grid-cols-5 gap-2">
+            <input id="svNameHi" type="text" required class="rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm" placeholder="गाँव का नाम (हिंदी) जैसे: कामां" />
+            <input id="svNameEn" type="text" required class="rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm" placeholder="Village Name (English) e.g. Kaman" />
+            <input id="svDistrict" type="text" class="rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm" placeholder="ज़िला (जैसे: डीग)" />
+            <input id="svPincode" type="text" maxlength="10" class="rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm" placeholder="पिनकोड (वैकल्पिक)" />
+            <button type="submit" class="py-2 px-4 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs sm:text-sm shadow transition">➕ गाँव जोड़ें</button>
+          </form>
+          <div id="superVillagesList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
+        </div>
+
+        <!-- Shop & Prepaid Wallet Manager -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h3 class="font-extrabold text-slate-900 text-sm sm:text-base">🏪 दुकान व ₹5 प्रीपेड वॉलेट मैनेजर (100+ दुकानें)</h3>
+              <p class="text-[11px] text-slate-500">हर दुकान का अलग लॉगिन, अलग मेनू व ऑर्डर, और हर Delivered ऑर्डर पर तय फ़ीस (जैसे ₹5) ऑटो-वॉलेट से कटती है।</p>
+            </div>
+          </div>
+
+          <form id="superAddShopForm" class="rounded-2xl bg-slate-50 border border-slate-200 p-3.5 space-y-3">
+            <div class="text-xs font-extrabold text-slate-800">➕ नई पार्टनर दुकान जोड़ें</div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <select id="ssVillageId" required class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm font-semibold"></select>
+              <input id="ssNameHi" type="text" required class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm" placeholder="दुकान नाम (हिंदी) जैसे: शर्मा समोसा सेंटर" />
+              <input id="ssNameEn" type="text" required class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm" placeholder="Shop Name (English) e.g. Sharma Samosa" />
+              <input id="ssOwnerName" type="text" class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm" placeholder="दुकानदार का नाम" />
+              <input id="ssOwnerPhone" type="tel" required maxlength="13" class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm" placeholder="लॉगिन मोबाइल (10 अंक)*" />
+              <input id="ssPassword" type="text" required minlength="4" class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm" placeholder="दुकानदार पासवर्ड (कम से कम 4 अक्षर)*" />
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">प्लेटफ़ॉर्म फ़ीस (₹ / ऑर्डर)</label>
+                <input id="ssPlatformFee" type="number" min="0" value="5" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm font-bold" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">शुरुआती वॉलेट बैलेंस (₹)</label>
+                <input id="ssOpeningWallet" type="number" value="200" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm font-bold" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">ऑटो-पॉज़ वॉलेट लिमिट (₹)</label>
+                <input id="ssWalletMinLimit" type="number" value="-50" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm font-bold" />
+              </div>
+              <input id="ssDeliveryCharge" type="number" min="0" value="15" class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm" placeholder="डिलीवरी चार्ज ₹ (15)" />
+              <input id="ssMinOrder" type="number" min="0" value="60" class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm" placeholder="न्यूनतम ऑर्डर ₹ (60)" />
+              <input id="ssTaglineHi" type="text" class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm" placeholder="विशेषता (जैसे: समोसा, कचौड़ी व चाय)" />
+            </div>
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm shadow transition">🏪 दुकान बनाएँ और चालू करें</button>
+          </form>
+
+          <!-- Filter Shops -->
+          <div class="flex flex-wrap gap-2">
+            <input id="superShopSearchInput" type="search" class="flex-1 min-w-[200px] rounded-xl border border-slate-300 px-3.5 py-2 text-xs sm:text-sm" placeholder="🔍 दुकान, गाँव या मोबाइल नंबर खोजें..." />
+            <select id="superShopVillageFilter" class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm font-semibold">
+              <option value="ALL">🌐 सभी गाँव</option>
+            </select>
+          </div>
+
+          <div id="superShopsList" class="space-y-3"></div>
+        </div>
+
+        <!-- Recent Network Wallet Ledger -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm space-y-3">
+          <h3 class="font-extrabold text-slate-900 text-sm sm:text-base">📜 हाल के प्लेटफ़ॉर्म वॉलेट ट्रांज़ैक्शन (सभी दुकानें)</h3>
+          <div id="superRecentTxList" class="space-y-2 max-h-96 overflow-y-auto"></div>
+        </div>
+      </section>
 
       <!-- TAB 1: LIVE ORDERS + KOT + BILL + RIDER + CASH/UPI -->
       <section id="adminTabOrders" class="space-y-3">
@@ -1353,6 +1482,127 @@
   </div>
 
   <!-- Non-blocking Toast Banner -->
+  <!-- MARKETPLACE VILLAGE & SHOP SELECTOR MODAL -->
+  <div id="marketplaceModal" class="hidden fixed inset-0 z-[65] bg-slate-900/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-2xl w-full max-h-[88vh] flex flex-col shadow-2xl overflow-hidden animate-slide-up">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-2">
+        <div>
+          <h3 id="mpModalTitle" class="text-base sm:text-lg font-extrabold text-slate-900">🏘️ अपना गाँव और दुकान चुनें</h3>
+          <p id="mpModalSub" class="text-[11px] text-slate-500">अपने गाँव की ताज़ा दुकानों से सीधे होम डिलीवरी मंगाएँ</p>
+        </div>
+        <button id="closeMarketplaceModalBtn" type="button" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold">✕</button>
+      </div>
+      <div class="px-5 pt-3 pb-2 space-y-2.5 border-b border-slate-100">
+        <input id="mpSearchInput" type="search" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="🔍 गाँव या दुकान का नाम खोजें..." />
+        <div id="mpVillagePills" class="flex gap-1.5 overflow-x-auto no-scrollbar pb-1"></div>
+      </div>
+      <div id="mpShopsGrid" class="p-4 sm:p-5 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1"></div>
+    </div>
+  </div>
+
+  <!-- SUPER ADMIN WALLET RECHARGE MODAL -->
+  <div id="superWalletModal" class="hidden fixed inset-0 z-[72] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-3.5 shadow-2xl animate-slide-up">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-extrabold text-slate-900">💰 वॉलेट रीचार्ज / एडजस्टमेंट</h3>
+        <button id="closeSuperWalletModalBtn" type="button" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 font-bold">✕</button>
+      </div>
+      <div id="swShopInfoBox" class="rounded-2xl bg-slate-50 border border-slate-200 p-3 text-xs space-y-0.5"></div>
+      <div class="flex flex-wrap gap-1.5">
+        <button type="button" data-sw-preset="100" class="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-extrabold">+₹100</button>
+        <button type="button" data-sw-preset="200" class="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-extrabold">+₹200</button>
+        <button type="button" data-sw-preset="500" class="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-extrabold">+₹500</button>
+        <button type="button" data-sw-preset="1000" class="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-extrabold">+₹1000</button>
+      </div>
+      <form id="superWalletForm" class="space-y-2.5">
+        <input id="swShopId" type="hidden" />
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 mb-0.5">प्रकार</label>
+            <select id="swType" class="w-full rounded-xl border border-slate-300 px-2.5 py-2 text-xs font-bold bg-white">
+              <option value="RECHARGE">➕ रीचार्ज (Credit)</option>
+              <option value="ADJUSTMENT">⚖️ एडजस्टमेंट (+/-)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 mb-0.5">राशि (₹)</label>
+            <input id="swAmount" type="number" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-extrabold" placeholder="500" />
+          </div>
+        </div>
+        <input id="swUtr" type="text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs" placeholder="UPI UTR / रसीद नंबर (वैकल्पिक)" />
+        <input id="swNote" type="text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs" placeholder="नोट (जैसे: UPI से ₹500 प्राप्त)" />
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm shadow">✅ वॉलेट अपडेट करें</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- SUPER ADMIN EDIT SHOP MODAL -->
+  <div id="superEditShopModal" class="hidden fixed inset-0 z-[72] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 space-y-3.5 shadow-2xl max-h-[90vh] overflow-y-auto animate-slide-up">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-extrabold text-slate-900">✏️ दुकान एडिट व पासवर्ड रीसेट</h3>
+        <button id="closeSuperEditShopModalBtn" type="button" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 font-bold">✕</button>
+      </div>
+      <form id="superEditShopForm" class="space-y-2.5">
+        <input id="esShopId" type="hidden" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 mb-0.5">गाँव</label>
+            <select id="esVillageId" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-bold"></select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 mb-0.5">दुकानदार लॉगिन मोबाइल</label>
+            <input id="esOwnerPhone" type="tel" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold" />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 mb-0.5">नाम (हिंदी)</label>
+            <input id="esNameHi" type="text" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs" />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Name (English)</label>
+            <input id="esNameEn" type="text" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs" />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 mb-0.5">प्लेटफ़ॉर्म फ़ीस (₹/ऑर्डर)</label>
+            <input id="esPlatformFee" type="number" min="0" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-extrabold" />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 mb-0.5">ऑटो-पॉज़ वॉलेट लिमिट (₹)</label>
+            <input id="esWalletMinLimit" type="number" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-extrabold" />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 mb-0.5">मालिक नाम</label>
+            <input id="esOwnerName" type="text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs" />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 mb-0.5">FSSAI नंबर</label>
+            <input id="esFssai" type="text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 mb-0.5">नया पासवर्ड (खाली छोड़ें अगर नहीं बदलना)</label>
+          <input id="esNewPassword" type="text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs" placeholder="नया पासवर्ड (कम से कम 4 अक्षर)" />
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-sm shadow">💾 बदलाव सेव करें</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- WALLET PASSBOOK / LEDGER MODAL (VENDOR & SUPER ADMIN) -->
+  <div id="walletLedgerModal" class="hidden fixed inset-0 z-[72] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-slide-up">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+        <div>
+          <h3 id="wlTitle" class="text-base font-extrabold text-slate-900">📜 प्रीपेड वॉलेट पासबुक</h3>
+          <p id="wlSubtitle" class="text-[11px] text-slate-500"></p>
+        </div>
+        <button id="closeWalletLedgerModalBtn" type="button" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 font-bold">✕</button>
+      </div>
+      <div id="wlSummaryBox" class="px-5 py-3 bg-slate-50 border-b border-slate-200 flex flex-wrap gap-3 text-xs font-bold"></div>
+      <div id="wlTxList" class="p-4 overflow-y-auto space-y-2 flex-1"></div>
+    </div>
+  </div>
+
   <!-- CUSTOM APP CONFIRMATION MODAL (replaces native browser confirm popups) -->
   <div id="customConfirmModal" class="hidden fixed inset-0 z-[80] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="customConfirmTitle">
     <div id="customConfirmCard" class="bg-white rounded-3xl max-w-sm w-full shadow-2xl border border-slate-200 overflow-hidden animate-slide-up">
@@ -2150,7 +2400,19 @@
       customerOrderSearch: "",
       showPhoneLookup: false,
       logoTapTimes: [],
+      selectedShopId: new URLSearchParams(location.search).get("shopId") || localStorage.getItem("gr_selected_shop_id") || "",
+      selectedShopSlug: new URLSearchParams(location.search).get("shop") || "",
+      marketplace: { villages: [], shops: [], summary: { totalVillages: 1, totalShops: 1 }, loaded: false },
+      mpVillageFilter: "ALL",
+      mpSearch: "",
+      loginMode: "SUPER_ADMIN",
       adminToken: sessionStorage.getItem("gr_admin_token") || "",
+      adminRole: sessionStorage.getItem("gr_admin_role") || "SUPER_ADMIN",
+      adminScopedShopId: sessionStorage.getItem("gr_admin_shop_id") || "",
+      adminShopInfo: null,
+      superOverview: null,
+      superShopSearch: "",
+      superShopVillageFilter: "ALL",
       activeAdminTab: "orders",
       adminOrderFilter: "All",
       adminOrderSearch: "",
@@ -2497,9 +2759,14 @@
       return Object.values(state.orderTokens).filter(Boolean).slice(-25).join(",");
     }
 
+    function getStoreCacheKey() {
+      const id = state.selectedShopSlug || state.selectedShopId || "default";
+      return `gr_store_cache_v2_${id}`;
+    }
+
     function hydrateStoreFromCache() {
       try {
-        const raw = localStorage.getItem("gr_store_cache_v1");
+        const raw = localStorage.getItem(getStoreCacheKey()) || localStorage.getItem("gr_store_cache_v1");
         if (!raw) return false;
         const cached = JSON.parse(raw);
         if (!cached || !Array.isArray(cached.menu) || cached.menu.length === 0) return false;
@@ -2521,6 +2788,9 @@
       const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
       if (useAdminAuth && state.adminToken) {
         headers["Authorization"] = `Bearer ${state.adminToken}`;
+        if (state.adminRole === "SUPER_ADMIN" && state.adminScopedShopId) {
+          headers["X-Shop-Id"] = state.adminScopedShopId;
+        }
       } else if (!useAdminAuth && path.startsWith("/api/orders")) {
         const tokVal = getOrderTokensHeaderValue();
         if (tokVal) headers["X-Order-Token"] = tokVal;
@@ -2903,7 +3173,11 @@
       }, 2200);
 
       try {
-        const data = await apiFetch("/api/store");
+        const qs = new URLSearchParams();
+        if (state.selectedShopSlug) qs.set("shop", state.selectedShopSlug);
+        else if (state.selectedShopId) qs.set("shopId", state.selectedShopId);
+        const storeUrl = qs.toString() ? `/api/store?${qs.toString()}` : "/api/store";
+        const data = await apiFetch(storeUrl);
         clearTimeout(slowTimer);
         banner.classList.add("hidden");
         state.isInitialStoreLoading = false;
@@ -2912,12 +3186,24 @@
           state.clockOffsetMs = Date.now() - new Date(data.serverNow).getTime();
         }
         state.settings = data.settings;
+        if (data.settings && data.settings.shopId) {
+          state.selectedShopId = data.settings.shopId;
+          state.selectedShopSlug = data.settings.shopSlug || state.selectedShopSlug;
+          try { localStorage.setItem("gr_selected_shop_id", data.settings.shopId); } catch {}
+        }
+        if (data.marketplaceMeta) {
+          state.marketplace.summary = {
+            ...state.marketplace.summary,
+            totalVillages: data.marketplaceMeta.totalVillages || 1,
+            totalShops: data.marketplaceMeta.totalShops || 1,
+          };
+        }
         state.menu = data.menu || [];
         state.coupons = data.coupons || [];
 
         try {
           localStorage.setItem(
-            "gr_store_cache_v1",
+            getStoreCacheKey(),
             JSON.stringify({
               settings: state.settings,
               menu: state.menu,
@@ -5404,7 +5690,13 @@
       try {
         const res = await apiFetch("/api/coupons/validate", {
           method: "POST",
-          body: JSON.stringify({ code, subtotal, phone: cleanPhone, items: itemsPayload }),
+          body: JSON.stringify({
+            shopId: state.settings.shopId || state.selectedShopId || "",
+            code,
+            subtotal,
+            phone: cleanPhone,
+            items: itemsPayload,
+          }),
         });
         state.appliedCoupon = res;
         state.pendingCouponCode = "";
@@ -5434,8 +5726,32 @@
       }
     }
 
+    function renderMarketplaceTopBar() {
+      const s = state.settings || {};
+      const isHi = state.lang === "hi";
+      const vEl = document.getElementById("currentVillageBadge");
+      const shEl = document.getElementById("currentShopBadge");
+      const btnText = document.getElementById("openMarketplaceBtnText");
+      const countPill = document.getElementById("marketplaceCountPill");
+      const vendorLoginLbl = document.getElementById("footerVendorLoginLabel");
+      if (vEl) vEl.textContent = (isHi ? s.villageNameHi : s.villageNameEn) || s.villageNameHi || s.villageNameEn || (isHi ? "खोह" : "Khoh");
+      if (shEl) shEl.textContent = (isHi ? s.shopNameHi : s.shopNameEn) || s.shopNameHi || s.shopNameEn || (isHi ? "गाँव रसोई" : "Gaon Rasoi");
+      if (btnText) btnText.textContent = isHi ? "गाँव / दुकान बदलें" : "Change Village / Shop";
+      if (vendorLoginLbl) vendorLoginLbl.textContent = isHi ? "दुकानदार लॉगिन" : "Vendor Login";
+      const totalShops = Number(state.marketplace?.summary?.totalShops || 1);
+      if (countPill) {
+        if (totalShops > 1) {
+          countPill.textContent = `${totalShops}`;
+          countPill.classList.remove("hidden");
+        } else {
+          countPill.classList.add("hidden");
+        }
+      }
+    }
+
     function renderAll() {
       applyStaticTranslations();
+      renderMarketplaceTopBar();
       renderQuickSearchChips();
       renderCategoryPills();
       renderStorefrontCoupons();
@@ -5578,6 +5894,8 @@
         const res = await apiFetch("/api/orders", {
           method: "POST",
           body: JSON.stringify({
+            shopId: state.settings.shopId || state.selectedShopId || "",
+            shopSlug: state.settings.shopSlug || state.selectedShopSlug || "",
             clientOrderId: state.checkoutClientOrderId,
             customerName: name,
             phone: cleanPhone,
@@ -5688,13 +6006,67 @@
         if (state.adminToken) {
           openAdminDashboard();
         } else {
-          const errEl = document.getElementById("adminLoginError");
-          errEl.className = "hidden text-xs text-red-600 font-semibold";
-          errEl.classList.add("hidden");
-          document.getElementById("adminPasswordInput").value = "";
-          document.getElementById("adminLoginModal").classList.remove("hidden");
-          setTimeout(() => document.getElementById("adminPasswordInput").focus(), 100);
+          openLoginModal("SUPER_ADMIN");
         }
+      }
+    });
+
+    function setLoginMode(mode) {
+      state.loginMode = mode === "VENDOR" ? "VENDOR" : "SUPER_ADMIN";
+      const isVendor = state.loginMode === "VENDOR";
+      const isHi = state.lang === "hi";
+      const superBtn = document.getElementById("loginModeSuperBtn");
+      const vendorBtn = document.getElementById("loginModeVendorBtn");
+      const phoneWrap = document.getElementById("vendorPhoneWrap");
+      const phoneInput = document.getElementById("vendorPhoneInput");
+      const desc = document.getElementById("adminLoginDesc");
+      const title = document.getElementById("adminLoginTitle");
+      if (superBtn) {
+        superBtn.className = isVendor
+          ? "py-2 rounded-xl text-xs font-extrabold text-slate-600 hover:text-slate-900 transition"
+          : "py-2 rounded-xl text-xs font-extrabold bg-slate-900 text-white shadow-sm transition";
+      }
+      if (vendorBtn) {
+        vendorBtn.className = isVendor
+          ? "py-2 rounded-xl text-xs font-extrabold bg-orange-600 text-white shadow-sm transition"
+          : "py-2 rounded-xl text-xs font-extrabold text-slate-600 hover:text-slate-900 transition";
+      }
+      if (phoneWrap) phoneWrap.classList.toggle("hidden", !isVendor);
+      if (phoneInput) phoneInput.required = isVendor;
+      if (title) {
+        title.textContent = isVendor
+          ? (isHi ? "🏪 दुकानदार लॉगिन" : "🏪 Shop Vendor Login")
+          : (isHi ? "👑 सुपर एडमिन लॉगिन" : "👑 Super Admin Login");
+      }
+      if (desc) {
+        desc.textContent = isVendor
+          ? (isHi ? "अपनी दुकान के ऑर्डर, मेनू और ₹5 वॉलेट मैनेज करने के लिए रजिस्टर्ड मोबाइल नंबर व पासवर्ड डालें।" : "Enter your registered shop mobile number and password to manage your shop & wallet.")
+          : (isHi ? "पूरे नेटवर्क (गाँव, दुकानें व वॉलेट) और एडमिन पैनल के लिए सुपर एडमिन पासवर्ड दर्ज करें।" : "Enter Super Admin password to manage all villages, shops, wallets & orders.");
+      }
+      const errEl = document.getElementById("adminLoginError");
+      if (errEl) errEl.classList.add("hidden");
+    }
+
+    function openLoginModal(mode = "SUPER_ADMIN") {
+      setLoginMode(mode);
+      document.getElementById("adminPasswordInput").value = "";
+      document.getElementById("adminLoginModal").classList.remove("hidden");
+      setTimeout(() => {
+        if (state.loginMode === "VENDOR") {
+          document.getElementById("vendorPhoneInput").focus();
+        } else {
+          document.getElementById("adminPasswordInput").focus();
+        }
+      }, 80);
+    }
+
+    document.getElementById("loginModeSuperBtn").addEventListener("click", () => setLoginMode("SUPER_ADMIN"));
+    document.getElementById("loginModeVendorBtn").addEventListener("click", () => setLoginMode("VENDOR"));
+    document.getElementById("footerVendorLoginBtn").addEventListener("click", () => {
+      if (state.adminToken) {
+        openAdminDashboard();
+      } else {
+        openLoginModal("VENDOR");
       }
     });
 
@@ -5715,12 +6087,29 @@
       btnText.textContent = t("adminLoginChecking");
 
       try {
-        const res = await apiFetch("/api/admin/login", {
-          method: "POST",
-          body: JSON.stringify({ password: pwd }),
-        });
+        let res;
+        if (state.loginMode === "VENDOR") {
+          const phone = document.getElementById("vendorPhoneInput").value.trim();
+          res = await apiFetch("/api/vendor/login", {
+            method: "POST",
+            body: JSON.stringify({ phone, password: pwd }),
+          });
+          state.adminRole = "VENDOR";
+          state.adminScopedShopId = res.shopId || "";
+          state.activeAdminTab = "orders";
+        } else {
+          res = await apiFetch("/api/admin/login", {
+            method: "POST",
+            body: JSON.stringify({ password: pwd }),
+          });
+          state.adminRole = "SUPER_ADMIN";
+          state.adminScopedShopId = state.settings.shopId || state.adminScopedShopId || "";
+          state.activeAdminTab = "orders";
+        }
         state.adminToken = res.token;
         sessionStorage.setItem("gr_admin_token", res.token);
+        sessionStorage.setItem("gr_admin_role", state.adminRole);
+        sessionStorage.setItem("gr_admin_shop_id", state.adminScopedShopId || "");
         document.getElementById("adminLoginModal").classList.add("hidden");
         openAdminDashboard();
       } catch (err) {
@@ -5733,7 +6122,7 @@
     });
 
     // =========================================================================
-    // ADMIN DASHBOARD LOGIC (ALL 7 MANAGEMENT TABS)
+    // ADMIN / VENDOR / SUPER-ADMIN DASHBOARD LOGIC
     // =========================================================================
     function startAdminAutoRefresh() {
       stopAdminAutoRefresh();
@@ -5752,8 +6141,93 @@
       }
     }
 
+    function updateAdminRoleChrome() {
+      const isSuper = state.adminRole === "SUPER_ADMIN";
+      const isHi = state.lang === "hi";
+      const roleBadge = document.getElementById("adminRoleBadge");
+      const headerTitle = document.getElementById("adminHeaderTitle");
+      const networkTabBtn = document.getElementById("tabBtnNetwork");
+      const switcherBar = document.getElementById("superShopSwitcherBar");
+      const walletBanner = document.getElementById("vendorWalletBanner");
+
+      if (roleBadge) {
+        roleBadge.textContent = isSuper ? "👑 SUPER ADMIN" : "🏪 VENDOR";
+        roleBadge.className = isSuper
+          ? "px-2 py-0.5 rounded-md bg-orange-500 text-xs font-extrabold shrink-0"
+          : "px-2 py-0.5 rounded-md bg-emerald-600 text-xs font-extrabold shrink-0";
+      }
+      if (networkTabBtn) networkTabBtn.classList.toggle("hidden", !isSuper);
+      if (switcherBar) switcherBar.classList.toggle("hidden", !isSuper);
+
+      const s = state.adminShopInfo;
+      if (headerTitle && s) {
+        const sName = isHi ? s.nameHi : s.nameEn;
+        const vName = isHi ? s.villageNameHi : s.villageNameEn;
+        headerTitle.textContent = vName ? `${sName} (${vName})` : sName;
+      }
+
+      if (walletBanner && s) {
+        const showWallet = !isSuper || Number(s.platformFeePerOrder || 0) > 0 || Number(s.walletBalance || 0) !== 0;
+        walletBanner.classList.toggle("hidden", !showWallet);
+        if (showWallet) {
+          const bal = Number(s.walletBalance || 0);
+          const fee = Number(s.platformFeePerOrder || 0);
+          const paused = Boolean(s.isWalletPaused);
+          const balEl = document.getElementById("vendorWalletBalanceText");
+          const pillEl = document.getElementById("vendorWalletStatusPill");
+          const subEl = document.getElementById("vendorWalletSubText");
+          if (balEl) {
+            balEl.textContent = `₹${bal}`;
+            balEl.className = paused
+              ? "text-lg sm:text-xl font-black text-red-400"
+              : bal <= 50 && fee > 0
+              ? "text-lg sm:text-xl font-black text-amber-300"
+              : "text-lg sm:text-xl font-black text-emerald-400";
+          }
+          if (pillEl) {
+            pillEl.textContent = paused
+              ? (isHi ? "🔴 बैलेंस कम — दुकान रुकी है" : "🔴 Low Balance — Paused")
+              : (isHi ? "✅ सक्रिय (Active)" : "✅ Active");
+            pillEl.className = paused
+              ? "px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-red-500/20 text-red-200 border border-red-400/50"
+              : "px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+          }
+          if (subEl) {
+            subEl.textContent = isHi
+              ? `प्लेटफ़ॉर्म फ़ीस: ₹${fee}/डिलीवर्ड ऑर्डर • कुल डिलीवर्ड: ${s.totalOrdersDelivered || 0} • ऑटो-पॉज़ लिमिट: ₹${s.walletMinLimit ?? -50}`
+              : `Platform Fee: ₹${fee}/delivered order • Delivered: ${s.totalOrdersDelivered || 0} • Auto-Pause Limit: ₹${s.walletMinLimit ?? -50}`;
+          }
+        }
+      }
+    }
+
     async function openAdminDashboard() {
       document.getElementById("adminDashboard").classList.remove("hidden");
+      try {
+        const verifyRes = await apiFetch("/api/admin/verify", {}, true);
+        if (verifyRes && verifyRes.role) {
+          state.adminRole = verifyRes.role;
+          sessionStorage.setItem("gr_admin_role", state.adminRole);
+        }
+        if (verifyRes && verifyRes.shopId) {
+          state.adminScopedShopId = verifyRes.shopId;
+          sessionStorage.setItem("gr_admin_shop_id", verifyRes.shopId);
+        }
+        state.adminShopInfo = verifyRes.shop || null;
+      } catch (err) {
+        if (err.status === 401 || err.status === 403) {
+          logoutAdmin();
+          openLoginModal(state.loginMode);
+          const errEl = document.getElementById("adminLoginError");
+          errEl.textContent = err.message;
+          errEl.classList.remove("hidden");
+          return;
+        }
+      }
+      if (state.adminRole !== "SUPER_ADMIN" && state.activeAdminTab === "network") {
+        state.activeAdminTab = "orders";
+      }
+      updateAdminRoleChrome();
       switchAdminTab(state.activeAdminTab);
       const ok = await refreshAdminData(false);
       if (ok) startAdminAutoRefresh();
@@ -5761,17 +6235,33 @@
 
     async function refreshAdminData(isBackground = false) {
       try {
-        const [ordersRes, menuRes, analyticsRes, expensesRes, ridersRes, customersRes, couponsRes, settingsRes] =
-          await Promise.all([
-            apiFetch("/api/admin/orders", {}, true),
-            apiFetch("/api/admin/menu", {}, true),
-            apiFetch("/api/admin/analytics", {}, true),
-            apiFetch("/api/admin/expenses", {}, true),
-            apiFetch("/api/admin/riders", {}, true),
-            apiFetch("/api/admin/customers", {}, true),
-            apiFetch("/api/admin/coupons", {}, true),
-            apiFetch("/api/admin/settings", {}, true),
-          ]);
+        const calls = [
+          apiFetch("/api/admin/orders", {}, true),
+          apiFetch("/api/admin/menu", {}, true),
+          apiFetch("/api/admin/analytics", {}, true),
+          apiFetch("/api/admin/expenses", {}, true),
+          apiFetch("/api/admin/riders", {}, true),
+          apiFetch("/api/admin/customers", {}, true),
+          apiFetch("/api/admin/coupons", {}, true),
+          apiFetch("/api/admin/settings", {}, true),
+          apiFetch("/api/admin/verify", {}, true),
+        ];
+        if (state.adminRole === "SUPER_ADMIN") {
+          calls.push(apiFetch("/api/super/overview", {}, true));
+        }
+
+        const [ordersRes, menuRes, analyticsRes, expensesRes, ridersRes, customersRes, couponsRes, settingsRes, verifyRes, superRes] =
+          await Promise.all(calls);
+
+        if (verifyRes && verifyRes.shop) {
+          state.adminShopInfo = verifyRes.shop;
+          state.adminRole = verifyRes.role || state.adminRole;
+          state.adminScopedShopId = verifyRes.shopId || state.adminScopedShopId;
+        }
+        if (superRes) {
+          state.superOverview = superRes;
+        }
+        updateAdminRoleChrome();
 
         const newOrders = ordersRes.orders || [];
         const newPendingCount = newOrders.filter((o) => o.status === "Pending").length;
@@ -5807,20 +6297,21 @@
         renderAdminRiders();
         renderAdminCustomers();
         renderAdminCoupons();
-        // Do not overwrite unsaved Settings form fields during 15s background polling
+        if (state.adminRole === "SUPER_ADMIN" && state.superOverview) {
+          renderSuperAdminNetwork(!isBackground);
+        }
         if (!isBackground) {
           renderAdminSettings();
         }
         return true;
       } catch (err) {
-        if (err.status === 401) {
+        if (err.status === 401 || err.status === 403) {
           logoutAdmin();
           if (!isBackground) {
+            openLoginModal(state.loginMode);
             const errEl = document.getElementById("adminLoginError");
             errEl.textContent = err.message;
             errEl.classList.remove("hidden");
-            document.getElementById("adminPasswordInput").value = "";
-            document.getElementById("adminLoginModal").classList.remove("hidden");
           }
         } else if (!isBackground) {
           showToast(err.message, true);
@@ -5832,21 +6323,30 @@
     function logoutAdmin() {
       stopAdminAutoRefresh();
       state.adminToken = "";
+      state.adminRole = "SUPER_ADMIN";
+      state.adminScopedShopId = "";
+      state.adminShopInfo = null;
+      state.superOverview = null;
       sessionStorage.removeItem("gr_admin_token");
+      sessionStorage.removeItem("gr_admin_role");
+      sessionStorage.removeItem("gr_admin_shop_id");
       document.getElementById("adminDashboard").classList.add("hidden");
     }
 
     function switchAdminTab(tab) {
+      if (tab === "network" && state.adminRole !== "SUPER_ADMIN") tab = "orders";
       state.activeAdminTab = tab;
       document.querySelectorAll(".admin-tab-btn").forEach((btn) => {
         const isActive = btn.dataset.adminTab === tab;
-        btn.className = `admin-tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap ${
+        const hiddenCls = btn.id === "tabBtnNetwork" && state.adminRole !== "SUPER_ADMIN" ? "hidden " : "";
+        btn.className = `${hiddenCls}admin-tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap ${
           isActive ? "bg-orange-500 text-white" : "bg-slate-800 text-slate-300 hover:bg-slate-700"
         }`;
       });
-      ["orders", "menu", "analytics", "riders", "customers", "coupons", "settings"].forEach((name) => {
+      ["network", "orders", "menu", "analytics", "riders", "customers", "coupons", "settings"].forEach((name) => {
         const elId = "adminTab" + name.charAt(0).toUpperCase() + name.slice(1);
-        document.getElementById(elId).classList.toggle("hidden", tab !== name);
+        const el = document.getElementById(elId);
+        if (el) el.classList.toggle("hidden", tab !== name);
       });
     }
 
@@ -8216,6 +8716,10 @@
       if (e.key !== "Escape") return;
       const cm = document.getElementById("customConfirmModal");
       if (cm && !cm.classList.contains("hidden")) { resolveCustomConfirm(false); return; }
+      for (const extraId of ["superWalletModal", "superEditShopModal", "walletLedgerModal", "marketplaceModal"]) {
+        const em = document.getElementById(extraId);
+        if (em && !em.classList.contains("hidden")) { em.classList.add("hidden"); return; }
+      }
       const lm = document.getElementById("legalPageModal");
       if (lm && !lm.classList.contains("hidden")) { closeLegalPage(); return; }
       const closableModals = [
@@ -8270,11 +8774,726 @@
       }
     });
 
+    // =========================================================================
+    // MULTI-VILLAGE MARKETPLACE, PREPAID WALLET & SUPER ADMIN MASTER CONTROL
+    // =========================================================================
+
+    function getShopShareUrl(slug) {
+      const base = `${location.origin}${location.pathname}`;
+      return slug ? `${base}?shop=${encodeURIComponent(slug)}` : base;
+    }
+
+    async function copyShopLink(slug) {
+      const url = getShopShareUrl(slug);
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(url);
+        } else {
+          const ta = document.createElement("textarea");
+          ta.value = url;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          ta.remove();
+        }
+        showToast(state.lang === "hi" ? "🔗 दुकान का डायरेक्ट लिंक कॉपी हो गया!" : "🔗 Shop link copied!", "info");
+      } catch {
+        showToast(url, "info");
+      }
+    }
+
+    async function openMarketplaceModal() {
+      const modal = document.getElementById("marketplaceModal");
+      const grid = document.getElementById("mpShopsGrid");
+      const isHi = state.lang === "hi";
+      document.getElementById("mpModalTitle").textContent = isHi ? "🏘️ अपना गाँव और दुकान चुनें" : "🏘️ Choose Your Village & Shop";
+      document.getElementById("mpModalSub").textContent = isHi
+        ? "अपने गाँव की ताज़ा दुकानों से सीधे होम डिलीवरी मंगाएँ"
+        : "Order fresh doorstep delivery directly from local village shops";
+      modal.classList.remove("hidden");
+      grid.innerHTML = `<div class="col-span-full py-10 text-center text-xs font-bold text-slate-500">⏳ ${isHi ? "गाँव और दुकानें लोड हो रही हैं..." : "Loading villages & shops..."}</div>`;
+      try {
+        const data = await apiFetch("/api/marketplace");
+        state.marketplace = {
+          villages: data.villages || [],
+          shops: data.shops || [],
+          summary: data.summary || { totalVillages: 1, totalShops: 1 },
+          loaded: true,
+        };
+        renderMarketplaceTopBar();
+        renderMarketplaceModal();
+      } catch (err) {
+        grid.innerHTML = `<div class="col-span-full py-8 text-center text-xs font-bold text-red-600">${escapeHtml(err.message)}</div>`;
+      }
+    }
+
+    function renderMarketplaceModal() {
+      const isHi = state.lang === "hi";
+      const pills = document.getElementById("mpVillagePills");
+      const grid = document.getElementById("mpShopsGrid");
+      const villages = state.marketplace.villages || [];
+      const shops = state.marketplace.shops || [];
+
+      const allPill = `<button type="button" data-mp-v="ALL" class="px-3 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap border transition ${
+        state.mpVillageFilter === "ALL" ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-orange-50"
+      }">🌐 ${isHi ? "सभी गाँव" : "All Villages"} (${shops.length})</button>`;
+
+      pills.innerHTML =
+        allPill +
+        villages
+          .map((v) => {
+            const active = state.mpVillageFilter === v._id;
+            const vName = isHi ? v.nameHi : v.nameEn;
+            return `<button type="button" data-mp-v="${escapeHtml(v._id)}" class="px-3 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap border transition ${
+              active ? "bg-orange-600 text-white border-orange-600" : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-orange-50"
+            }">📍 ${escapeHtml(vName)} (${v.shopCount || 0})</button>`;
+          })
+          .join("");
+
+      pills.querySelectorAll("[data-mp-v]").forEach((b) =>
+        b.addEventListener("click", () => {
+          state.mpVillageFilter = b.dataset.mpV;
+          renderMarketplaceModal();
+        })
+      );
+
+      const q = (state.mpSearch || "").trim().toLowerCase();
+      const filtered = shops.filter((s) => {
+        if (state.mpVillageFilter !== "ALL" && s.villageId !== state.mpVillageFilter) return false;
+        if (!q) return true;
+        return (
+          (s.nameHi || "").toLowerCase().includes(q) ||
+          (s.nameEn || "").toLowerCase().includes(q) ||
+          (s.villageNameHi || "").toLowerCase().includes(q) ||
+          (s.villageNameEn || "").toLowerCase().includes(q) ||
+          (s.taglineHi || "").toLowerCase().includes(q) ||
+          (s.taglineEn || "").toLowerCase().includes(q)
+        );
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="col-span-full py-10 text-center text-xs font-bold text-slate-500">${
+          isHi ? "इस गाँव या खोज में अभी कोई दुकान उपलब्ध नहीं है।" : "No shops found for this village or search."
+        }</div>`;
+        return;
+      }
+
+      const activeId = state.settings?.shopId || state.selectedShopId;
+      grid.innerHTML = filtered
+        .map((s) => {
+          const isCurrent = s._id === activeId;
+          const sName = isHi ? s.nameHi : s.nameEn;
+          const vName = isHi ? s.villageNameHi : s.villageNameEn;
+          const tagline = (isHi ? s.taglineHi : s.taglineEn) || s.taglineHi || s.taglineEn || "";
+          const statusBadge = s.isOpen
+            ? `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold">🟢 ${isHi ? "खुला है" : "Open"}</span>`
+            : `<span class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-[10px] font-extrabold">🔴 ${isHi ? "बंद" : "Closed"}</span>`;
+          return `<div class="rounded-2xl p-3.5 border ${
+            isCurrent ? "border-orange-500 bg-orange-50/40 ring-2 ring-orange-200" : "border-slate-200 bg-white hover:border-orange-300"
+          } shadow-sm flex flex-col justify-between gap-2.5 transition">
+            <div class="space-y-1">
+              <div class="flex items-start justify-between gap-2">
+                <div class="font-extrabold text-sm text-slate-900 leading-snug">🏪 ${escapeHtml(sName)}</div>
+                ${statusBadge}
+              </div>
+              <div class="text-[11px] font-bold text-orange-700">📍 ${escapeHtml(vName)} • ⏱️ ${escapeHtml(s.deliveryEtaText || "20–35 min")}</div>
+              ${tagline ? `<p class="text-[11px] text-slate-500 line-clamp-2">${escapeHtml(tagline)}</p>` : ""}
+              <div class="text-[10px] font-semibold text-slate-500 pt-0.5">
+                🛵 ₹${Number(s.deliveryCharge || 0)} ${s.freeDeliveryAbove > 0 ? (isHi ? `(₹${s.freeDeliveryAbove}+ फ्री)` : `(Free ₹${s.freeDeliveryAbove}+)`) : ""} • ${isHi ? "न्यूनतम" : "Min"} ₹${Number(s.minOrderAmount || 0)}
+              </div>
+            </div>
+            <button type="button" data-select-shop="${escapeHtml(s._id)}" class="w-full py-2 rounded-xl text-xs font-extrabold transition ${
+              isCurrent
+                ? "bg-slate-900 text-white"
+                : "bg-orange-600 hover:bg-orange-700 text-white shadow-sm"
+            }">
+              ${isCurrent ? (isHi ? "✓ अभी यही दुकान खुली है" : "✓ Currently Selected") : (isHi ? "मेनू देखें →" : "View Menu →")}
+            </button>
+          </div>`;
+        })
+        .join("");
+
+      grid.querySelectorAll("[data-select-shop]").forEach((btn) =>
+        btn.addEventListener("click", async () => {
+          const shopObj = shops.find((x) => x._id === btn.dataset.selectShop);
+          if (!shopObj) return;
+          if (shopObj._id === (state.settings?.shopId || state.selectedShopId)) {
+            document.getElementById("marketplaceModal").classList.add("hidden");
+            return;
+          }
+          const { totalItems } = getCartSummary();
+          if (totalItems > 0) {
+            const ok = await showConfirmDialog({
+              icon: "🛒",
+              title: isHi ? "दुकान बदलें और कार्ट खाली करें?" : "Switch Shop & Clear Cart?",
+              message: isHi
+                ? `आपकी कार्ट में अभी ${totalItems} आइटम हैं। "${shopObj.nameHi}" का मेनू खोलने पर पुरानी दुकान की कार्ट खाली हो जाएगी।`
+                : `You have ${totalItems} item(s) in cart. Switching to "${shopObj.nameEn}" will clear your current cart.`,
+              confirmText: isHi ? "हाँ, दुकान बदलें" : "Yes, Switch Shop",
+              tone: "warning",
+            });
+            if (!ok) return;
+            state.cart = {};
+            state.appliedCoupon = null;
+            saveCart();
+          }
+          state.selectedShopId = shopObj._id;
+          state.selectedShopSlug = shopObj.slug || "";
+          state.activeCategory = "All";
+          state.menuSearch = "";
+          const searchInp = document.getElementById("customerMenuSearch");
+          if (searchInp) searchInp.value = "";
+          const clearBtn = document.getElementById("clearMenuSearchBtn");
+          if (clearBtn) clearBtn.classList.add("hidden");
+          try {
+            localStorage.setItem("gr_selected_shop_id", shopObj._id);
+            if (shopObj.slug) {
+              history.replaceState(null, "", `?shop=${encodeURIComponent(shopObj.slug)}`);
+            }
+          } catch {}
+          document.getElementById("marketplaceModal").classList.add("hidden");
+          state.menu = [];
+          state.isInitialStoreLoading = true;
+          state.isLiveServerSynced = false;
+          hydrateStoreFromCache();
+          renderAll();
+          await loadStoreData(0);
+          showToast(isHi ? `🏪 ${shopObj.nameHi} का मेनू खुल गया` : `🏪 Switched to ${shopObj.nameEn}`, "info");
+        })
+      );
+    }
+
+    document.getElementById("openMarketplaceBtn").addEventListener("click", openMarketplaceModal);
+    document.getElementById("closeMarketplaceModalBtn").addEventListener("click", () => {
+      document.getElementById("marketplaceModal").classList.add("hidden");
+    });
+    document.getElementById("marketplaceModal").addEventListener("click", (e) => {
+      if (e.target && e.target.id === "marketplaceModal") {
+        document.getElementById("marketplaceModal").classList.add("hidden");
+      }
+    });
+    document.getElementById("mpSearchInput").addEventListener("input", (e) => {
+      state.mpSearch = e.target.value;
+      renderMarketplaceModal();
+    });
+
+    // --- WALLET PASSBOOK MODAL (VENDOR & SUPER ADMIN) ---
+    function formatWalletTxRow(tx, showShopName = false) {
+      const isCredit = Number(tx.amount || 0) >= 0;
+      const typeLabels = {
+        RECHARGE: "💳 रीचार्ज",
+        ORDER_FEE: "📦 ऑर्डर फ़ीस",
+        FEE_REFUND: "↩️ फ़ीस रिफंड",
+        ADJUSTMENT: "⚖️ एडजस्टमेंट",
+      };
+      const dt = tx.createdAt ? new Date(tx.createdAt).toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "";
+      const shopTag = showShopName && (tx.shopNameHi || tx.shopNameEn)
+        ? `<span class="text-orange-700 font-extrabold">${escapeHtml(state.lang === "hi" ? (tx.shopNameHi || tx.shopNameEn) : (tx.shopNameEn || tx.shopNameHi))}</span> • `
+        : "";
+      return `<div class="rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2 flex items-center justify-between gap-2 text-xs">
+        <div class="min-w-0">
+          <div class="font-bold text-slate-800 truncate">${shopTag}${escapeHtml(typeLabels[tx.type] || tx.type)} ${tx.orderNumber ? `<span class="font-mono text-[10px] text-slate-500">#${escapeHtml(tx.orderNumber)}</span>` : ""}</div>
+          <div class="text-[10px] text-slate-500 truncate">${escapeHtml(tx.note || "")}${tx.utrReference ? ` • UTR: ${escapeHtml(tx.utrReference)}` : ""}</div>
+          <div class="text-[10px] text-slate-400">${escapeHtml(dt)}</div>
+        </div>
+        <div class="text-right shrink-0">
+          <div class="font-black text-sm ${isCredit ? "text-emerald-600" : "text-red-600"}">${isCredit ? "+" : "-"}₹${Math.abs(Number(tx.amount || 0))}</div>
+          <div class="text-[10px] font-bold text-slate-500">Bal: ₹${Number(tx.balanceAfter || 0)}</div>
+        </div>
+      </div>`;
+    }
+
+    async function openWalletLedgerModal(shopIdForSuper = "") {
+      const modal = document.getElementById("walletLedgerModal");
+      const list = document.getElementById("wlTxList");
+      const sumBox = document.getElementById("wlSummaryBox");
+      const subEl = document.getElementById("wlSubtitle");
+      modal.classList.remove("hidden");
+      list.innerHTML = `<div class="py-8 text-center text-xs font-bold text-slate-500">⏳ लोड हो रहा है...</div>`;
+      sumBox.innerHTML = "";
+      try {
+        const isSuperTarget = state.adminRole === "SUPER_ADMIN" && shopIdForSuper;
+        const data = isSuperTarget
+          ? await apiFetch(`/api/super/shops/${shopIdForSuper}/wallet`, {}, true)
+          : await apiFetch("/api/vendor/wallet", {}, true);
+        const w = data.wallet || data.shop || {};
+        const bal = Number(w.balance ?? w.walletBalance ?? 0);
+        const fee = Number(w.platformFeePerOrder ?? 0);
+        const paused = Boolean(w.isWalletPaused);
+        const sName = state.lang === "hi" ? (w.shopNameHi || w.nameHi || "") : (w.shopNameEn || w.nameEn || "");
+        subEl.textContent = sName || "";
+        sumBox.innerHTML = `
+          <span class="px-2.5 py-1 rounded-lg ${paused ? "bg-red-100 text-red-700" : "bg-emerald-100 text-emerald-800"}">💰 बैलेंस: ₹${bal}</span>
+          <span class="px-2.5 py-1 rounded-lg bg-slate-200 text-slate-800">₹${fee} / ऑर्डर</span>
+          <span class="px-2.5 py-1 rounded-lg bg-orange-100 text-orange-800">📦 डिलीवर्ड: ${w.totalOrdersDelivered || 0}</span>
+          <span class="px-2.5 py-1 rounded-lg bg-blue-100 text-blue-800">कुल फ़ीस: ₹${w.totalPlatformFeesPaid || 0}</span>
+        `;
+        const txs = data.transactions || [];
+        list.innerHTML = txs.length
+          ? txs.map((tx) => formatWalletTxRow(tx, false)).join("")
+          : `<div class="py-8 text-center text-xs font-semibold text-slate-400">अभी कोई वॉलेट ट्रांज़ैक्शन नहीं है।</div>`;
+      } catch (err) {
+        list.innerHTML = `<div class="py-8 text-center text-xs font-bold text-red-600">${escapeHtml(err.message)}</div>`;
+      }
+    }
+
+    document.getElementById("openVendorWalletLedgerBtn").addEventListener("click", () => openWalletLedgerModal(""));
+    document.getElementById("closeWalletLedgerModalBtn").addEventListener("click", () => {
+      document.getElementById("walletLedgerModal").classList.add("hidden");
+    });
+
+    // --- SUPER ADMIN MASTER NETWORK TAB RENDERER ---
+    function renderSuperAdminNetwork(updateSelects = true) {
+      const ov = state.superOverview;
+      if (!ov) return;
+      const sum = ov.summary || {};
+      const villages = ov.villages || [];
+      const shops = ov.shops || [];
+      const recentTx = ov.recentWalletTransactions || [];
+
+      // 1. Populate Active Shop Switcher dropdown in Admin Header
+      const activeSel = document.getElementById("superActiveShopSelect");
+      if (activeSel) {
+        activeSel.innerHTML = shops
+          .map((s) => {
+            const label = `📍 ${s.villageNameHi || s.villageNameEn} — ${s.nameHi} (₹${s.walletBalance} | ₹${s.platformFeePerOrder}/ord)`;
+            return `<option value="${escapeHtml(s._id)}" ${s._id === state.adminScopedShopId ? "selected" : ""}>${escapeHtml(label)}</option>`;
+          })
+          .join("");
+      }
+
+      // 2. Populate Village dropdowns in Add Shop / Filter / Edit Shop
+      if (updateSelects) {
+        const villageOpts = villages
+          .map((v) => `<option value="${escapeHtml(v._id)}">📍 ${escapeHtml(v.nameHi)} (${escapeHtml(v.nameEn)})</option>`)
+          .join("");
+        const ssSel = document.getElementById("ssVillageId");
+        const esSel = document.getElementById("esVillageId");
+        const filtSel = document.getElementById("superShopVillageFilter");
+        if (ssSel) {
+          const prev = ssSel.value;
+          ssSel.innerHTML = villageOpts;
+          if (prev && villages.some((v) => v._id === prev)) ssSel.value = prev;
+        }
+        if (esSel) esSel.innerHTML = villageOpts;
+        if (filtSel) {
+          const prev = state.superShopVillageFilter || "ALL";
+          filtSel.innerHTML = `<option value="ALL">🌐 सभी गाँव (${villages.length})</option>` + villageOpts;
+          filtSel.value = prev;
+        }
+      }
+
+      // 3. KPI Cards
+      const kpiGrid = document.getElementById("superKpiGrid");
+      if (kpiGrid) {
+        kpiGrid.innerHTML = `
+          <div class="rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white p-4 shadow-md">
+            <div class="text-[11px] font-bold text-emerald-100">💵 आज की प्लेटफ़ॉर्म कमाई</div>
+            <div class="text-2xl font-black mt-1">₹${sum.todayPlatformFees || 0}</div>
+            <div class="text-[10px] text-emerald-100 mt-1">आज ऑर्डर: ${sum.todayOrders || 0} (डिलीवर्ड: ${sum.todayDelivered || 0})</div>
+          </div>
+          <div class="rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 text-white p-4 shadow-md">
+            <div class="text-[11px] font-bold text-orange-100">📈 इस महीने की कमाई</div>
+            <div class="text-2xl font-black mt-1">₹${sum.monthPlatformFees || 0}</div>
+            <div class="text-[10px] text-orange-100 mt-1">माह डिलीवर्ड: ${sum.monthDelivered || 0} • कुल: ₹${sum.totalPlatformFees || 0}</div>
+          </div>
+          <div class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+            <div class="text-[11px] font-bold text-slate-500">🏘️ गाँव व 🏪 दुकानें</div>
+            <div class="text-2xl font-black text-slate-900 mt-1">${sum.activeVillages || 0} <span class="text-xs font-bold text-slate-400">गाँव</span> • ${sum.totalShops || 0} <span class="text-xs font-bold text-slate-400">दुकान</span></div>
+            <div class="text-[10px] font-bold mt-1 text-emerald-700">🟢 खुली: ${sum.openShops || 0} • 🔴 वॉलेट-पॉज़: ${sum.walletPausedShops || 0}</div>
+          </div>
+          <div class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+            <div class="text-[11px] font-bold text-slate-500">💰 कुल प्रीपेड वॉलेट पूल</div>
+            <div class="text-2xl font-black text-slate-900 mt-1">₹${sum.totalVendorWalletPool || 0}</div>
+            <div class="text-[10px] font-bold mt-1 ${sum.lowWalletShops > 0 ? "text-red-600" : "text-slate-500"}">⚠️ लो-बैलेंस दुकानें (≤₹50): ${sum.lowWalletShops || 0}</div>
+          </div>
+        `;
+      }
+
+      // 4. Villages List
+      const vList = document.getElementById("superVillagesList");
+      if (vList) {
+        vList.innerHTML = villages
+          .map(
+            (v) => `<div class="rounded-xl border ${v.isActive ? "border-slate-200 bg-slate-50" : "border-red-200 bg-red-50/50"} p-3 flex items-center justify-between gap-2">
+              <div class="min-w-0">
+                <div class="font-extrabold text-xs sm:text-sm text-slate-900 truncate">📍 ${escapeHtml(v.nameHi)} <span class="text-slate-400 font-semibold">(${escapeHtml(v.nameEn)})</span></div>
+                <div class="text-[10px] font-semibold text-slate-500">🏪 ${v.shopCount || 0} दुकानें${v.district ? ` • ${escapeHtml(v.district)}` : ""}${v.pincode ? ` (${escapeHtml(v.pincode)})` : ""}</div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" data-toggle-village="${escapeHtml(v._id)}" data-v-active="${v.isActive ? "1" : "0"}" class="px-2 py-1 rounded-lg text-[10px] font-extrabold ${
+                  v.isActive ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
+                }">${v.isActive ? "चालू" : "बंद"}</button>
+                ${
+                  (v.shopCount || 0) === 0
+                    ? `<button type="button" data-del-village="${escapeHtml(v._id)}" class="px-2 py-1 rounded-lg bg-red-50 text-red-600 text-[10px] font-extrabold">🗑️</button>`
+                    : ""
+                }
+              </div>
+            </div>`
+          )
+          .join("");
+
+        vList.querySelectorAll("[data-toggle-village]").forEach((btn) =>
+          btn.addEventListener("click", async () => {
+            try {
+              const isAct = btn.dataset.vActive === "1";
+              await apiFetch(`/api/super/villages/${btn.dataset.toggleVillage}`, {
+                method: "PUT",
+                body: JSON.stringify({ isActive: !isAct }),
+              }, true);
+              await refreshAdminData(false);
+              showToast(isAct ? "गाँव बंद किया गया" : "गाँव चालू किया गया", "info");
+            } catch (err) {
+              showToast(err.message, true);
+            }
+          })
+        );
+        vList.querySelectorAll("[data-del-village]").forEach((btn) =>
+          btn.addEventListener("click", async () => {
+            const vObj = villages.find((x) => x._id === btn.dataset.delVillage);
+            const ok = await showConfirmDialog({
+              icon: "🏘️",
+              title: "गाँव हटाएँ?",
+              message: "क्या आप इस गाँव को नेटवर्क से हटाना चाहते हैं?",
+              highlight: vObj ? `${vObj.nameHi} (${vObj.nameEn})` : "",
+              confirmText: "हाँ, हटाएँ",
+              tone: "danger",
+            });
+            if (!ok) return;
+            try {
+              await apiFetch(`/api/super/villages/${btn.dataset.delVillage}`, { method: "DELETE" }, true);
+              await refreshAdminData(false);
+              showToast("गाँव हटा दिया गया", "info");
+            } catch (err) {
+              showToast(err.message, true);
+            }
+          })
+        );
+      }
+
+      // 5. Shops List (Filtered)
+      const sList = document.getElementById("superShopsList");
+      if (sList) {
+        const q = (state.superShopSearch || "").trim().toLowerCase();
+        const vf = state.superShopVillageFilter || "ALL";
+        const filteredShops = shops.filter((s) => {
+          if (vf !== "ALL" && s.villageId !== vf) return false;
+          if (!q) return true;
+          return (
+            (s.nameHi || "").toLowerCase().includes(q) ||
+            (s.nameEn || "").toLowerCase().includes(q) ||
+            (s.villageNameHi || "").toLowerCase().includes(q) ||
+            (s.villageNameEn || "").toLowerCase().includes(q) ||
+            (s.ownerName || "").toLowerCase().includes(q) ||
+            (s.ownerPhone || "").includes(q)
+          );
+        });
+
+        sList.innerHTML = filteredShops.length
+          ? filteredShops
+              .map((s) => {
+                const walletColor = s.isWalletPaused
+                  ? "bg-red-100 text-red-800 border-red-300"
+                  : s.isLowWallet
+                  ? "bg-amber-100 text-amber-900 border-amber-300"
+                  : "bg-emerald-100 text-emerald-800 border-emerald-300";
+                const badges = [
+                  s.isDefault ? `<span class="px-1.5 py-0.5 rounded bg-orange-100 text-orange-800 text-[10px] font-extrabold">⭐ मुख्य दुकान</span>` : "",
+                  s.isApproved
+                    ? `<span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-extrabold">✅ अप्रूव्ड</span>`
+                    : `<span class="px-1.5 py-0.5 rounded bg-red-100 text-red-700 text-[10px] font-extrabold">⛔ सस्पेंड</span>`,
+                  s.isWalletPaused
+                    ? `<span class="px-1.5 py-0.5 rounded bg-red-600 text-white text-[10px] font-extrabold">🔴 वॉलेट पॉज़</span>`
+                    : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ");
+
+                return `<div class="rounded-2xl border ${s._id === state.adminScopedShopId ? "border-orange-400 bg-orange-50/30" : "border-slate-200 bg-white"} p-3.5 shadow-sm space-y-2.5">
+                  <div class="flex flex-wrap items-start justify-between gap-2">
+                    <div class="space-y-0.5">
+                      <div class="flex items-center gap-1.5 flex-wrap">
+                        <span class="font-extrabold text-sm text-slate-900">🏪 ${escapeHtml(s.nameHi)}</span>
+                        <span class="text-xs text-slate-400 font-semibold">(${escapeHtml(s.nameEn)})</span>
+                        ${badges}
+                      </div>
+                      <div class="text-[11px] font-semibold text-slate-600">
+                        📍 ${escapeHtml(s.villageNameHi || s.villageNameEn)} • 👤 ${escapeHtml(s.ownerName || "-")} • 📞 <span class="font-mono font-bold">${escapeHtml(s.ownerPhone)}</span>
+                      </div>
+                      <div class="text-[11px] text-slate-500">
+                        आज: <b>${s.stats?.todayOrders || 0}</b> ऑर्डर (कमाई <b>₹${s.stats?.todayFees || 0}</b>) • कुल डिलीवर्ड: <b>${s.stats?.deliveredOrders || 0}</b> (कुल फ़ीस: <b>₹${s.stats?.totalFees || 0}</b>)
+                      </div>
+                    </div>
+                    <div class="text-right space-y-1">
+                      <div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl border ${walletColor} text-xs font-black">
+                        💰 वॉलेट: ₹${Number(s.walletBalance || 0)}
+                      </div>
+                      <div class="text-[10px] font-bold text-slate-500">फ़ीस: ₹${Number(s.platformFeePerOrder || 0)}/ऑर्डर • लिमिट: ₹${s.walletMinLimit ?? -50}</div>
+                    </div>
+                  </div>
+                  <div class="flex flex-wrap gap-1.5 pt-1 border-t border-slate-100">
+                    <button type="button" data-sw-open="${escapeHtml(s._id)}" class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-extrabold">💰 रीचार्ज</button>
+                    <button type="button" data-wl-open="${escapeHtml(s._id)}" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-bold">📜 खाता</button>
+                    <button type="button" data-scope-shop="${escapeHtml(s._id)}" class="px-2.5 py-1.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-[11px] font-extrabold">👁️ पैनल खोलें</button>
+                    <button type="button" data-edit-shop="${escapeHtml(s._id)}" class="px-2.5 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 text-[11px] font-bold">✏️ एडिट</button>
+                    <button type="button" data-copy-shop-slug="${escapeHtml(s.slug)}" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold">🔗 लिंक</button>
+                    ${
+                      !s.isDefault
+                        ? `<button type="button" data-toggle-shop-app="${escapeHtml(s._id)}" data-s-app="${s.isApproved ? "1" : "0"}" class="px-2.5 py-1.5 rounded-xl ${
+                            s.isApproved ? "bg-amber-50 text-amber-800" : "bg-emerald-50 text-emerald-800"
+                          } text-[11px] font-bold">${s.isApproved ? "⏸️ सस्पेंड" : "✅ चालू करें"}</button>
+                           <button type="button" data-del-shop="${escapeHtml(s._id)}" class="px-2.5 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 text-[11px] font-bold">🗑️</button>`
+                        : ""
+                    }
+                  </div>
+                </div>`;
+              })
+              .join("")
+          : `<div class="py-8 text-center text-xs font-bold text-slate-400">कोई दुकान नहीं मिली।</div>`;
+
+        sList.querySelectorAll("[data-sw-open]").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            const shopObj = shops.find((x) => x._id === btn.dataset.swOpen);
+            if (!shopObj) return;
+            document.getElementById("swShopId").value = shopObj._id;
+            document.getElementById("swAmount").value = "500";
+            document.getElementById("swType").value = "RECHARGE";
+            document.getElementById("swUtr").value = "";
+            document.getElementById("swNote").value = "";
+            document.getElementById("swShopInfoBox").innerHTML = `
+              <div class="font-extrabold text-slate-900">🏪 ${escapeHtml(shopObj.nameHi)} (${escapeHtml(shopObj.villageNameHi || shopObj.villageNameEn)})</div>
+              <div class="text-slate-600">वर्तमान बैलेंस: <b class="text-emerald-700">₹${Number(shopObj.walletBalance || 0)}</b> • फ़ीस: <b>₹${Number(shopObj.platformFeePerOrder || 0)}/ऑर्डर</b></div>
+            `;
+            document.getElementById("superWalletModal").classList.remove("hidden");
+          })
+        );
+
+        sList.querySelectorAll("[data-wl-open]").forEach((btn) =>
+          btn.addEventListener("click", () => openWalletLedgerModal(btn.dataset.wlOpen))
+        );
+
+        sList.querySelectorAll("[data-scope-shop]").forEach((btn) =>
+          btn.addEventListener("click", async () => {
+            state.adminScopedShopId = btn.dataset.scopeShop;
+            sessionStorage.setItem("gr_admin_shop_id", state.adminScopedShopId);
+            switchAdminTab("orders");
+            await refreshAdminData(false);
+            showToast("🏪 चयनित दुकान का पैनल खुल गया", "info");
+          })
+        );
+
+        sList.querySelectorAll("[data-edit-shop]").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            const s = shops.find((x) => x._id === btn.dataset.editShop);
+            if (!s) return;
+            document.getElementById("esShopId").value = s._id;
+            document.getElementById("esVillageId").value = s.villageId;
+            document.getElementById("esOwnerPhone").value = s.ownerPhone || "";
+            document.getElementById("esNameHi").value = s.nameHi || "";
+            document.getElementById("esNameEn").value = s.nameEn || "";
+            document.getElementById("esPlatformFee").value = Number(s.platformFeePerOrder ?? 5);
+            document.getElementById("esWalletMinLimit").value = Number(s.walletMinLimit ?? -50);
+            document.getElementById("esOwnerName").value = s.ownerName || "";
+            document.getElementById("esFssai").value = s.fssaiNumber || "";
+            document.getElementById("esNewPassword").value = "";
+            document.getElementById("superEditShopModal").classList.remove("hidden");
+          })
+        );
+
+        sList.querySelectorAll("[data-copy-shop-slug]").forEach((btn) =>
+          btn.addEventListener("click", () => copyShopLink(btn.dataset.copyShopSlug))
+        );
+
+        sList.querySelectorAll("[data-toggle-shop-app]").forEach((btn) =>
+          btn.addEventListener("click", async () => {
+            const isApp = btn.dataset.sApp === "1";
+            try {
+              await apiFetch(`/api/super/shops/${btn.dataset.toggleShopApp}`, {
+                method: "PUT",
+                body: JSON.stringify({ isApproved: !isApp }),
+              }, true);
+              await refreshAdminData(false);
+              showToast(isApp ? "दुकान सस्पेंड कर दी गई" : "दुकान फिर से चालू कर दी गई", "info");
+            } catch (err) {
+              showToast(err.message, true);
+            }
+          })
+        );
+
+        sList.querySelectorAll("[data-del-shop]").forEach((btn) =>
+          btn.addEventListener("click", async () => {
+            const sObj = shops.find((x) => x._id === btn.dataset.delShop);
+            const ok = await showConfirmDialog({
+              icon: "🏪",
+              title: "दुकान हटाएँ?",
+              message: "यह दुकान और उसका मेनू हमेशा के लिए हट जाएगा (जिन दुकानों में ऑर्डर आ चुके हैं उन्हें सस्पेंड किया जा सकता है)।",
+              highlight: sObj ? `${sObj.nameHi} (${sObj.ownerPhone})` : "",
+              confirmText: "हाँ, हटाएँ",
+              tone: "danger",
+            });
+            if (!ok) return;
+            try {
+              await apiFetch(`/api/super/shops/${btn.dataset.delShop}`, { method: "DELETE" }, true);
+              await refreshAdminData(false);
+              showToast("दुकान हटा दी गई", "info");
+            } catch (err) {
+              showToast(err.message, true);
+            }
+          })
+        );
+      }
+
+      // 6. Recent Network Wallet Transactions
+      const txList = document.getElementById("superRecentTxList");
+      if (txList) {
+        txList.innerHTML = recentTx.length
+          ? recentTx.map((tx) => formatWalletTxRow(tx, true)).join("")
+          : `<div class="py-6 text-center text-xs font-semibold text-slate-400">अभी कोई वॉलेट ट्रांज़ैक्शन नहीं है।</div>`;
+      }
+    }
+
+    // Super Admin Form & Switcher Handlers
+    document.getElementById("superActiveShopSelect").addEventListener("change", async (e) => {
+      state.adminScopedShopId = e.target.value;
+      sessionStorage.setItem("gr_admin_shop_id", state.adminScopedShopId);
+      await refreshAdminData(false);
+      showToast("🏪 सक्रिय दुकान बदल दी गई", "info");
+    });
+
+    document.getElementById("superCopyActiveShopLinkBtn").addEventListener("click", () => {
+      const slug = state.adminShopInfo?.slug || "";
+      copyShopLink(slug);
+    });
+
+    document.getElementById("superAddVillageForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        await apiFetch("/api/super/villages", {
+          method: "POST",
+          body: JSON.stringify({
+            nameHi: document.getElementById("svNameHi").value.trim(),
+            nameEn: document.getElementById("svNameEn").value.trim(),
+            district: document.getElementById("svDistrict").value.trim(),
+            pincode: document.getElementById("svPincode").value.trim(),
+          }),
+        }, true);
+        e.target.reset();
+        await refreshAdminData(false);
+        showToast("🏘️ नया गाँव सफलतापूर्वक जुड़ गया!", "info");
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    });
+
+    document.getElementById("superAddShopForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        await apiFetch("/api/super/shops", {
+          method: "POST",
+          body: JSON.stringify({
+            villageId: document.getElementById("ssVillageId").value,
+            nameHi: document.getElementById("ssNameHi").value.trim(),
+            nameEn: document.getElementById("ssNameEn").value.trim(),
+            ownerName: document.getElementById("ssOwnerName").value.trim(),
+            ownerPhone: document.getElementById("ssOwnerPhone").value.trim(),
+            password: document.getElementById("ssPassword").value.trim(),
+            platformFeePerOrder: Number(document.getElementById("ssPlatformFee").value),
+            openingWalletBalance: Number(document.getElementById("ssOpeningWallet").value),
+            walletMinLimit: Number(document.getElementById("ssWalletMinLimit").value),
+            deliveryCharge: Number(document.getElementById("ssDeliveryCharge").value),
+            minOrderAmount: Number(document.getElementById("ssMinOrder").value),
+            taglineHi: document.getElementById("ssTaglineHi").value.trim(),
+          }),
+        }, true);
+        e.target.reset();
+        document.getElementById("ssPlatformFee").value = "5";
+        document.getElementById("ssOpeningWallet").value = "200";
+        document.getElementById("ssWalletMinLimit").value = "-50";
+        document.getElementById("ssDeliveryCharge").value = "15";
+        document.getElementById("ssMinOrder").value = "60";
+        await refreshAdminData(false);
+        showToast("🏪 नई दुकान बन गई और लाइव हो गई!", "info");
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    });
+
+    document.getElementById("superShopSearchInput").addEventListener("input", (e) => {
+      state.superShopSearch = e.target.value;
+      renderSuperAdminNetwork(false);
+    });
+    document.getElementById("superShopVillageFilter").addEventListener("change", (e) => {
+      state.superShopVillageFilter = e.target.value;
+      renderSuperAdminNetwork(false);
+    });
+
+    document.getElementById("closeSuperWalletModalBtn").addEventListener("click", () => {
+      document.getElementById("superWalletModal").classList.add("hidden");
+    });
+    document.querySelectorAll("[data-sw-preset]").forEach((btn) =>
+      btn.addEventListener("click", () => {
+        document.getElementById("swType").value = "RECHARGE";
+        document.getElementById("swAmount").value = btn.dataset.swPreset;
+      })
+    );
+    document.getElementById("superWalletForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const sid = document.getElementById("swShopId").value;
+      try {
+        await apiFetch(`/api/super/shops/${sid}/wallet`, {
+          method: "POST",
+          body: JSON.stringify({
+            type: document.getElementById("swType").value,
+            amount: Number(document.getElementById("swAmount").value),
+            utrReference: document.getElementById("swUtr").value.trim(),
+            note: document.getElementById("swNote").value.trim(),
+          }),
+        }, true);
+        document.getElementById("superWalletModal").classList.add("hidden");
+        await refreshAdminData(false);
+        showToast("💰 वॉलेट सफलतापूर्वक अपडेट हो गया!", "info");
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    });
+
+    document.getElementById("closeSuperEditShopModalBtn").addEventListener("click", () => {
+      document.getElementById("superEditShopModal").classList.add("hidden");
+    });
+    document.getElementById("superEditShopForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const sid = document.getElementById("esShopId").value;
+      const payload = {
+        villageId: document.getElementById("esVillageId").value,
+        ownerPhone: document.getElementById("esOwnerPhone").value.trim(),
+        nameHi: document.getElementById("esNameHi").value.trim(),
+        nameEn: document.getElementById("esNameEn").value.trim(),
+        platformFeePerOrder: Number(document.getElementById("esPlatformFee").value),
+        walletMinLimit: Number(document.getElementById("esWalletMinLimit").value),
+        ownerName: document.getElementById("esOwnerName").value.trim(),
+        fssaiNumber: document.getElementById("esFssai").value.trim(),
+      };
+      const newPwd = document.getElementById("esNewPassword").value.trim();
+      if (newPwd) payload.newPassword = newPwd;
+      try {
+        await apiFetch(`/api/super/shops/${sid}`, {
+          method: "PUT",
+          body: JSON.stringify(payload),
+        }, true);
+        document.getElementById("superEditShopModal").classList.add("hidden");
+        await refreshAdminData(false);
+        showToast("✅ दुकान की जानकारी अपडेट हो गई!", "info");
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    });
+
     applyTheme(state.theme);
     hydrateStoreFromCache();
     renderAll();
     checkLegalHashOnLoad();
     loadStoreData();
   </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a608c49478756068',t:'MTc5NTY5NDc5NA=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a608c49478756068',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
