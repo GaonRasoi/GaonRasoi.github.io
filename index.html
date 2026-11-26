@@ -990,8 +990,8 @@
                 <input id="ssPlatformFee" type="number" min="0" value="5" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm font-bold" />
               </div>
               <div>
-                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">शुरुआती वॉलेट ₹ (पैसे न मिले हों तो 0 रखें)</label>
-                <input id="ssOpeningWallet" type="number" min="0" value="0" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm font-bold" />
+                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">शुरुआती वॉलेट बैलेंस</label>
+                <div class="w-full rounded-xl border border-emerald-200 bg-emerald-50/70 px-3 py-2 text-xs font-extrabold text-emerald-800">₹0 (केवल असली रीचार्ज पर जोड़ें)</div>
               </div>
               <div>
                 <label class="block text-[10px] font-bold text-slate-500 mb-0.5">ऑटो-पॉज़ लिमिट ₹ (0 = असली प्रीपेड)</label>
@@ -1500,38 +1500,37 @@
     </div>
   </div>
 
-  <!-- SUPER ADMIN WALLET RECHARGE MODAL -->
+  <!-- SUPER ADMIN WALLET RECHARGE / DEDUCT / ZERO RESET MODAL -->
   <div id="superWalletModal" class="hidden fixed inset-0 z-[72] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-3.5 shadow-2xl animate-slide-up">
       <div class="flex items-center justify-between">
-        <h3 class="text-base font-extrabold text-slate-900">💰 वॉलेट रीचार्ज / एडजस्टमेंट</h3>
+        <h3 class="text-base font-extrabold text-slate-900">💰 वॉलेट रीचार्ज / कटौती / ₹0 रीसेट</h3>
         <button id="closeSuperWalletModalBtn" type="button" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 font-bold">✕</button>
       </div>
       <div id="swShopInfoBox" class="rounded-2xl bg-slate-50 border border-slate-200 p-3 text-xs space-y-0.5"></div>
-      <div class="flex flex-wrap gap-1.5">
-        <button type="button" data-sw-preset="100" class="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-extrabold">+₹100</button>
-        <button type="button" data-sw-preset="200" class="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-extrabold">+₹200</button>
-        <button type="button" data-sw-preset="500" class="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-extrabold">+₹500</button>
-        <button type="button" data-sw-preset="1000" class="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-extrabold">+₹1000</button>
-      </div>
       <form id="superWalletForm" class="space-y-2.5">
         <input id="swShopId" type="hidden" />
+        <input id="swCurrentBal" type="hidden" value="0" />
+        <input id="swShopNameHidden" type="hidden" value="" />
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="block text-[11px] font-bold text-slate-600 mb-0.5">प्रकार</label>
             <select id="swType" class="w-full rounded-xl border border-slate-300 px-2.5 py-2 text-xs font-bold bg-white">
-              <option value="RECHARGE">➕ रीचार्ज (Credit)</option>
-              <option value="ADJUSTMENT">⚖️ एडजस्टमेंट (+/-)</option>
+              <option value="RECHARGE">➕ पैसे जोड़ें (+₹)</option>
+              <option value="DEDUCT">➖ पैसे घटाएँ (-₹)</option>
+              <option value="SET_EXACT">🎯 सीधा बैलेंस सेट (= ₹)</option>
             </select>
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-slate-600 mb-0.5">राशि (₹)</label>
-            <input id="swAmount" type="number" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-extrabold" placeholder="500" />
+            <label id="swAmountLabel" class="block text-[11px] font-bold text-slate-600 mb-0.5">असली राशि (₹)</label>
+            <input id="swAmount" type="number" min="1" step="1" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-extrabold" placeholder="राशि लिखें" />
           </div>
         </div>
+        <div id="swPreviewBox" class="hidden rounded-xl px-3 py-2 text-xs font-bold border"></div>
         <input id="swUtr" type="text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs" placeholder="UPI UTR / रसीद नंबर (वैकल्पिक)" />
-        <input id="swNote" type="text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs" placeholder="नोट (जैसे: UPI से ₹500 प्राप्त)" />
+        <input id="swNote" type="text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs" placeholder="नोट (जैसे: UPI / कैश से प्राप्त या सुधार)" />
         <button type="submit" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm shadow">✅ वॉलेट अपडेट करें</button>
+        <button id="swResetZeroBtn" type="button" class="w-full py-2 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 font-extrabold text-xs transition">🔄 1-क्लिक में वॉलेट बैलेंस सीधा ₹0 करें</button>
       </form>
     </div>
   </div>
@@ -8916,27 +8915,37 @@
         })
       );
 
-      const q = (state.mpSearch || "").trim().toLowerCase();
+      const q = normalizeSearchText(state.mpSearch || "");
       const villageById = new Map(villages.map((v) => [v._id, v]));
       const filtered = shops.filter((s) => {
         if (state.mpVillageFilter !== "ALL" && s.villageId !== state.mpVillageFilter) return false;
         if (!q) return true;
         const vObj = villageById.get(s.villageId);
-        const hay = [
-          s.nameHi,
-          s.nameEn,
-          s.slug,
-          s.villageNameHi,
-          s.villageNameEn,
-          s.taglineHi,
-          s.taglineEn,
-          vObj?.district,
-          vObj?.pincode,
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-        return q.split(/\s+/).every((tok) => hay.includes(tok));
+        const hay = normalizeSearchText(
+          [
+            s.nameHi,
+            s.nameEn,
+            s.slug,
+            s.villageNameHi,
+            s.villageNameEn,
+            s.taglineHi,
+            s.taglineEn,
+            vObj?.district,
+            vObj?.pincode,
+          ]
+            .filter(Boolean)
+            .join(" ")
+        );
+        const hayWords = hay.split(/\s+/).filter(Boolean);
+        return q.split(/\s+/).every((tok) => {
+          if (!tok) return true;
+          if (hay.includes(tok)) return true;
+          if (tok.length >= 4) {
+            const maxDist = tok.length >= 9 ? 3 : tok.length >= 7 ? 2 : 1;
+            return hayWords.some((w) => w.length >= 3 && Math.abs(w.length - tok.length) <= maxDist && damerauLevenshtein(tok, w) <= maxDist);
+          }
+          return false;
+        });
       });
 
       if (filtered.length === 0) {
@@ -9324,14 +9333,25 @@
           btn.addEventListener("click", () => {
             const shopObj = shops.find((x) => x._id === btn.dataset.swOpen);
             if (!shopObj) return;
+            const curBalNum = Number(shopObj.walletBalance || 0);
             document.getElementById("swShopId").value = shopObj._id;
-            document.getElementById("swAmount").value = "";
+            document.getElementById("swCurrentBal").value = String(curBalNum);
+            document.getElementById("swShopNameHidden").value = shopObj.nameHi || shopObj.nameEn || "";
+            const amtEl = document.getElementById("swAmount");
+            amtEl.value = "";
+            amtEl.min = "1";
             document.getElementById("swType").value = "RECHARGE";
+            const amtLbl = document.getElementById("swAmountLabel");
+            if (amtLbl) amtLbl.textContent = "असली राशि (₹)";
             document.getElementById("swUtr").value = "";
             document.getElementById("swNote").value = "";
+            const prevBox = document.getElementById("swPreviewBox");
+            if (prevBox) prevBox.classList.add("hidden");
+            const resetBtn = document.getElementById("swResetZeroBtn");
+            if (resetBtn) resetBtn.classList.toggle("hidden", curBalNum === 0);
             document.getElementById("swShopInfoBox").innerHTML = `
               <div class="font-extrabold text-slate-900">🏪 ${escapeHtml(shopObj.nameHi)} (${escapeHtml(shopObj.villageNameHi || shopObj.villageNameEn)})</div>
-              <div class="text-slate-600">वर्तमान बैलेंस: <b class="text-emerald-700">₹${Number(shopObj.walletBalance || 0)}</b> • फ़ीस: <b>₹${Number(shopObj.platformFeePerOrder || 0)}/ऑर्डर</b></div>
+              <div class="text-slate-600">वर्तमान बैलेंस: <b class="text-emerald-700">₹${curBalNum}</b> • फ़ीस: <b>₹${Number(shopObj.platformFeePerOrder || 0)}/ऑर्डर</b></div>
             `;
             document.getElementById("superWalletModal").classList.remove("hidden");
           })
@@ -9469,7 +9489,7 @@
             ownerPhone: document.getElementById("ssOwnerPhone").value.trim(),
             password: document.getElementById("ssPassword").value.trim(),
             platformFeePerOrder: Number(document.getElementById("ssPlatformFee").value),
-            openingWalletBalance: Number(document.getElementById("ssOpeningWallet").value),
+            openingWalletBalance: 0,
             walletMinLimit: Number(document.getElementById("ssWalletMinLimit").value),
             deliveryCharge: Number(document.getElementById("ssDeliveryCharge").value),
             minOrderAmount: Number(document.getElementById("ssMinOrder").value),
@@ -9478,12 +9498,11 @@
         }, true);
         e.target.reset();
         document.getElementById("ssPlatformFee").value = "5";
-        document.getElementById("ssOpeningWallet").value = "0";
         document.getElementById("ssWalletMinLimit").value = "0";
         document.getElementById("ssDeliveryCharge").value = "15";
         document.getElementById("ssMinOrder").value = "60";
         await refreshAdminData(false);
-        showToast("🏪 नई दुकान बन गई! वॉलेट रीचार्ज करते ही ऑर्डर चालू हो जाएँगे।", "info");
+        showToast("🏪 नई दुकान ₹0 बैलेंस के साथ बन गई! असली रीचार्ज के बाद ऑर्डर चालू होंगे।", "info");
       } catch (err) {
         showToast(err.message, true);
       }
@@ -9501,28 +9520,165 @@
     document.getElementById("closeSuperWalletModalBtn").addEventListener("click", () => {
       document.getElementById("superWalletModal").classList.add("hidden");
     });
-    document.querySelectorAll("[data-sw-preset]").forEach((btn) =>
-      btn.addEventListener("click", () => {
-        document.getElementById("swType").value = "RECHARGE";
-        document.getElementById("swAmount").value = btn.dataset.swPreset;
-      })
-    );
-    document.getElementById("superWalletForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
+
+    function updateSuperWalletPreview() {
+      const box = document.getElementById("swPreviewBox");
+      const mode = document.getElementById("swType").value;
+      const amtInput = document.getElementById("swAmount");
+      const amtLbl = document.getElementById("swAmountLabel");
+      if (amtInput) amtInput.min = mode === "SET_EXACT" ? "0" : "1";
+      if (amtLbl) amtLbl.textContent = mode === "SET_EXACT" ? "नया बैलेंस (₹)" : "असली राशि (₹)";
+      if (!box) return;
+      const rawStr = (amtInput?.value ?? "").trim();
+      if (rawStr === "") {
+        box.classList.add("hidden");
+        return;
+      }
+      const curBal = Number(document.getElementById("swCurrentBal").value || 0);
+      if (mode === "SET_EXACT") {
+        const targetBal = Math.round(Number(rawStr));
+        if (!Number.isFinite(targetBal)) {
+          box.classList.add("hidden");
+          return;
+        }
+        const delta = targetBal - curBal;
+        box.className =
+          delta < 0
+            ? "rounded-xl px-3 py-2 text-xs font-bold border bg-red-50 border-red-200 text-red-800"
+            : "rounded-xl px-3 py-2 text-xs font-bold border bg-emerald-50 border-emerald-200 text-emerald-800";
+        box.textContent =
+          delta === 0
+            ? `ℹ️ बैलेंस पहले से ₹${curBal} है`
+            : `🎯 बैलेंस ₹${curBal} → ₹${targetBal} होगा (बदलाव: ${delta > 0 ? "+" : "-"}₹${Math.abs(delta)})`;
+        box.classList.remove("hidden");
+        return;
+      }
+      const rawAmt = Math.round(Math.abs(Number(rawStr)));
+      if (!Number.isFinite(rawAmt) || rawAmt <= 0) {
+        box.classList.add("hidden");
+        return;
+      }
+      const signedAmt = mode === "DEDUCT" ? -rawAmt : rawAmt;
+      const newBal = curBal + signedAmt;
+      box.className =
+        mode === "DEDUCT"
+          ? "rounded-xl px-3 py-2 text-xs font-bold border bg-red-50 border-red-200 text-red-800"
+          : "rounded-xl px-3 py-2 text-xs font-bold border bg-emerald-50 border-emerald-200 text-emerald-800";
+      box.textContent =
+        mode === "DEDUCT"
+          ? `➖ ₹${rawAmt} घटेंगे • नया बैलेंस: ₹${curBal} → ₹${newBal}`
+          : `➕ ₹${rawAmt} जुड़ेंगे • नया बैलेंस: ₹${curBal} → ₹${newBal}`;
+      box.classList.remove("hidden");
+    }
+    document.getElementById("swAmount").addEventListener("input", updateSuperWalletPreview);
+    document.getElementById("swType").addEventListener("change", updateSuperWalletPreview);
+
+    document.getElementById("swResetZeroBtn").addEventListener("click", async () => {
       const sid = document.getElementById("swShopId").value;
+      const curBal = Number(document.getElementById("swCurrentBal").value || 0);
+      const shopName = document.getElementById("swShopNameHidden").value || "दुकान";
+      if (curBal === 0) {
+        showToast("इस दुकान का वॉलेट पहले से ₹0 है!", "info");
+        return;
+      }
+      const delta = -curBal;
+      const ok = await showConfirmDialog({
+        icon: "🔄",
+        title: "वॉलेट बैलेंस सीधा ₹0 करें?",
+        message: `वर्तमान बैलेंस ₹${curBal} से सीधा ₹0 कर दिया जाएगा (${delta > 0 ? "+" : "-"}₹${Math.abs(delta)} एडजस्टमेंट)।`,
+        highlight: `🏪 ${shopName}`,
+        confirmText: "हाँ, सीधा ₹0 करें",
+        tone: "danger",
+      });
+      if (!ok) return;
       try {
         await apiFetch(`/api/super/shops/${sid}/wallet`, {
           method: "POST",
           body: JSON.stringify({
-            type: document.getElementById("swType").value,
-            amount: Number(document.getElementById("swAmount").value),
+            type: "ADJUSTMENT",
+            amount: delta,
             utrReference: document.getElementById("swUtr").value.trim(),
-            note: document.getElementById("swNote").value.trim(),
+            note: document.getElementById("swNote").value.trim() || `Wallet reset to ₹0 by Super Admin (was ₹${curBal})`,
           }),
         }, true);
         document.getElementById("superWalletModal").classList.add("hidden");
         await refreshAdminData(false);
-        showToast("💰 वॉलेट सफलतापूर्वक अपडेट हो गया!", "info");
+        showToast(`🔄 ${shopName} का वॉलेट बैलेंस ₹0 हो गया!`, "info");
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    });
+
+    document.getElementById("superWalletForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const sid = document.getElementById("swShopId").value;
+      const mode = document.getElementById("swType").value;
+      const curBal = Number(document.getElementById("swCurrentBal").value || 0);
+      const shopName = document.getElementById("swShopNameHidden").value || "दुकान";
+      const rawStr = (document.getElementById("swAmount").value ?? "").trim();
+      if (rawStr === "" || !Number.isFinite(Number(rawStr))) {
+        showToast("कृपया सही राशि लिखें।", true);
+        return;
+      }
+
+      let signedAmt = 0;
+      let apiType = "RECHARGE";
+      let newBal = curBal;
+      let dialogTitle = "";
+      let confirmBtnText = "";
+      let defaultNote = "";
+
+      if (mode === "SET_EXACT") {
+        const targetBal = Math.round(Number(rawStr));
+        signedAmt = targetBal - curBal;
+        if (signedAmt === 0) {
+          showToast(`इस दुकान का वॉलेट पहले से ₹${curBal} है!`, "info");
+          return;
+        }
+        apiType = "ADJUSTMENT";
+        newBal = targetBal;
+        dialogTitle = `वॉलेट बैलेंस सीधा ₹${targetBal} करें?`;
+        confirmBtnText = `हाँ, ₹${targetBal} सेट करें`;
+        defaultNote = `Balance set to ₹${targetBal} by Super Admin (was ₹${curBal})`;
+      } else {
+        const rawAmt = Math.round(Math.abs(Number(rawStr)));
+        if (rawAmt <= 0) {
+          showToast("कृपया ₹1 या उससे अधिक की असली राशि लिखें।", true);
+          return;
+        }
+        const isDeduct = mode === "DEDUCT";
+        signedAmt = isDeduct ? -rawAmt : rawAmt;
+        apiType = isDeduct ? "ADJUSTMENT" : "RECHARGE";
+        newBal = curBal + signedAmt;
+        dialogTitle = isDeduct ? `वॉलेट से ₹${rawAmt} घटाएँ?` : `वॉलेट में ₹${rawAmt} जोड़ें?`;
+        confirmBtnText = isDeduct ? `हाँ, ₹${rawAmt} घटाएँ` : `हाँ, ₹${rawAmt} जोड़ें`;
+        defaultNote = isDeduct ? `Manual deduction of ₹${rawAmt} by Super Admin` : `Wallet recharge of ₹${rawAmt} by Super Admin`;
+      }
+
+      const isReducing = signedAmt < 0;
+      const ok = await showConfirmDialog({
+        icon: isReducing ? "➖" : "💰",
+        title: dialogTitle,
+        message: `पुराना बैलेंस: ₹${curBal} → नया बैलेंस: ₹${newBal}`,
+        highlight: `🏪 ${shopName}`,
+        confirmText: confirmBtnText,
+        tone: isReducing ? "danger" : "info",
+      });
+      if (!ok) return;
+
+      try {
+        await apiFetch(`/api/super/shops/${sid}/wallet`, {
+          method: "POST",
+          body: JSON.stringify({
+            type: apiType,
+            amount: signedAmt,
+            utrReference: document.getElementById("swUtr").value.trim(),
+            note: document.getElementById("swNote").value.trim() || defaultNote,
+          }),
+        }, true);
+        document.getElementById("superWalletModal").classList.add("hidden");
+        await refreshAdminData(false);
+        showToast(`✅ वॉलेट अपडेट हो गया! नया बैलेंस: ₹${newBal}`, "info");
       } catch (err) {
         showToast(err.message, true);
       }
