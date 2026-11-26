@@ -990,12 +990,12 @@
                 <input id="ssPlatformFee" type="number" min="0" value="5" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm font-bold" />
               </div>
               <div>
-                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">शुरुआती वॉलेट बैलेंस (₹)</label>
-                <input id="ssOpeningWallet" type="number" value="200" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm font-bold" />
+                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">शुरुआती वॉलेट ₹ (पैसे न मिले हों तो 0 रखें)</label>
+                <input id="ssOpeningWallet" type="number" min="0" value="0" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm font-bold" />
               </div>
               <div>
-                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">ऑटो-पॉज़ वॉलेट लिमिट (₹)</label>
-                <input id="ssWalletMinLimit" type="number" value="-50" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm font-bold" />
+                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">ऑटो-पॉज़ लिमिट ₹ (0 = असली प्रीपेड)</label>
+                <input id="ssWalletMinLimit" type="number" value="0" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm font-bold" />
               </div>
               <input id="ssDeliveryCharge" type="number" min="0" value="15" class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm" placeholder="डिलीवरी चार्ज ₹ (15)" />
               <input id="ssMinOrder" type="number" min="0" value="60" class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm" placeholder="न्यूनतम ऑर्डर ₹ (60)" />
@@ -2670,6 +2670,8 @@
 
     function saveCart() {
       localStorage.setItem("gr_cart", JSON.stringify(state.cart));
+      const sid = state.settings?.shopId || state.selectedShopId || "";
+      if (sid) localStorage.setItem("gr_cart_shop_id", sid);
     }
 
     function getCartSummary() {
@@ -3187,6 +3189,13 @@
         }
         state.settings = data.settings;
         if (data.settings && data.settings.shopId) {
+          const prevCartShop = localStorage.getItem("gr_cart_shop_id") || "";
+          if (prevCartShop && prevCartShop !== data.settings.shopId && Object.keys(state.cart || {}).length > 0) {
+            state.cart = {};
+            state.appliedCoupon = null;
+            localStorage.setItem("gr_cart", "{}");
+          }
+          localStorage.setItem("gr_cart_shop_id", data.settings.shopId);
           state.selectedShopId = data.settings.shopId;
           state.selectedShopSlug = data.settings.shopSlug || state.selectedShopSlug;
           try { localStorage.setItem("gr_selected_shop_id", data.settings.shopId); } catch {}
@@ -3497,15 +3506,15 @@
 
     const SEARCH_SYNONYM_GROUPS = [
       ["samosa", "samose", "samosas", "smosa", "samosha", "samoosa", "samsa", "samoa", "samso", "समोसा", "समौसा", "समोसे", "समोशा"],
-      ["patties", "paties", "patis", "petis", "patty", "pattice", "patti", "pettij", "petij", "पफ", "पैटीज", "पेटीज", "पेटिज", "पैटी", "पैटिस"],
-      ["burger", "barger", "burgar", "burgur", "burgr", "tikki", "टिक्की", "बर्गर", "बरगर"],
+      ["patties", "paties", "patis", "petis", "patiz", "petiz", "pattiz", "patty", "pattice", "patti", "pettij", "petij", "पफ", "पैटीज", "पेटीज", "पेटिज", "पैटी", "पैटिस"],
+      ["burger", "barger", "bargar", "burgar", "burgur", "burgr", "tikki", "टिक्की", "बर्गर", "बरगर"],
       ["chowmein", "chowmin", "chawmin", "chaumin", "chaumeen", "chomin", "chowmen", "chawmein", "noodles", "चाउमीन", "चाउमिन", "चाऊमीन", "चोमिन", "चौमीन", "नूडल्स"],
       ["egg", "anda", "ande", "अंडा", "अन्डा", "अंडे", "एग"],
-      ["momos", "momo", "momoz", "momose", "dumpling", "dumplings", "steamed", "मोमोज", "मोमो", "मोमोस", "मॉमोज", "मॉमो"],
+      ["momos", "momo", "momoz", "momoj", "momoje", "momose", "dumpling", "dumplings", "steamed", "मोमोज", "मोमो", "मोमोस", "मॉमोज", "मॉमो"],
       ["kachori", "kachodi", "kachaudi", "kachauri", "sabzi", "sabji", "कचौड़ी", "कचौरी", "कचोरी", "कचोड़ी", "सब्जी"],
       ["bread", "bred", "pakora", "pakoda", "pakode", "pkoda", "pkora", "pakoura", "ब्रेड", "पकौड़ा", "पकोड़ा", "पकोडा", "पकौड़े", "पकोड़े"],
       ["aloo", "alu", "aalu", "aaloo", "आलू"],
-      ["cold drink", "colddrink", "cold drinks", "soft drink", "softdrink", "thanda", "bottle", "botal", "कोल्ड ड्रिंक", "कोल्ड ड्रिंक्स", "कोल्ड्रिंक", "पेय", "ठंडा", "ठण्डा", "थंडा", "बोतल"],
+      ["cold drink", "colddrink", "coldrink", "coldrinks", "cold drinks", "soft drink", "softdrink", "thanda", "bottle", "botal", "कोल्ड ड्रिंक", "कोल्ड ड्रिंक्स", "कोल्ड्रिंक", "पेय", "ठंडा", "ठण्डा", "थंडा", "बोतल"],
       ["pepsi", "papsi", "pepsy", "पेप्सी", "पेपसी"],
       ["mountain dew", "dew", "due", "dyu", "mountan", "माउंटेन ड्यू", "माउंटेन", "ड्यू"],
       ["campa", "kampa", "कैंपा", "कैम्पा", "कम्पा"],
@@ -3536,6 +3545,32 @@
       ["1l", "1 l", "1 litre", "1 liter", "1ltr", "1 ltr"],
       ["1.25l", "1.25 l", "1.25 litre", "1.25 liter", "1.25ltr", "1.25 ltr"],
       ["litre", "liter", "ltr", "लीटर"],
+      // Multi-shop rural marketplace foods (for 100+ partner village shops)
+      ["chai", "chay", "tea", "kulhad", "चाय", "कुल्हड़"],
+      ["coffee", "koffee", "cofi", "कॉफी", "कॉफ़ी", "काफी"],
+      ["jalebi", "jlebi", "jaleebi", "जलेबी"],
+      ["gulab jamun", "jamun", "गुलाब जामुन", "जामुन"],
+      ["mithai", "sweet", "sweets", "barfi", "ladoo", "laddu", "peda", "rasgulla", "मिठाई", "मिठाईयां", "बर्फी", "लड्डू", "पेड़ा", "रसगुल्ला"],
+      ["maggi", "maggie", "magi", "मैगी", "मैग्गी"],
+      ["pizza", "piza", "pijja", "पिज़्ज़ा", "पिज्जा", "पिजा"],
+      ["pasta", "पास्ता"],
+      ["sandwich", "sandwitch", "सैंडविच", "सेंडविच"],
+      ["roll", "rolls", "kathi", "रोल", "रोल्स"],
+      ["pani puri", "panipuri", "golgappa", "golgappe", "puchka", "batasha", "पानी पूरी", "पानीपुरी", "गोलगप्पा", "गोलगप्पे", "बताशे"],
+      ["chaat", "chat", "tikki chaat", "papdi", "dahi bhalla", "चाट", "पापड़ी", "दही भल्ला"],
+      ["chole bhature", "chhole", "chole", "bhature", "छोले", "भटूरे", "छोले भटूरे"],
+      ["pav bhaji", "pavbhaji", "पाव भाजी"],
+      ["paratha", "parantha", "parotha", "पराठा", "परांठा"],
+      ["roti", "chapati", "naan", "tandoori", "रोटी", "चपाती", "नान"],
+      ["thali", "thaali", "थाली"],
+      ["paneer", "panir", "पनीर"],
+      ["dal", "daal", "दाल"],
+      ["dosa", "dosha", "डोसा"],
+      ["idli", "इडली"],
+      ["biryani", "biriyani", "pulao", "बिरयानी", "पुलाव"],
+      ["lassi", "lasi", "chhachh", "chaas", "लस्सी", "छाछ"],
+      ["juice", "jus", "shake", "milkshake", "जूस", "शेक"],
+      ["ice cream", "icecream", "kulfi", "आइसक्रीम", "कुल्फी"],
     ];
 
     function normalizeSearchText(str) {
@@ -4465,6 +4500,19 @@
           updateMenuScrollFooter(0, 0);
           return;
         }
+        if (!state.menu || state.menu.length === 0) {
+          const isHi = state.lang === "hi";
+          grid.innerHTML = `<div class="col-span-full bg-white rounded-2xl p-8 text-center border border-orange-100 shadow-sm space-y-3">
+            <div class="text-4xl">🏪</div>
+            <div class="text-sm font-extrabold text-slate-900">${isHi ? "इस दुकान का मेनू अभी तैयार हो रहा है" : "This shop's menu is being updated"}</div>
+            <p class="text-xs text-slate-500">${isHi ? "दुकानदार जल्द ही अपने आइटम जोड़ेंगे। तब तक आप अपने गाँव की दूसरी दुकानें देख सकते हैं।" : "Items will be added soon. Meanwhile, explore other shops in your village."}</p>
+            <button type="button" id="emptyShopSwitchBtn" class="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-extrabold shadow transition">🏘️ ${isHi ? "अन्य गाँव व दुकानें देखें" : "Explore Other Shops"}</button>
+          </div>`;
+          const swBtn = document.getElementById("emptyShopSwitchBtn");
+          if (swBtn) swBtn.addEventListener("click", openMarketplaceModal);
+          updateMenuScrollFooter(0, 0);
+          return;
+        }
         const suggestBtns = QUICK_SEARCH_PRESETS.slice(0, 5)
           .map((chip) => {
             const label = state.lang === "hi" ? chip.labelHi : chip.labelEn;
@@ -5235,6 +5283,14 @@
                     .join("")}
                 </div>`;
 
+          const ordShopLabel =
+            (state.lang === "hi" ? ord.shopNameHi : ord.shopNameEn) || ord.shopNameHi || ord.shopNameEn || "";
+          const ordVillageLabel =
+            (state.lang === "hi" ? ord.villageNameHi : ord.villageNameEn) || ord.villageNameHi || ord.villageNameEn || "";
+          const ordShopBadge = ordShopLabel
+            ? `<span class="text-[10px] font-bold text-orange-700 bg-orange-50 border border-orange-200 px-1.5 py-0.5 rounded-md">🏪 ${escapeHtml(ordShopLabel)}${ordVillageLabel ? ` • 📍 ${escapeHtml(ordVillageLabel)}` : ""}</span>`
+            : "";
+
           return `<section data-co-card="${escapeHtml(ord.orderNumber)}" class="rounded-2xl bg-white border ${
             isActive ? "border-emerald-300 shadow-sm" : "border-slate-200"
           } p-3.5 space-y-2.5">
@@ -5242,6 +5298,7 @@
               <div class="min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
                   <span class="text-xs font-extrabold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md">${escapeHtml(ord.orderNumber)}</span>
+                  ${ordShopBadge}
                   <span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${badgeColors[st] || "bg-amber-100 text-amber-800"}">${escapeHtml(stLabel)}</span>
                   ${ord.customerName ? `<span class="text-[11px] font-bold text-orange-700 bg-orange-50 px-1.5 py-0.5 rounded border border-orange-200">👤 ${escapeHtml(ord.customerName)}</span>` : ""}
                 </div>
@@ -6158,6 +6215,8 @@
       }
       if (networkTabBtn) networkTabBtn.classList.toggle("hidden", !isSuper);
       if (switcherBar) switcherBar.classList.toggle("hidden", !isSuper);
+      const syncBanner = document.getElementById("adminMenuSyncBanner");
+      if (syncBanner) syncBanner.classList.toggle("hidden", !isSuper);
 
       const s = state.adminShopInfo;
       if (headerTitle && s) {
@@ -6194,8 +6253,8 @@
           }
           if (subEl) {
             subEl.textContent = isHi
-              ? `प्लेटफ़ॉर्म फ़ीस: ₹${fee}/डिलीवर्ड ऑर्डर • कुल डिलीवर्ड: ${s.totalOrdersDelivered || 0} • ऑटो-पॉज़ लिमिट: ₹${s.walletMinLimit ?? -50}`
-              : `Platform Fee: ₹${fee}/delivered order • Delivered: ${s.totalOrdersDelivered || 0} • Auto-Pause Limit: ₹${s.walletMinLimit ?? -50}`;
+              ? `प्लेटफ़ॉर्म फ़ीस: ₹${fee}/डिलीवर्ड ऑर्डर • कुल डिलीवर्ड: ${s.totalOrdersDelivered || 0} • ऑटो-पॉज़ लिमिट: ₹${s.walletMinLimit ?? 0}`
+              : `Platform Fee: ₹${fee}/delivered order • Delivered: ${s.totalOrdersDelivered || 0} • Auto-Pause Limit: ₹${s.walletMinLimit ?? 0}`;
           }
         }
       }
@@ -8858,17 +8917,26 @@
       );
 
       const q = (state.mpSearch || "").trim().toLowerCase();
+      const villageById = new Map(villages.map((v) => [v._id, v]));
       const filtered = shops.filter((s) => {
         if (state.mpVillageFilter !== "ALL" && s.villageId !== state.mpVillageFilter) return false;
         if (!q) return true;
-        return (
-          (s.nameHi || "").toLowerCase().includes(q) ||
-          (s.nameEn || "").toLowerCase().includes(q) ||
-          (s.villageNameHi || "").toLowerCase().includes(q) ||
-          (s.villageNameEn || "").toLowerCase().includes(q) ||
-          (s.taglineHi || "").toLowerCase().includes(q) ||
-          (s.taglineEn || "").toLowerCase().includes(q)
-        );
+        const vObj = villageById.get(s.villageId);
+        const hay = [
+          s.nameHi,
+          s.nameEn,
+          s.slug,
+          s.villageNameHi,
+          s.villageNameEn,
+          s.taglineHi,
+          s.taglineEn,
+          vObj?.district,
+          vObj?.pincode,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return q.split(/\s+/).every((tok) => hay.includes(tok));
       });
 
       if (filtered.length === 0) {
@@ -8939,7 +9007,7 @@
           }
           state.selectedShopId = shopObj._id;
           state.selectedShopSlug = shopObj.slug || "";
-          state.activeCategory = "All";
+          state.selectedCategory = "All";
           state.menuSearch = "";
           const searchInp = document.getElementById("customerMenuSearch");
           if (searchInp) searchInp.value = "";
@@ -9229,7 +9297,7 @@
                       <div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl border ${walletColor} text-xs font-black">
                         💰 वॉलेट: ₹${Number(s.walletBalance || 0)}
                       </div>
-                      <div class="text-[10px] font-bold text-slate-500">फ़ीस: ₹${Number(s.platformFeePerOrder || 0)}/ऑर्डर • लिमिट: ₹${s.walletMinLimit ?? -50}</div>
+                      <div class="text-[10px] font-bold text-slate-500">फ़ीस: ₹${Number(s.platformFeePerOrder || 0)}/ऑर्डर • लिमिट: ₹${s.walletMinLimit ?? 0}</div>
                     </div>
                   </div>
                   <div class="flex flex-wrap gap-1.5 pt-1 border-t border-slate-100">
@@ -9257,7 +9325,7 @@
             const shopObj = shops.find((x) => x._id === btn.dataset.swOpen);
             if (!shopObj) return;
             document.getElementById("swShopId").value = shopObj._id;
-            document.getElementById("swAmount").value = "500";
+            document.getElementById("swAmount").value = "";
             document.getElementById("swType").value = "RECHARGE";
             document.getElementById("swUtr").value = "";
             document.getElementById("swNote").value = "";
@@ -9276,6 +9344,7 @@
         sList.querySelectorAll("[data-scope-shop]").forEach((btn) =>
           btn.addEventListener("click", async () => {
             state.adminScopedShopId = btn.dataset.scopeShop;
+            state.lastPendingCount = null;
             sessionStorage.setItem("gr_admin_shop_id", state.adminScopedShopId);
             switchAdminTab("orders");
             await refreshAdminData(false);
@@ -9293,7 +9362,7 @@
             document.getElementById("esNameHi").value = s.nameHi || "";
             document.getElementById("esNameEn").value = s.nameEn || "";
             document.getElementById("esPlatformFee").value = Number(s.platformFeePerOrder ?? 5);
-            document.getElementById("esWalletMinLimit").value = Number(s.walletMinLimit ?? -50);
+            document.getElementById("esWalletMinLimit").value = Number(s.walletMinLimit ?? 0);
             document.getElementById("esOwnerName").value = s.ownerName || "";
             document.getElementById("esFssai").value = s.fssaiNumber || "";
             document.getElementById("esNewPassword").value = "";
@@ -9356,6 +9425,7 @@
     // Super Admin Form & Switcher Handlers
     document.getElementById("superActiveShopSelect").addEventListener("change", async (e) => {
       state.adminScopedShopId = e.target.value;
+      state.lastPendingCount = null;
       sessionStorage.setItem("gr_admin_shop_id", state.adminScopedShopId);
       await refreshAdminData(false);
       showToast("🏪 सक्रिय दुकान बदल दी गई", "info");
@@ -9408,12 +9478,12 @@
         }, true);
         e.target.reset();
         document.getElementById("ssPlatformFee").value = "5";
-        document.getElementById("ssOpeningWallet").value = "200";
-        document.getElementById("ssWalletMinLimit").value = "-50";
+        document.getElementById("ssOpeningWallet").value = "0";
+        document.getElementById("ssWalletMinLimit").value = "0";
         document.getElementById("ssDeliveryCharge").value = "15";
         document.getElementById("ssMinOrder").value = "60";
         await refreshAdminData(false);
-        showToast("🏪 नई दुकान बन गई और लाइव हो गई!", "info");
+        showToast("🏪 नई दुकान बन गई! वॉलेट रीचार्ज करते ही ऑर्डर चालू हो जाएँगे।", "info");
       } catch (err) {
         showToast(err.message, true);
       }
@@ -9495,5 +9565,5 @@
     checkLegalHashOnLoad();
     loadStoreData();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a608c49478756068',t:'MTc5NTY5NDc5NA=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a608c49478756068',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
