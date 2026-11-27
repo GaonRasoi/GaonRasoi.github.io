@@ -660,6 +660,14 @@
             <p id="phoneErrorMsg" class="hidden text-xs text-red-600 font-semibold mt-1"></p>
           </div>
 
+          <div id="checkoutPinWrap">
+            <label for="custPin" id="lblCustPin" class="block text-xs font-bold text-slate-700 mb-1">4-अंकों का गुप्त पिन 🔑 *</label>
+            <input id="custPin" type="password" inputmode="numeric" autocomplete="off" maxlength="4" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm tracking-[0.5em] font-bold focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="••••" />
+            <p id="custPinHint" class="text-[11px] text-slate-500 mt-1">पहली बार? अपना 4-अंकों का गुप्त पिन बनाएँ — यही पिन आपकी हिस्ट्री की सुरक्षा करेगा।</p>
+            <p id="custPinError" class="hidden text-xs text-red-600 font-semibold mt-1"></p>
+            <div id="custPinVerifiedBox" class="hidden mt-1 rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2 text-xs font-bold text-emerald-800">✅ पिन वेरिफाइड — अब पिन डालने की ज़रूरत नहीं।</div>
+          </div>
+
           <div>
             <label for="custAddress" id="lblCustAddress" class="block text-xs font-bold text-slate-700 mb-1">गाँव का पता (मोहल्ला / गली / पास की पहचान) *</label>
             <textarea id="custAddress" rows="2" required maxlength="250" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="उदाहरण: शिव मंदिर के पास, बड़ा मोहल्ला"></textarea>
@@ -789,10 +797,27 @@
         <div id="orderHistoryControls" class="hidden space-y-2.5">
           <div class="flex items-center justify-between gap-2 rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 text-xs">
             <span id="orderHistoryPhoneLabel" class="font-bold text-slate-700 truncate">📱 9876543210</span>
-            <button id="changeOrderPhoneBtn" type="button" class="shrink-0 font-extrabold text-orange-600 hover:text-orange-700">🔄 <span id="changeOrderPhoneText">नंबर बदलें</span></button>
+            <div class="flex items-center gap-2 shrink-0">
+              <span id="orderHistoryPinBadge" class="hidden px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">🔒 पिन वेरिफाइड</span>
+              <button id="changePinToggleBtn" type="button" class="hidden font-extrabold text-slate-700 hover:text-slate-900">🔑 <span id="changePinToggleText">पिन बदलें</span></button>
+              <button id="changeOrderPhoneBtn" type="button" class="shrink-0 font-extrabold text-orange-600 hover:text-orange-700">🔄 <span id="changeOrderPhoneText">नंबर बदलें</span></button>
+            </div>
           </div>
           <input id="customerOrderSearchInput" type="search" class="w-full rounded-xl bg-white border border-slate-200 px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" placeholder="🔍 ऑर्डर नंबर या आइटम खोजें..." />
           <div id="customerOrderFilterPills" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5"></div>
+        </div>
+
+        <div id="changePinBox" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-2.5">
+          <div class="text-xs font-extrabold text-slate-800">🔑 पिन बदलें</div>
+          <div class="grid grid-cols-2 gap-2">
+            <input id="changeOldPin" type="password" inputmode="numeric" maxlength="4" placeholder="पुराना पिन" class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm font-bold tracking-[0.3em]" />
+            <input id="changeNewPin" type="password" inputmode="numeric" maxlength="4" placeholder="नया पिन (4 अंक)" class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm font-bold tracking-[0.3em]" />
+          </div>
+          <p id="changePinError" class="hidden text-xs font-semibold text-red-600"></p>
+          <div class="flex gap-2">
+            <button id="saveChangePinBtn" type="button" class="flex-1 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold">पिन बदलें</button>
+            <button id="cancelChangePinBtn" type="button" class="px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-xs font-bold">✕</button>
+          </div>
         </div>
 
         <!-- All Orders List (Active + Delivered + Cancelled) -->
@@ -809,6 +834,9 @@
             <div id="trackLookupTitle" class="text-xs font-extrabold text-slate-800">🔍 मोबाइल नंबर से अपने सभी ऑर्डर देखें</div>
             <input id="trackLookupPhone" type="tel" inputmode="numeric" required maxlength="14" placeholder="10 अंकों का मोबाइल नंबर *" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm font-bold" />
             <input id="trackLookupOrderNum" type="text" maxlength="24" placeholder="ऑर्डर नंबर (वैकल्पिक, जैसे GR-19462443)" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm uppercase" />
+            <input id="trackLookupPin" type="password" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="4-अंकों का गुप्त पिन 🔑" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm font-bold tracking-[0.3em]" />
+            <p id="trackLookupPinHint" class="text-[11px] text-slate-500">पिन भूल गए? दुकानदार से रीसेट कराएँ — Admin > ग्राहक में पिन देखा/बदला जा सकता है।</p>
+            <p id="trackLookupPinNeeded" class="hidden text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-2.5 py-2">🔒 इस नंबर की हिस्ट्री देखने के लिए पिन डालें। बिना पिन के किसी का नाम/पता नहीं दिखाया जाएगा।</p>
             <p id="trackLookupError" class="hidden text-xs font-semibold text-red-600"></p>
             <div class="flex items-center gap-2">
               <button id="trackLookupSubmitBtn" type="submit" class="flex-1 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-extrabold">
@@ -1932,6 +1960,30 @@
         errInvalidAddress: "कृपया अपना पूरा मोहल्ला / गली / पास की पहचान लिखें।",
         errShopClosed: "दुकान अभी बंद है, इसलिए ऑर्डर नहीं लिया जा सकता।",
         errBlocked: "इस मोबाइल नंबर को ऑर्डर करने से ब्लॉक किया गया है।",
+        lblCustPin: "4-अंकों का गुप्त पिन 🔑 *",
+        custPinHintNew: "पहली बार? अपना 4-अंकों का गुप्त पिन बनाएँ — यही पिन आपकी हिस्ट्री की सुरक्षा करेगा।",
+        custPinHintVerify: "इस नंबर के लिए पिन पहले से सेट है — वही 4-अंकों का पिन डालें।",
+        custPinVerified: "✅ पिन वेरिफाइड — अब पिन डालने की ज़रूरत नहीं।",
+        errInvalidPin: "कृपया सही 4-अंकों का पिन डालें (जैसे: 1234)।",
+        errPinMismatch: "❌ गलत पिन! कृपया सही 4-अंकों का पिन डालें।",
+        errPinLocked: "🔒 पिन लॉक हो गया है (बहुत बार गलत पिन)। दुकानदार से रीसेट कराएँ।",
+        errPinRequired: "🔑 इस नंबर की सुरक्षा के लिए 4-अंकों का पिन ज़रूरी है।",
+        trackPinPh: "अपना 4-अंकों का पिन डालें",
+        trackPinNewPh: "नया 4-अंकों का पिन बनाएँ 🔑",
+        pinForgotHint: "पिन भूल गए? दुकानदार से रीसेट कराएँ — Admin > ग्राहक में पिन देखा/बदला जा सकता है।",
+        pinNeededMsg: "🔒 इस नंबर की हिस्ट्री देखने के लिए पिन डालें। बिना पिन के किसी का नाम/पता नहीं दिखाया जाएगा।",
+        changePinBtn: "पिन बदलें",
+        oldPinPh: "पुराना पिन",
+        newPinPh: "नया पिन (4 अंक)",
+        savePinBtn: "पिन बदलें",
+        pinChangedToast: "✅ पिन बदल दिया गया!",
+        pinVerifiedToast: "✅ पिन वेरिफाइड!",
+        adminPinNotSet: "पिन सेट नहीं",
+        adminPinChangeBtn: "पिन बदलें",
+        adminPinSetBtn: "पिन बनाएँ",
+        adminPinPrompt: "इस ग्राहक के लिए नया 4-अंकों का पिन डालें (खाली छोड़ने पर रैंडम पिन बनेगा):",
+        adminPinUpdated: (pin) => `✅ ग्राहक पिन सेट: ${pin}`,
+        copyPinBtn: "कॉपी",
         shareGps: "📍 लाइव GPS लोकेशन साझा करें",
         gpsFetching: "📡 आपकी GPS लोकेशन खोजी जा रही है...",
         gpsHint: "वैकल्पिक: डिलीवरी बॉय को आपका घर आसानी से मिलने के लिए",
@@ -2272,6 +2324,30 @@
         errInvalidAddress: "Please enter your Mohalla / Gali / Landmark address.",
         errShopClosed: "Shop is currently closed. Orders cannot be placed right now.",
         errBlocked: "This phone number has been blocked from placing orders.",
+        lblCustPin: "4-Digit Secret PIN 🔑 *",
+        custPinHintNew: "First time? Create your 4-digit secret PIN — it protects your order history.",
+        custPinHintVerify: "PIN is already set for this number — enter the same 4-digit PIN.",
+        custPinVerified: "✅ PIN verified — no need to enter PIN now.",
+        errInvalidPin: "Please enter a valid 4-digit PIN (e.g. 1234).",
+        errPinMismatch: "❌ Wrong PIN! Please enter the correct 4-digit PIN.",
+        errPinLocked: "🔒 PIN is locked (too many wrong attempts). Please ask the shopkeeper to reset it.",
+        errPinRequired: "🔑 A 4-digit PIN is required to protect this number.",
+        trackPinPh: "Enter your 4-digit PIN",
+        trackPinNewPh: "Create new 4-digit PIN 🔑",
+        pinForgotHint: "Forgot PIN? Ask the shopkeeper to reset it — Admin > Customers can view/change PIN.",
+        pinNeededMsg: "🔒 Enter PIN to view this number's history. Without PIN, no name/address is shown.",
+        changePinBtn: "Change PIN",
+        oldPinPh: "Old PIN",
+        newPinPh: "New PIN (4 digits)",
+        savePinBtn: "Change PIN",
+        pinChangedToast: "✅ PIN changed!",
+        pinVerifiedToast: "✅ PIN verified!",
+        adminPinNotSet: "PIN not set",
+        adminPinChangeBtn: "Change PIN",
+        adminPinSetBtn: "Set PIN",
+        adminPinPrompt: "Enter new 4-digit PIN for this customer (leave blank for random PIN):",
+        adminPinUpdated: (pin) => `✅ Customer PIN set: ${pin}`,
+        copyPinBtn: "Copy",
         shareGps: "📍 Share Live GPS Location",
         gpsFetching: "📡 Fetching your live GPS location...",
         gpsHint: "Optional: Helps our delivery boy find your home quickly",
@@ -2507,6 +2583,11 @@
       recentOrder: safeStorageJson("gr_recent_order", null),
       customerOrders: safeStorageJson("gr_customer_orders", []),
       customerPhone: localStorage.getItem("gr_customer_phone") || "",
+      customerPinSession: safeStorageJson("gr_customer_pin_session_v1", null),
+      needsPin: false,
+      pinHasPin: false,
+      pinLocked: false,
+      checkoutPinStatus: null,
       customerOrderFilter: "All",
       customerOrderSearch: "",
       showPhoneLookup: false,
@@ -2872,6 +2953,110 @@
       return Object.values(state.orderTokens).filter(Boolean).slice(-25).join(",");
     }
 
+    function saveCustomerPinSession(phone, token) {
+      if (!phone || !token) return;
+      state.customerPinSession = { phone, token, savedAt: Date.now() };
+      try {
+        localStorage.setItem("gr_customer_pin_session_v1", JSON.stringify(state.customerPinSession));
+      } catch {}
+    }
+
+    function getCustomerPinSessionToken() {
+      const sess = state.customerPinSession;
+      if (!sess || !sess.token) return "";
+      return sess.token;
+    }
+
+    function isPinSessionValidForPhone(phone) {
+      const clean = normalizeIndianPhone(phone || "");
+      const sess = state.customerPinSession;
+      return !!(clean && sess && sess.phone === clean && sess.token);
+    }
+
+    function clearCustomerPinSession() {
+      state.customerPinSession = null;
+      try {
+        localStorage.removeItem("gr_customer_pin_session_v1");
+      } catch {}
+    }
+
+    async function fetchPinStatus(phone) {
+      const clean = normalizeIndianPhone(phone || "");
+      if (!clean) return null;
+      try {
+        return await apiFetch(`/api/customers/pin-status?phone=${encodeURIComponent(clean)}`);
+      } catch {
+        return null;
+      }
+    }
+
+    async function verifyOrSetPinForPhone(phone, pin) {
+      const clean = normalizeIndianPhone(phone || "");
+      const cleanPin = String(pin || "").replace(/\D/g, "");
+      if (!clean || !/^\d{4}$/.test(cleanPin)) {
+        const e = new Error(t("errInvalidPin"));
+        e.code = "INVALID_PIN";
+        throw e;
+      }
+      const status = await fetchPinStatus(clean);
+      if (status && status.hasPin) {
+        const res = await apiFetch("/api/customers/verify-pin", {
+          method: "POST",
+          body: JSON.stringify({ phone: clean, pin: cleanPin }),
+        });
+        if (res.token) saveCustomerPinSession(clean, res.token);
+        return { ok: true, token: res.token, hasPin: true };
+      }
+      const res = await apiFetch("/api/customers/set-pin", {
+        method: "POST",
+        body: JSON.stringify({ phone: clean, pin: cleanPin }),
+      });
+      if (res.token) saveCustomerPinSession(clean, res.token);
+      return { ok: true, token: res.token, hasPin: true, isNew: true };
+    }
+
+    async function updateCheckoutPinUI() {
+      const phoneEl = document.getElementById("custPhone");
+      const pinInput = document.getElementById("custPin");
+      const pinHint = document.getElementById("custPinHint");
+      const pinErr = document.getElementById("custPinError");
+      const verifiedBox = document.getElementById("custPinVerifiedBox");
+      if (!phoneEl || !pinInput || !pinHint || !pinErr || !verifiedBox) return;
+      const clean = normalizeIndianPhone(phoneEl.value);
+      state.checkoutPinStatus = null;
+      pinErr.classList.add("hidden");
+      if (!clean) {
+        state.checkoutPinStatus = null;
+        pinInput.disabled = false;
+        verifiedBox.classList.add("hidden");
+        pinHint.textContent = t("custPinHintNew");
+        return;
+      }
+      const sessionStatus = await fetchPinStatus(clean);
+      if (normalizeIndianPhone(phoneEl.value) !== clean) return;
+      if (sessionStatus && sessionStatus.verified) {
+        state.checkoutPinStatus = { hasPin: true, verified: true };
+        pinInput.disabled = true;
+        pinInput.value = "";
+        verifiedBox.classList.remove("hidden");
+        pinHint.textContent = t("custPinVerified");
+        return;
+      }
+      verifiedBox.classList.add("hidden");
+      pinInput.disabled = false;
+      const status = sessionStatus;
+      state.checkoutPinStatus = status;
+      if (status && status.hasPin) {
+        pinHint.textContent = t("custPinHintVerify");
+        if (status.pinLocked) {
+          pinErr.textContent = t("errPinLocked");
+          pinErr.classList.remove("hidden");
+        }
+      } else {
+        pinHint.textContent = t("custPinHintNew");
+      }
+    }
+
     function getStoreCacheKey() {
       const id = state.selectedShopSlug || state.selectedShopId || "default";
       return `gr_store_cache_v2_${id}`;
@@ -2904,9 +3089,11 @@
         if (state.adminRole === "SUPER_ADMIN" && state.adminScopedShopId) {
           headers["X-Shop-Id"] = state.adminScopedShopId;
         }
-      } else if (!useAdminAuth && path.startsWith("/api/orders")) {
+      } else if (!useAdminAuth && (path.startsWith("/api/orders") || path.startsWith("/api/customers"))) {
         const tokVal = getOrderTokensHeaderValue();
         if (tokVal) headers["X-Order-Token"] = tokVal;
+        const pinTok = getCustomerPinSessionToken();
+        if (pinTok) headers["X-Customer-Pin-Token"] = pinTok;
       }
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 55000);
@@ -3200,6 +3387,23 @@
         if (res.serverNow) {
           state.clockOffsetMs = Date.now() - new Date(res.serverNow).getTime();
         }
+        if (res.needsPin) {
+          state.customerPhone = targetPhone;
+          localStorage.setItem("gr_customer_phone", targetPhone);
+          if (isPinSessionValidForPhone(targetPhone)) clearCustomerPinSession();
+          state.customerOrders = state.customerOrders.filter(o => normalizeIndianPhone(o && o.phone) !== targetPhone);
+          saveCustomerOrders();
+          state.needsPin = true;
+          state.pinHasPin = !!res.hasPin;
+          state.pinLocked = !!res.pinLocked;
+          state.showPhoneLookup = true;
+          renderRecentOrderCard();
+          if (isManual) showToast(t("pinNeededMsg"), "info");
+          return { ok: false, count: 0, needsPin: true, hasPin: !!res.hasPin };
+        }
+        state.needsPin = false;
+        state.pinHasPin = !!res.hasPin;
+        state.pinLocked = !!res.pinLocked;
         state.customerPhone = targetPhone;
         localStorage.setItem("gr_customer_phone", targetPhone);
         const serverOrders = Array.isArray(res.orders) ? res.orders : [];
@@ -3265,7 +3469,13 @@
           showToast(t("trackStatusToast", stLabel));
         }
       } catch (err) {
-        if (err && err.status === 404) {
+        if (err && err.code === "PIN_REQUIRED") {
+          state.needsPin = true;
+          state.pinHasPin = !!err.hasPin;
+          state.showPhoneLookup = true;
+          renderRecentOrderCard();
+          if (isManual) showToast(t("pinNeededMsg"), "info");
+        } else if (err && err.status === 404) {
           removeCustomerOrderFromLocal(state.recentOrder.orderNumber);
           renderRecentOrderCard();
           if (isManual) showToast(t("trackNotFoundToast"), "info");
@@ -3502,6 +3712,16 @@
       document.getElementById("custName").placeholder = t("phName");
       document.getElementById("lblCustPhone").textContent = t("lblPhone");
       document.getElementById("custPhone").placeholder = t("phPhone");
+      document.getElementById("lblCustPin").textContent = t("lblCustPin");
+      document.getElementById("custPinHint").textContent = t("custPinHintNew");
+      document.getElementById("custPinVerifiedBox").textContent = t("custPinVerified");
+      document.getElementById("trackLookupPin").placeholder = t("trackPinPh");
+      document.getElementById("trackLookupPinHint").textContent = t("pinForgotHint");
+      document.getElementById("trackLookupPinNeeded").textContent = t("pinNeededMsg");
+      document.getElementById("changePinToggleText").textContent = t("changePinBtn");
+      document.getElementById("changeOldPin").placeholder = t("oldPinPh");
+      document.getElementById("changeNewPin").placeholder = t("newPinPh");
+      document.getElementById("saveChangePinBtn").textContent = t("savePinBtn");
       document.getElementById("lblCustAddress").textContent = t("lblAddress");
       document.getElementById("custAddress").placeholder = t("phAddress");
       document.getElementById("lblCustNote").textContent = t("lblCustNote");
@@ -5302,6 +5522,12 @@
         if (lookupCancelBtn) lookupCancelBtn.classList.toggle("hidden", orders.length === 0);
         const emptyHdr = document.getElementById("orderTrackEmptyHeader");
         if (emptyHdr) emptyHdr.classList.toggle("hidden", orders.length > 0);
+        const pinNeededBox = document.getElementById("trackLookupPinNeeded");
+        if (pinNeededBox) pinNeededBox.classList.toggle("hidden", !state.needsPin);
+        const trackPinInput = document.getElementById("trackLookupPin");
+        if (trackPinInput) {
+          trackPinInput.placeholder = state.pinHasPin ? t("trackPinPh") : t("trackPinNewPh");
+        }
         if (state.customerPhone) {
           const pInp = document.getElementById("trackLookupPhone");
           if (pInp && !pInp.value) pInp.value = state.customerPhone;
@@ -5318,6 +5544,11 @@
             ? `📱 ${state.customerPhone} (${orders.length})`
             : `📦 ${orders.length} ${t("custOrdersLbl")}`;
         }
+        const pinBadge = document.getElementById("orderHistoryPinBadge");
+        const changePinBtnEl = document.getElementById("changePinToggleBtn");
+        const verifiedPin = isPinSessionValidForPhone(state.customerPhone);
+        if (pinBadge) pinBadge.classList.toggle("hidden", !verifiedPin);
+        if (changePinBtnEl) changePinBtnEl.classList.toggle("hidden", !verifiedPin);
       }
 
       // Filter pills inside modal
@@ -6047,6 +6278,21 @@
         return;
       }
 
+      const pinErrEl = document.getElementById("custPinError");
+      const pinInputEl = document.getElementById("custPin");
+      pinErrEl.classList.add("hidden");
+      let customerPinToSend = "";
+      if (!(state.checkoutPinStatus && state.checkoutPinStatus.verified && isPinSessionValidForPhone(cleanPhone))) {
+        const rawPin = ((pinInputEl && pinInputEl.value) || "").replace(/\D/g, "");
+        if (!/^\d{4}$/.test(rawPin)) {
+          pinErrEl.textContent = t("errInvalidPin");
+          pinErrEl.classList.remove("hidden");
+          if (pinInputEl) pinInputEl.focus();
+          return;
+        }
+        customerPinToSend = rawPin;
+      }
+
       const { detailedItems, couponWarning } = getCartSummary();
       if (detailedItems.length === 0) return;
       if (state.appliedCoupon && couponWarning) {
@@ -6091,6 +6337,7 @@
             address,
             customerNote,
             gpsLocation: state.gps,
+            customerPin: customerPinToSend,
             couponCode: state.appliedCoupon ? state.appliedCoupon.code : "",
             items: detailedItems.map(({ item, qty }) => ({
               menuItemId: item._id,
@@ -6105,6 +6352,9 @@
 
         if (res.order && res.order.accessToken) {
           saveOrderToken(res.order.orderNumber, res.order.accessToken);
+        }
+        if (res.customerPinSession) {
+          saveCustomerPinSession(cleanPhone, res.customerPinSession);
         }
         try {
           localStorage.setItem("gr_last_customer_v1", JSON.stringify({ name, phone: cleanPhone, address }));
@@ -6154,7 +6404,22 @@
       } catch (err) {
         clearTimeout(coldTimer);
         coldHint.classList.add("hidden");
-        if (err.code === "PHONE_BLOCKED") errBox.textContent = t("errBlocked");
+        const pinErrCatch = document.getElementById("custPinError");
+        if (err.code === "PIN_MISMATCH") {
+          pinErrCatch.textContent = t("errPinMismatch");
+          pinErrCatch.classList.remove("hidden");
+          errBox.textContent = t("errPinMismatch");
+        } else if (err.code === "PIN_LOCKED") {
+          pinErrCatch.textContent = t("errPinLocked");
+          pinErrCatch.classList.remove("hidden");
+          errBox.textContent = t("errPinLocked");
+        } else if (err.code === "PIN_REQUIRED") {
+          clearCustomerPinSession();
+          updateCheckoutPinUI();
+          pinErrCatch.textContent = t("errPinRequired");
+          pinErrCatch.classList.remove("hidden");
+          errBox.textContent = t("errPinRequired");
+        } else if (err.code === "PHONE_BLOCKED") errBox.textContent = t("errBlocked");
         else if (err.code === "SHOP_CLOSED") {
           errBox.textContent = t("errShopClosed");
           loadStoreData();
@@ -7810,7 +8075,14 @@
               </div>
               <span class="px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-800 text-xs font-extrabold">₹${c.totalSpent}</span>
             </div>
-            <div class="flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-2">
+            <div class="flex items-center justify-between text-xs border-t border-slate-100 pt-2">
+              <span class="font-bold ${c.hasPin ? "text-emerald-700" : "text-slate-400"}">${c.hasPin ? `🔑 PIN: <b>${escapeHtml(c.pin || "••••")}</b>` : `🔑 ${escapeHtml(t("adminPinNotSet"))}`}${c.pinLocked ? " 🔒" : ""}</span>
+              <div class="flex gap-1.5">
+                ${c.hasPin ? `<button type="button" data-copy-pin="${escapeHtml(c.phone)}" class="px-2 py-1 rounded-lg bg-slate-100 text-slate-700 font-bold">📋 ${escapeHtml(t("copyPinBtn"))}</button>` : ""}
+                <button type="button" data-pin-reset="${escapeHtml(c.phone)}" class="px-2 py-1 rounded-lg bg-amber-500 text-white font-bold">${escapeHtml(t(c.hasPin ? "adminPinChangeBtn" : "adminPinSetBtn"))}</button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between text-xs text-slate-500">
               <span>${escapeHtml(t("custOrdersLbl"))}: <b>${c.totalOrders}</b> (${escapeHtml(t("custDeliveredLbl"))}: ${c.deliveredOrders})</span>
               <div class="flex gap-1.5">
                 <a href="tel:${escapeHtml(c.phone)}" class="px-2 py-1 rounded-lg bg-emerald-600 text-white font-bold">📞 ${escapeHtml(c.phone)}</a>
@@ -8344,6 +8616,7 @@
       document.getElementById("checkoutErrorBox").classList.add("hidden");
       document.getElementById("phoneErrorMsg").classList.add("hidden");
       renderCheckoutDrawer();
+      updateCheckoutPinUI();
       document.getElementById("checkoutModal").classList.remove("hidden");
       const { totalItems } = getCartSummary();
       if (totalItems > 0 && state.pendingCouponCode && !state.appliedCoupon) {
@@ -8366,6 +8639,48 @@
     document.getElementById("trackLookupCancelBtn").addEventListener("click", () => {
       state.showPhoneLookup = false;
       renderRecentOrderCard();
+    });
+    document.getElementById("changePinToggleBtn").addEventListener("click", () => {
+      document.getElementById("changePinBox").classList.toggle("hidden");
+      document.getElementById("changePinError").classList.add("hidden");
+    });
+    document.getElementById("cancelChangePinBtn").addEventListener("click", () => {
+      document.getElementById("changePinBox").classList.add("hidden");
+      document.getElementById("changeOldPin").value = "";
+      document.getElementById("changeNewPin").value = "";
+    });
+    document.getElementById("saveChangePinBtn").addEventListener("click", async () => {
+      const errEl = document.getElementById("changePinError");
+      errEl.classList.add("hidden");
+      const oldPin = (document.getElementById("changeOldPin").value || "").replace(/\D/g, "");
+      const newPin = (document.getElementById("changeNewPin").value || "").replace(/\D/g, "");
+      const phone = state.customerPhone;
+      if (!phone || !/^\d{4}$/.test(oldPin) || !/^\d{4}$/.test(newPin)) {
+        errEl.textContent = t("errInvalidPin");
+        errEl.classList.remove("hidden");
+        return;
+      }
+      const btn = document.getElementById("saveChangePinBtn");
+      btn.disabled = true;
+      try {
+        const res = await apiFetch("/api/customers/change-pin", {
+          method: "POST",
+          body: JSON.stringify({ phone, oldPin, newPin }),
+        });
+        if (res.token) saveCustomerPinSession(phone, res.token);
+        document.getElementById("changePinBox").classList.add("hidden");
+        document.getElementById("changeOldPin").value = "";
+        document.getElementById("changeNewPin").value = "";
+        showToast(t("pinChangedToast"));
+        renderRecentOrderCard();
+      } catch (err) {
+        if (err && err.code === "PIN_MISMATCH") errEl.textContent = t("errPinMismatch");
+        else if (err && err.code === "PIN_LOCKED") errEl.textContent = t("errPinLocked");
+        else errEl.textContent = (err && err.message) || t("serverError");
+        errEl.classList.remove("hidden");
+      } finally {
+        btn.disabled = false;
+      }
     });
     document.getElementById("customerOrderSearchInput").addEventListener("input", (e) => {
       state.customerOrderSearch = e.target.value;
@@ -8394,11 +8709,33 @@
       const submitBtn = document.getElementById("trackLookupSubmitBtn");
       const orderNum = (document.getElementById("trackLookupOrderNum").value || "").trim().toUpperCase();
       const cleanPhone = normalizeIndianPhone(document.getElementById("trackLookupPhone").value);
+      const pinNeededEl = document.getElementById("trackLookupPinNeeded");
       errEl.classList.add("hidden");
+      if (pinNeededEl) pinNeededEl.classList.add("hidden");
       if (!cleanPhone) {
         errEl.textContent = t("errInvalidPhone");
         errEl.classList.remove("hidden");
         return;
+      }
+      const rawPin = ((document.getElementById("trackLookupPin") || {}).value || "").replace(/\D/g, "");
+      if (rawPin) {
+        if (!/^\d{4}$/.test(rawPin)) {
+          errEl.textContent = t("errInvalidPin");
+          errEl.classList.remove("hidden");
+          return;
+        }
+        submitBtn.disabled = true;
+        try {
+          await verifyOrSetPinForPhone(cleanPhone, rawPin);
+          showToast(t("pinVerifiedToast"));
+        } catch (pinErr) {
+          submitBtn.disabled = false;
+          if (pinErr && pinErr.code === "PIN_MISMATCH") errEl.textContent = t("errPinMismatch");
+          else if (pinErr && pinErr.code === "PIN_LOCKED") errEl.textContent = t("errPinLocked");
+          else errEl.textContent = (pinErr && pinErr.message) || t("serverError");
+          errEl.classList.remove("hidden");
+          return;
+        }
       }
       submitBtn.disabled = true;
       try {
@@ -8414,7 +8751,11 @@
           renderRecentOrderCard();
         } else {
           const histRes = await syncCustomerOrderHistory(cleanPhone, true);
-          if (!histRes || histRes.count === 0) {
+          if (histRes && histRes.needsPin) {
+            if (pinNeededEl) pinNeededEl.classList.remove("hidden");
+            errEl.textContent = t("pinNeededMsg");
+            errEl.classList.remove("hidden");
+          } else if (!histRes || histRes.count === 0) {
             state.showPhoneLookup = true;
             renderRecentOrderCard();
             errEl.textContent = t("trackNotFoundToast");
@@ -8422,7 +8763,12 @@
           }
         }
       } catch (err) {
-        errEl.textContent = (err && err.message) || t("trackNotFoundToast");
+        if (err && err.code === "PIN_REQUIRED") {
+          if (pinNeededEl) pinNeededEl.classList.remove("hidden");
+          errEl.textContent = t("pinNeededMsg");
+        } else {
+          errEl.textContent = (err && err.message) || t("trackNotFoundToast");
+        }
         errEl.classList.remove("hidden");
       } finally {
         submitBtn.disabled = false;
@@ -8431,6 +8777,7 @@
     document.getElementById("headerCartBtn").addEventListener("click", openCheckoutModalFromHeaderOrBar);
     document.getElementById("custPhone").addEventListener("input", () => {
       const clean = normalizeIndianPhone(document.getElementById("custPhone").value);
+      updateCheckoutPinUI();
       if (
         clean &&
         state.appliedCoupon &&
@@ -8466,6 +8813,45 @@
     document.getElementById("adminCustomerSearch").addEventListener("input", (e) => {
       state.adminCustomerSearch = e.target.value;
       renderAdminCustomers();
+    });
+    document.getElementById("adminCustomersList").addEventListener("click", async (e) => {
+      const copyBtn = e.target.closest("[data-copy-pin]");
+      if (copyBtn) {
+        const cust = state.adminCustomers.find((c) => c.phone === copyBtn.dataset.copyPin);
+        if (cust && cust.pin) {
+          try {
+            await navigator.clipboard.writeText(cust.pin);
+            showToast(t("copiedToast"));
+          } catch {
+            showToast(cust.pin, "info");
+          }
+        }
+        return;
+      }
+      const resetBtn = e.target.closest("[data-pin-reset]");
+      if (resetBtn) {
+        const phone = resetBtn.dataset.pinReset;
+        const entered = prompt(t("adminPinPrompt"), "");
+        if (entered === null) return;
+        const trimmed = String(entered || "").replace(/\D/g, "");
+        if (trimmed && !/^\d{4}$/.test(trimmed)) {
+          showToast(t("errInvalidPin"), true);
+          return;
+        }
+        resetBtn.disabled = true;
+        try {
+          const res = await apiFetch(`/api/admin/customers/${encodeURIComponent(phone)}/pin`, {
+            method: "POST",
+            body: JSON.stringify({ pin: trimmed || undefined }),
+          }, true);
+          showToast(t("adminPinUpdated", res.pin));
+          await refreshAdminData(false);
+        } catch (err) {
+          showToast((err && err.message) || t("serverError"), true);
+        } finally {
+          resetBtn.disabled = false;
+        }
+      }
     });
 
     document.getElementById("adminAutoRefreshBtn").addEventListener("click", () => {
@@ -10318,5 +10704,5 @@
       window.addEventListener("DOMContentLoaded", () => setTimeout(window.__notifyAppReady, 120));
     }
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a6103d8f6dc6a59b',t:'MTc5NTc3MzE1MA=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a6103d8f6dc6a59b',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a6110c47cef8fe79',t:'MTc5NTc4MTYxNw=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a6110c47cef8fe79',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
