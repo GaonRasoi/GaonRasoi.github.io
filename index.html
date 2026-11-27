@@ -2517,9 +2517,9 @@
       mpVillageFilter: "ALL",
       mpSearch: "",
       loginMode: "SUPER_ADMIN",
-      adminToken: sessionStorage.getItem("gr_admin_token") || "",
-      adminRole: sessionStorage.getItem("gr_admin_role") || "SUPER_ADMIN",
-      adminScopedShopId: sessionStorage.getItem("gr_admin_shop_id") || "",
+      adminToken: sessionStorage.getItem("gr_admin_token") || localStorage.getItem("gr_admin_token") || "",
+      adminRole: sessionStorage.getItem("gr_admin_role") || localStorage.getItem("gr_admin_role") || "SUPER_ADMIN",
+      adminScopedShopId: sessionStorage.getItem("gr_admin_shop_id") || localStorage.getItem("gr_admin_shop_id") || "",
       adminShopInfo: null,
       superOverview: null,
       superShopSearch: "",
@@ -3098,6 +3098,11 @@
       const iconMap = { light: "☀️", dark: "🌙", warm: "🌅" };
       const iconEl = document.getElementById("themeToggleIcon");
       if (iconEl) iconEl.textContent = iconMap[next] || "☀️";
+      try {
+        if (window.GaonRasoiNative && typeof window.GaonRasoiNative.onThemeChanged === "function") {
+          window.GaonRasoiNative.onThemeChanged(next);
+        }
+      } catch (_) {}
     }
 
     function cycleTheme() {
@@ -3270,20 +3275,22 @@
       }
     }
 
-    async function loadStoreData(retryAttempt = 0) {
+    async function loadStoreData(retryAttempt = 0, silent = false) {
       const banner = document.getElementById("serverBanner");
       const loader = document.getElementById("menuLoader");
       const hadCachedMenu = Array.isArray(state.menu) && state.menu.length > 0;
 
-      const slowTimer = setTimeout(() => {
-        banner.className = "rounded-2xl p-3 text-xs sm:text-sm font-semibold border bg-blue-50 border-blue-200 text-blue-800";
-        banner.textContent = hadCachedMenu
-          ? (state.lang === "hi"
-              ? "⏳ दुकान का सर्वर जाग रहा है — लाइव कीमतें व स्टॉक जुड़ रहे हैं, कृपया कुछ सेकंड प्रतीक्षा करें..."
-              : "⏳ Waking up shop server — syncing live prices & stock, please wait a few seconds...")
-          : t("serverWaking");
-        banner.classList.remove("hidden");
-      }, 2200);
+      const slowTimer = (silent && hadCachedMenu)
+        ? null
+        : setTimeout(() => {
+            banner.className = "rounded-2xl p-3 text-xs sm:text-sm font-semibold border bg-blue-50 border-blue-200 text-blue-800";
+            banner.textContent = hadCachedMenu
+              ? (state.lang === "hi"
+                  ? "⏳ दुकान का सर्वर जाग रहा है — लाइव कीमतें व स्टॉक जुड़ रहे हैं, कृपया कुछ सेकंड प्रतीक्षा करें..."
+                  : "⏳ Waking up shop server — syncing live prices & stock, please wait a few seconds...")
+              : t("serverWaking");
+            banner.classList.remove("hidden");
+          }, 2200);
 
       try {
         const qs = new URLSearchParams();
@@ -3291,7 +3298,7 @@
         else if (state.selectedShopId) qs.set("shopId", state.selectedShopId);
         const storeUrl = qs.toString() ? `/api/store?${qs.toString()}` : "/api/store";
         const data = await apiFetch(storeUrl);
-        clearTimeout(slowTimer);
+        if (slowTimer) clearTimeout(slowTimer);
         banner.classList.add("hidden");
         state.isInitialStoreLoading = false;
         state.isLiveServerSynced = true;
@@ -3356,7 +3363,17 @@
           }
         }
 
-        renderAll();
+        const nextStoreSig = JSON.stringify({
+          s: state.settings,
+          m: state.menu,
+          c: state.coupons,
+          mp: state.marketplace?.summary,
+        });
+        const storeChanged = state._lastStoreDataSig !== nextStoreSig;
+        state._lastStoreDataSig = nextStoreSig;
+        if (!silent || storeChanged) {
+          renderAll();
+        }
         startLiveTimerLoop();
         startCouponTimerLoop();
         if (state.customerPhone) {
@@ -3365,12 +3382,15 @@
           syncRecentOrderStatus();
         }
       } catch (err) {
-        clearTimeout(slowTimer);
+        if (slowTimer) clearTimeout(slowTimer);
+        if (silent && hadCachedMenu) {
+          return;
+        }
         if (retryAttempt < 1) {
           banner.className = "rounded-2xl p-3 text-xs sm:text-sm font-semibold border bg-blue-50 border-blue-200 text-blue-800";
           banner.textContent = t("serverWaking");
           banner.classList.remove("hidden");
-          setTimeout(() => loadStoreData(retryAttempt + 1), 2000);
+          setTimeout(() => loadStoreData(retryAttempt + 1, silent), 2000);
           return;
         }
         state.isInitialStoreLoading = false;
@@ -6279,6 +6299,11 @@
         sessionStorage.setItem("gr_admin_token", res.token);
         sessionStorage.setItem("gr_admin_role", state.adminRole);
         sessionStorage.setItem("gr_admin_shop_id", state.adminScopedShopId || "");
+        try {
+          localStorage.setItem("gr_admin_token", res.token);
+          localStorage.setItem("gr_admin_role", state.adminRole);
+          localStorage.setItem("gr_admin_shop_id", state.adminScopedShopId || "");
+        } catch (_) {}
         document.getElementById("adminLoginModal").classList.add("hidden");
         openAdminDashboard();
       } catch (err) {
@@ -6501,6 +6526,11 @@
       sessionStorage.removeItem("gr_admin_token");
       sessionStorage.removeItem("gr_admin_role");
       sessionStorage.removeItem("gr_admin_shop_id");
+      try {
+        localStorage.removeItem("gr_admin_token");
+        localStorage.removeItem("gr_admin_role");
+        localStorage.removeItem("gr_admin_shop_id");
+      } catch (_) {}
       document.getElementById("adminDashboard").classList.add("hidden");
     }
 
@@ -7112,10 +7142,29 @@
       document.getElementById("receiptModal").classList.remove("hidden");
     }
 
-    document.getElementById("printReceiptBtn").addEventListener("click", () => window.print());
+    document.getElementById("printReceiptBtn").addEventListener("click", () => {
+      try {
+        if (window.GaonRasoiNative && typeof window.GaonRasoiNative.printReceipt === "function") {
+          const ordMatch = (state.lastReceiptCopyText || "").match(/Order:\s*([A-Za-z0-9_-]+)/);
+          const jobTitle = ordMatch ? `GaonRasoi_${ordMatch[1]}` : "GaonRasoi_Bill_KOT";
+          window.GaonRasoiNative.printReceipt(jobTitle);
+          return;
+        }
+      } catch (_) {}
+      window.print();
+    });
     document.getElementById("copyReceiptBtn").addEventListener("click", () => {
       const text = state.lastReceiptCopyText || document.getElementById("receiptPrintArea").innerText;
-      navigator.clipboard?.writeText(text).then(() => showToast(t("copiedToast")));
+      try {
+        if (window.GaonRasoiNative && typeof window.GaonRasoiNative.copyToClipboard === "function") {
+          window.GaonRasoiNative.copyToClipboard(text);
+          showToast(t("copiedToast"));
+          return;
+        }
+      } catch (_) {}
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => showToast(t("copiedToast"))).catch(() => {});
+      }
     });
     document.getElementById("closeReceiptBtn").addEventListener("click", () => {
       document.getElementById("receiptModal").classList.add("hidden");
@@ -7189,6 +7238,12 @@
       const csv = rows
         .map((r) => r.map(sanitizeCsvCell).join(","))
         .join("\n");
+      try {
+        if (window.GaonRasoiNative && typeof window.GaonRasoiNative.saveCsvFile === "function") {
+          window.GaonRasoiNative.saveCsvFile(filename, "\uFEFF" + csv);
+          return;
+        }
+      } catch (_) {}
       const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -8426,8 +8481,13 @@
 
     document.getElementById("shuffleMenuBtn").addEventListener("click", () => rotateMenuDiscovery(true));
     document.getElementById("refreshMenuBtn").addEventListener("click", async () => {
+      try {
+        if (window.GaonRasoiNative && typeof window.GaonRasoiNative.checkLiveUpdateNow === "function") {
+          window.GaonRasoiNative.checkLiveUpdateNow();
+        }
+      } catch (_) {}
       rotateMenuDiscovery(false);
-      await loadStoreData();
+      await loadStoreData(0, false);
       showToast(t("shuffledToast"));
     });
     document.getElementById("openCheckoutBtn").addEventListener("click", openCheckoutModalFromHeaderOrBar);
@@ -8950,13 +9010,18 @@
     // =========================================================================
 
     function getShopShareUrl(slug) {
-      const base = `${location.origin}${location.pathname}`;
+      const base = isInsideGaonRasoiApp() ? "https://gaonrasoi.github.io/" : `${location.origin}${location.pathname}`;
       return slug ? `${base}?shop=${encodeURIComponent(slug)}` : base;
     }
 
     async function copyShopLink(slug) {
       const url = getShopShareUrl(slug);
       try {
+        if (window.GaonRasoiNative && typeof window.GaonRasoiNative.copyToClipboard === "function") {
+          window.GaonRasoiNative.copyToClipboard(url);
+          showToast(state.lang === "hi" ? "🔗 दुकान का डायरेक्ट लिंक कॉपी हो गया!" : "🔗 Shop link copied!", "info");
+          return;
+        }
         if (navigator.clipboard && navigator.clipboard.writeText) {
           await navigator.clipboard.writeText(url);
         } else {
@@ -9919,15 +9984,17 @@
         "adminDashboard",
         "adminLoginModal",
         "checkoutModal",
+        "orderSuccessModal",
+        "orderTrackModal",
         "productDetailModal",
-        "orderHistoryModal",
+        "manualOrderModal",
         "marketplaceModal",
         "legalPageModal",
         "customConfirmModal",
         "superWalletModal",
         "superEditShopModal",
         "walletLedgerModal",
-        "orderReceiptModal",
+        "receiptModal",
         "appInstallPopupModal",
       ];
       return ids.some((id) => {
@@ -10045,7 +10112,211 @@
     hydrateStoreFromCache();
     renderAll();
     checkLegalHashOnLoad();
-    loadStoreData();
+    loadStoreData(0, false);
+
+    // =========================================================================
+    // ANDROID NATIVE BRIDGE + INSTANT WEBSITE-TO-APK LIVE SYNC ENGINE (1:1)
+    // =========================================================================
+    window.__handleAndroidBack = function () {
+      try {
+        const cm = document.getElementById("customConfirmModal");
+        if (cm && !cm.classList.contains("hidden")) {
+          resolveCustomConfirm(false);
+          return "HANDLED";
+        }
+        const priorityModals = [
+          "appInstallPopupModal",
+          "superWalletModal",
+          "superEditShopModal",
+          "walletLedgerModal",
+          "receiptModal",
+          "manualOrderModal",
+          "marketplaceModal",
+          "legalPageModal",
+          "adminLoginModal",
+          "productDetailModal",
+          "orderSuccessModal",
+          "orderTrackModal",
+          "checkoutModal"
+        ];
+        for (const id of priorityModals) {
+          const el = document.getElementById(id);
+          if (el && !el.classList.contains("hidden")) {
+            if (id === "legalPageModal") {
+              closeLegalPage();
+            } else if (id === "appInstallPopupModal") {
+              dismissAppInstallPopup();
+            } else {
+              el.classList.add("hidden");
+              if (id === "orderTrackModal" && state.orderTrackTimerInterval) {
+                const successOpen = !document.getElementById("orderSuccessModal").classList.contains("hidden");
+                if (!successOpen) {
+                  clearInterval(state.orderTrackTimerInterval);
+                  state.orderTrackTimerInterval = null;
+                }
+              }
+            }
+            return "HANDLED";
+          }
+        }
+        const menuFormCard = document.getElementById("menuItemFormCard");
+        const adminDash = document.getElementById("adminDashboard");
+        if (adminDash && !adminDash.classList.contains("hidden")) {
+          if (menuFormCard && !menuFormCard.classList.contains("hidden")) {
+            menuFormCard.classList.add("hidden");
+            return "HANDLED";
+          }
+          stopAdminAutoRefresh();
+          adminDash.classList.add("hidden");
+          loadStoreData(0, true);
+          return "HANDLED";
+        }
+        if (state.menuSearch && state.menuSearch.trim()) {
+          const inp = document.getElementById("customerMenuSearch");
+          if (inp) inp.value = "";
+          state.menuSearch = "";
+          state.menuVisibleCount = MENU_PAGE_SIZE;
+          renderQuickSearchChips();
+          renderMenuGrid();
+          return "HANDLED";
+        }
+        if (state.selectedCategory && state.selectedCategory !== "All") {
+          state.selectedCategory = "All";
+          state.menuVisibleCount = MENU_PAGE_SIZE;
+          renderCategoryPills();
+          renderMenuGrid();
+          return "HANDLED";
+        }
+      } catch (_) {}
+      return "EXIT";
+    };
+
+    // Guard so live hot-reload never interrupts active order submission or typing in forms
+    window.__isBusyForHotReload = function () {
+      try {
+        if (state.isPlacingOrder) return true;
+        const activeEl = document.activeElement;
+        if (activeEl && ["INPUT", "TEXTAREA", "SELECT"].includes(activeEl.tagName)) {
+          if (activeEl.id !== "customerMenuSearch") return true;
+        }
+        const blockingModals = [
+          "checkoutModal",
+          "orderSuccessModal",
+          "adminDashboard",
+          "adminLoginModal",
+          "manualOrderModal",
+          "superWalletModal",
+          "superEditShopModal",
+          "customConfirmModal"
+        ];
+        for (const id of blockingModals) {
+          const el = document.getElementById(id);
+          if (el && !el.classList.contains("hidden")) return true;
+        }
+      } catch (_) {}
+      return false;
+    };
+
+    window.__pendingLiveWebsiteUpdate = false;
+    window.__notifyLiveUpdatePending = function () {
+      window.__pendingLiveWebsiteUpdate = true;
+      let pill = document.getElementById("grLiveUpdateReadyPill");
+      if (!pill) {
+        pill = document.createElement("button");
+        pill.id = "grLiveUpdateReadyPill";
+        pill.type = "button";
+        pill.className = "fixed top-3 left-1/2 -translate-x-1/2 z-[90] px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-xl flex items-center gap-2 transition active:scale-95";
+        pill.innerHTML = "✨ नया अपडेट आ गया है — अभी लागू करें ↻";
+        pill.addEventListener("click", () => location.reload());
+        document.body.appendChild(pill);
+      }
+      pill.classList.remove("hidden");
+    };
+
+    // Apply deferred website update automatically once user finishes checkout/admin modal
+    setInterval(() => {
+      if (window.__pendingLiveWebsiteUpdate && !window.__isBusyForHotReload()) {
+        window.__pendingLiveWebsiteUpdate = false;
+        location.reload();
+      }
+    }, 3000);
+
+    // Browser-side ETag watcher so open Chrome tabs also auto-sync website HTML updates
+    let __initialPageEtag = null;
+    async function checkBrowserHtmlVersionSync() {
+      if (isInsideGaonRasoiApp()) return; // Native APK handles HTML ETag/SHA-256 sync directly in Java
+      if (location.hostname === "localhost" || location.hostname === "127.0.0.1") return;
+      try {
+        const res = await fetch(`${location.origin}${location.pathname}?_gr_etag=${Date.now()}`, {
+          method: "HEAD",
+          cache: "no-store"
+        });
+        if (!res.ok) return;
+        const etag = res.headers.get("etag") || res.headers.get("last-modified") || "";
+        if (!etag) return;
+        if (__initialPageEtag === null) {
+          __initialPageEtag = etag;
+        } else if (__initialPageEtag !== etag) {
+          __initialPageEtag = etag;
+          if (!window.__isBusyForHotReload()) {
+            location.reload();
+          } else {
+            window.__notifyLiveUpdatePending();
+          }
+        }
+      } catch (_) {}
+    }
+    setTimeout(checkBrowserHtmlVersionSync, 4000);
+
+    function triggerInstantLiveSync() {
+      try {
+        if (!document.getElementById("adminDashboard").classList.contains("hidden")) {
+          refreshAdminData(true);
+        } else if (!state.isPlacingOrder) {
+          loadStoreData(0, true);
+        }
+        checkBrowserHtmlVersionSync();
+      } catch (_) {}
+    }
+
+    window.__onNativeAppResume = function () {
+      triggerInstantLiveSync();
+    };
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        triggerInstantLiveSync();
+      }
+    });
+
+    window.addEventListener("online", () => {
+      triggerInstantLiveSync();
+      try {
+        if (window.GaonRasoiNative && typeof window.GaonRasoiNative.checkLiveUpdateNow === "function") {
+          window.GaonRasoiNative.checkLiveUpdateNow();
+        }
+      } catch (_) {}
+    });
+
+    // Silent background store data sync every 45s while visible (updates menu, stock, timer & shop status automatically)
+    setInterval(() => {
+      if (!document.hidden && document.getElementById("adminDashboard").classList.contains("hidden") && !state.isPlacingOrder) {
+        loadStoreData(0, true);
+      }
+    }, 45000);
+
+    window.__notifyAppReady = function () {
+      try {
+        if (window.GaonRasoiNative && typeof window.GaonRasoiNative.onAppReady === "function") {
+          window.GaonRasoiNative.onAppReady(state.theme || "light");
+        }
+      } catch (_) {}
+    };
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+      setTimeout(window.__notifyAppReady, 120);
+    } else {
+      window.addEventListener("DOMContentLoaded", () => setTimeout(window.__notifyAppReady, 120));
+    }
   </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a6103d8f6dc6a59b',t:'MTc5NTc3MzE1MA=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a6103d8f6dc6a59b',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
