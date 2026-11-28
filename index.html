@@ -2117,6 +2117,9 @@
         gpsAccuracySearching: "🎯 सटीकता: जाँच हो रही है...",
         gpsLockedExact: (m) => `🎯 ±${m}m सटीक`,
         gpsSkyTip: "💡 5–10 मीटर की सटीक लोकेशन के लिए कृपया खुले आसमान, आँगन या खिड़की के पास खड़े हों और मोबाइल High-Accuracy GPS चालू रखें।",
+        gpsTimeoutTip: "⏳ GPS सिग्नल लेने में समय लग रहा है (Timeout) — कृपया खुले आसमान या आँगन में आएं, खोज जारी है।",
+        gpsUnavailableTip: "📡 GPS सिग्नल उपलब्ध नहीं है — कृपया मोबाइल की Location (High Accuracy) चालू करें।",
+        gpsFallbackTooWide: (m) => `अभी सटीकता ±${m}m मिली है (5–10m से कम चाहिए)। कृपया खुले आसमान के नीचे आकर फिर से प्रयास करें।`,
         gpsPinAdjustBtn: "📌 मैप पर पिन खिसकाकर ठीक करें (दरवाज़े पर सेट)",
         gpsPinAdjustedPill: (m) => `📌 दरवाज़े पर सेट (${m}m खिसकाया)`,
         gpsPinMapTitle: "📌 मैप खिसकाकर पिन अपने दरवाज़े पर रखें",
@@ -2498,6 +2501,9 @@
         gpsAccuracySearching: "🎯 Accuracy: measuring...",
         gpsLockedExact: (m) => `🎯 ±${m}m Exact`,
         gpsSkyTip: "💡 For 5–10m GPS precision, please step near a window or open sky and ensure High-Accuracy Location is turned ON.",
+        gpsTimeoutTip: "⏳ GPS signal timed out — please step under open sky or near a window, still searching.",
+        gpsUnavailableTip: "📡 GPS signal unavailable — please turn ON your device Location (High Accuracy).",
+        gpsFallbackTooWide: (m) => `Current accuracy is ±${m}m (needs 5–10m). Please step outdoors under open sky and try again.`,
         gpsPinAdjustBtn: "📌 Move Pin on Map (Set at Doorstep)",
         gpsPinAdjustedPill: (m) => `📌 Doorstep set (+${m}m moved)`,
         gpsPinMapTitle: "📌 Slide Map to Place Pin at Your Doorstep",
@@ -4041,13 +4047,13 @@
     };
 
     const SEARCH_SYNONYM_GROUPS = [
-      ["samosa", "samose", "samosas", "smosa", "samosha", "samoosa", "samsa", "samoa", "samso", "समोसा", "समौसा", "समोसे", "समोशा"],
+      ["samosa", "samose", "samosas", "smosa", "smsa", "samosha", "samoosa", "samsa", "samoa", "samso", "समोसा", "समौसा", "समोसे", "समोशा"],
       ["patties", "paties", "patis", "petis", "patiz", "petiz", "pattiz", "patty", "pattice", "patti", "pettij", "petij", "पफ", "पैटीज", "पेटीज", "पेटिज", "पैटी", "पैटिस"],
-      ["burger", "barger", "bargar", "burgar", "burgur", "burgr", "tikki", "टिक्की", "बर्गर", "बरगर"],
+      ["burger", "barger", "bargar", "burgar", "burgur", "burgr", "brgr", "tikki", "टिक्की", "बर्गर", "बरगर"],
       ["chowmein", "chowmin", "chawmin", "chaumin", "chaumeen", "chomin", "chowmen", "chawmein", "noodles", "चाउमीन", "चाउमिन", "चाऊमीन", "चोमिन", "चौमीन", "नूडल्स"],
       ["egg", "anda", "ande", "अंडा", "अन्डा", "अंडे", "एग"],
       ["momos", "momo", "momoz", "momoj", "momoje", "momose", "dumpling", "dumplings", "steamed", "मोमोज", "मोमो", "मोमोस", "मॉमोज", "मॉमो"],
-      ["kachori", "kachodi", "kachaudi", "kachauri", "sabzi", "sabji", "कचौड़ी", "कचौरी", "कचोरी", "कचोड़ी", "सब्जी"],
+      ["kachori", "kachodi", "kchori", "kchodi", "kachaudi", "kachauri", "sabzi", "sabji", "कचौड़ी", "कचौरी", "कचोरी", "कचोड़ी", "सब्जी"],
       ["bread", "bred", "pakora", "pakoda", "pakode", "pkoda", "pkora", "pakoura", "ब्रेड", "पकौड़ा", "पकोड़ा", "पकोडा", "पकौड़े", "पकोड़े"],
       ["aloo", "alu", "aalu", "aaloo", "आलू"],
       ["cold drink", "colddrink", "coldrink", "coldrinks", "cold drinks", "soft drink", "softdrink", "thanda", "bottle", "botal", "कोल्ड ड्रिंक", "कोल्ड ड्रिंक्स", "कोल्ड्रिंक", "पेय", "ठंडा", "ठण्डा", "थंडा", "बोतल"],
@@ -4083,11 +4089,11 @@
       ["litre", "liter", "ltr", "लीटर"],
       // Multi-shop rural marketplace foods (for 100+ partner village shops)
       ["chai", "chay", "tea", "kulhad", "चाय", "कुल्हड़"],
-      ["coffee", "koffee", "cofi", "कॉफी", "कॉफ़ी", "काफी"],
+      ["coffee", "koffee", "cofi", "kafi", "कॉफी", "कॉफ़ी", "काफी"],
       ["jalebi", "jlebi", "jaleebi", "जलेबी"],
       ["gulab jamun", "jamun", "गुलाब जामुन", "जामुन"],
       ["mithai", "sweet", "sweets", "barfi", "ladoo", "laddu", "peda", "rasgulla", "मिठाई", "मिठाईयां", "बर्फी", "लड्डू", "पेड़ा", "रसगुल्ला"],
-      ["maggi", "maggie", "magi", "मैगी", "मैग्गी"],
+      ["maggi", "maggie", "magi", "megi", "मैगी", "मैग्गी"],
       ["pizza", "piza", "pijja", "पिज़्ज़ा", "पिज्जा", "पिजा"],
       ["pasta", "पास्ता"],
       ["sandwich", "sandwitch", "सैंडविच", "सेंडविच"],
@@ -4104,7 +4110,7 @@
       ["dosa", "dosha", "डोसा"],
       ["idli", "इडली"],
       ["biryani", "biriyani", "pulao", "बिरयानी", "पुलाव"],
-      ["lassi", "lasi", "chhachh", "chaas", "लस्सी", "छाछ"],
+      ["lassi", "lasi", "lsi", "chhachh", "chaas", "लस्सी", "छाछ"],
       ["juice", "jus", "shake", "milkshake", "जूस", "शेक"],
       ["ice cream", "icecream", "kulfi", "आइसक्रीम", "कुल्फी"],
     ];
@@ -4119,6 +4125,8 @@
         .replace(/\u0949/g, "\u094b") // ॉ -> ो
         .replace(/\u0901/g, "\u0902") // ँ -> ं
         .replace(/[\u0966-\u096f]/g, (ch) => String(ch.charCodeAt(0) - 0x0966)) // ०-९ -> 0-9
+        .replace(/₹\s*(\d+)/g, " $1 rs ")
+        .replace(/(\d+)\s*₹/g, " $1 rs ")
         .replace(/(\d)\.(\d)/g, "$1__DOT__$2")
         .replace(/[₹()\[\]+\-_/.,!?;:'"`|]+/g, " ")
         .replace(/__DOT__/g, ".")
@@ -4151,11 +4159,15 @@
         .replace(/\bcoldrinks?\b/g, "cold drink")
         .replace(/\bsoft\s*drinks?\b/g, "soft drink")
         .replace(/\bsoftdrinks?\b/g, "soft drink")
+        .replace(/\bcoca\s*cola\b/g, "cola")
+        .replace(/\bcoke\b/g, "cola")
         .replace(/\bkampa\s*kola\b/g, "campa cola")
         .replace(/\bcampakola\b/g, "campa cola")
         .replace(/\bmountaindew\b/g, "mountain dew")
         .replace(/\bredbull\b/g, "red bull")
         .replace(/\bgoldboost\b/g, "gold boost")
+        .replace(/\b(\d+)\s*(rs|rupees|rupaye)\b/g, "$1 $2")
+        .replace(/\b(rs|rupees|rupaye)\s*(\d+)\b/g, "$1 $2")
         .replace(/\bnon\s+veg\b/g, "nonveg")
         .replace(/(?:नॉन|नोन|नान)\s*वेज/g, "nonveg")
         .replace(/\bpure\s+veg\b/g, "veg")
@@ -4228,7 +4240,7 @@
         q = q.replace(/(?:^|\s)free delivery(?=\s|$)/g, " ").replace(/\s+/g, " ").trim();
       }
 
-      const underMatch = q.match(/(?:^|\s)(?:under|below|upto|less than)\s+(?:rs|rupees|rupaye|रुपये|रुपए)?\s*(\d+)(?=\s|$)/) ||
+      const underMatch = q.match(/(?:^|\s)(?:under|below|upto|less than)\s+(?:rs|rupees|rupaye|रुपये|रुपए)?\s*(\d+)(?:\s+(?:rs|rupees|rupaye|रुपये|रुपए))?(?=\s|$)/) ||
         q.match(/(?:^|\s)(\d+)\s+(?:(?:rs|rupees|rupaye|रुपये|रुपए)\s+)?(?:ke andar|ke niche|se kam|under|below|tk|tak|के अंदर|के अन्दर|के नीचे|से कम|तक)(?=\s|$)/) ||
         q.match(/^(?:<|<=)\s*(\d+)$/);
       if (underMatch) {
@@ -4252,6 +4264,14 @@
           ) {
             exactPrice = n;
             q = "";
+          }
+        } else {
+          const itemCurrencyMatch =
+            q.match(/(?:^|\s)(?:rs|rupees|rupaye|रुपये|रुपए)\s*(\d{2,3})(?=\s|$)/) ||
+            q.match(/(?:^|\s)(\d{2,3})\s*(?:rs|rupees|rupaye|रुपये|रुपए)(?=\s|$)/);
+          if (itemCurrencyMatch) {
+            maxPrice = Number(itemCurrencyMatch[1]);
+            q = q.replace(itemCurrencyMatch[0], " ").replace(/\s+/g, " ").trim();
           }
         }
       }
@@ -6404,7 +6424,7 @@
     });
 
     // GPS & Checkout (Strict 5-10m Real Live GPS Lock + Draggable Satellite/Street Map Pin)
-    const GPS_TARGET_MAX_ACCURACY_M = 10;
+    const GPS_TARGET_MAX_ACCURACY_M = 10.5;
 
     function haversineMeters(lat1, lng1, lat2, lng2) {
       const R = 6371000;
@@ -6500,29 +6520,63 @@
       const centerPx = latLngToWorldPx(m.lat, m.lng, m.zoom);
       const topLeftPxX = centerPx.x - vw / 2;
       const topLeftPxY = centerPx.y - vh / 2;
-      const maxTile = Math.pow(2, m.zoom);
 
-      const minTx = Math.floor(topLeftPxX / 256);
-      const maxTx = Math.floor((topLeftPxX + vw) / 256);
-      const minTy = Math.max(0, Math.floor(topLeftPxY / 256));
-      const maxTy = Math.min(maxTile - 1, Math.floor((topLeftPxY + vh) / 256));
+      // Cap Esri World Imagery native tile fetch at zoom 18 (upscaled cleanly at zoom 19 for rural villages)
+      const tileZoom = m.layer === "sat" ? Math.min(18, m.zoom) : m.zoom;
+      const scaleFactor = Math.pow(2, m.zoom - tileZoom);
+      const tileSizePx = 256 * scaleFactor;
+      const maxTile = Math.pow(2, tileZoom);
 
-      const fragHtml = [];
+      const minTx = Math.floor(topLeftPxX / tileSizePx);
+      const maxTx = Math.floor((topLeftPxX + vw) / tileSizePx);
+      const minTy = Math.max(0, Math.floor(topLeftPxY / tileSizePx));
+      const maxTy = Math.min(maxTile - 1, Math.floor((topLeftPxY + vh) / tileSizePx));
+
+      const existingByKey = new Map();
+      if (tilesLayer.children && tilesLayer.children.length) {
+        Array.from(tilesLayer.children).forEach((node) => {
+          const k = node && node.dataset ? node.dataset.tileKey : "";
+          if (k) existingByKey.set(k, node);
+        });
+      }
+      const activeKeys = new Set();
+
       for (let ty = minTy; ty <= maxTy; ty++) {
         for (let tx = minTx; tx <= maxTx; tx++) {
           const wrapTx = ((tx % maxTile) + maxTile) % maxTile;
-          const left = Math.round(tx * 256 - topLeftPxX);
-          const top = Math.round(ty * 256 - topLeftPxY);
-          const url =
-            m.layer === "sat"
-              ? `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${m.zoom}/${ty}/${wrapTx}`
-              : `https://tile.openstreetmap.org/${m.zoom}/${wrapTx}/${ty}.png`;
-          fragHtml.push(
-            `<img src="${url}" alt="" draggable="false" onerror="this.style.opacity='0'" style="position:absolute;left:${left}px;top:${top}px;width:256px;height:256px;max-width:none;user-select:none;" />`
-          );
+          const left = Math.round(tx * tileSizePx - topLeftPxX);
+          const top = Math.round(ty * tileSizePx - topLeftPxY);
+          const tileKey = `${m.layer}_${tileZoom}_${ty}_${wrapTx}_${tx}`;
+          activeKeys.add(tileKey);
+
+          let img = existingByKey.get(tileKey);
+          if (!img) {
+            img = document.createElement("img");
+            img.alt = "";
+            img.draggable = false;
+            img.dataset.tileKey = tileKey;
+            img.src =
+              m.layer === "sat"
+                ? `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${tileZoom}/${ty}/${wrapTx}`
+                : `https://tile.openstreetmap.org/${tileZoom}/${wrapTx}/${ty}.png`;
+            img.onerror = function () { this.style.opacity = "0"; };
+            img.style.position = "absolute";
+            img.style.maxWidth = "none";
+            img.style.userSelect = "none";
+            tilesLayer.appendChild(img);
+          }
+          img.style.left = `${left}px`;
+          img.style.top = `${top}px`;
+          img.style.width = `${tileSizePx}px`;
+          img.style.height = `${tileSizePx}px`;
         }
       }
-      tilesLayer.innerHTML = fragHtml.join("");
+
+      for (const [k, node] of existingByKey.entries()) {
+        if (!activeKeys.has(k) && node.parentNode === tilesLayer) {
+          tilesLayer.removeChild(node);
+        }
+      }
 
       // Draw original locked GPS blue dot & real accuracy radius circle
       const originEl = document.getElementById("gpsOriginMarker");
@@ -6640,6 +6694,13 @@
 
         // Strictly do NOT lock until real GPS accuracy reaches 5-10 meters (<= 10m)
         if (!Number.isFinite(acc) || acc > GPS_TARGET_MAX_ACCURACY_M) {
+          if (state.gpsWatchId === -1) {
+            stopGpsWatch(false);
+            statusEl.className = "text-xs text-amber-700 font-semibold text-center";
+            statusEl.textContent = t("gpsFallbackTooWide", Math.round(accRounded));
+            statusEl.classList.remove("hidden");
+            return;
+          }
           if (skyTip && Date.now() - state.gpsWatchStartedAt >= 9000) {
             skyTip.textContent = t("gpsSkyTip");
             skyTip.classList.remove("hidden");
@@ -6669,8 +6730,21 @@
           statusEl.className = "text-xs text-red-600 font-semibold text-center";
           statusEl.textContent = t("gpsDenied");
           statusEl.classList.remove("hidden");
+          return;
+        }
+        const tipText =
+          err && err.code === 3
+            ? t("gpsTimeoutTip")
+            : err && err.code === 2
+            ? t("gpsUnavailableTip")
+            : t("gpsSkyTip");
+        if (state.gpsWatchId === -1) {
+          stopGpsWatch(false);
+          statusEl.className = "text-xs text-amber-700 font-semibold text-center";
+          statusEl.textContent = tipText;
+          statusEl.classList.remove("hidden");
         } else if (skyTip) {
-          skyTip.textContent = t("gpsSkyTip");
+          skyTip.textContent = tipText;
           skyTip.classList.remove("hidden");
         }
       };
@@ -7542,16 +7616,22 @@
 
             <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 flex-wrap">
               <div class="flex items-center gap-1.5 flex-wrap">
-                <select data-ord-status="${ord._id}" class="rounded-xl border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-800">
-                  ${["Pending", "Cooking", "Out for Delivery", "Delivered", "Cancelled"]
-                    .map(
-                      (st) =>
-                        `<option value="${st}" ${ord.status === st ? "selected" : ""}>${escapeHtml(
-                          TRANSLATIONS[state.lang].statuses[st] || st
-                        )}</option>`
-                    )
-                    .join("")}
-                </select>
+                ${(() => {
+                  const isVendorLockedDelivered = state.adminRole !== "SUPER_ADMIN" && (ord.status === "Delivered" || ord.platformFeeDeducted);
+                  if (isVendorLockedDelivered) {
+                    return `<span class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 text-xs font-extrabold" title="${escapeHtml(state.lang === "hi" ? "डिलीवर्ड ऑर्डर लॉक है — बदला नहीं जा सकता" : "Delivered order is locked")}">🔒 ${escapeHtml(TRANSLATIONS[state.lang].statuses[ord.status] || ord.status)}</span>`;
+                  }
+                  return `<select data-ord-status="${ord._id}" class="rounded-xl border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-800">
+                    ${["Pending", "Cooking", "Out for Delivery", "Delivered", "Cancelled"]
+                      .map(
+                        (st) =>
+                          `<option value="${st}" ${ord.status === st ? "selected" : ""}>${escapeHtml(
+                            TRANSLATIONS[state.lang].statuses[st] || st
+                          )}</option>`
+                      )
+                      .join("")}
+                  </select>`;
+                })()}
                 <select data-ord-rider="${ord._id}" class="rounded-xl border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-700">
                   ${riderOptions}
                 </select>
@@ -7577,9 +7657,11 @@
                   }">
                   🚫 ${escapeHtml(isBlocked ? t("alreadyBlocked") : t("blockNumber"))}
                 </button>
-                <button type="button" data-del-ord="${ord._id}" class="px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-500 hover:text-red-700 border border-slate-200 text-xs font-bold">
-                  🗑️
-                </button>
+                ${
+                  state.adminRole === "SUPER_ADMIN" || (ord.status !== "Delivered" && !ord.platformFeeDeducted && !(ord.source === "Website" && ord.status !== "Cancelled"))
+                    ? `<button type="button" data-del-ord="${ord._id}" class="px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-500 hover:text-red-700 border border-slate-200 text-xs font-bold">🗑️</button>`
+                    : ""
+                }
               </div>
             </div>
 
@@ -7733,6 +7815,7 @@
             await refreshAdminData();
           } catch (err) {
             showToast(err.message, true);
+            renderAdminOrders();
           }
         });
       });
@@ -11293,5 +11376,5 @@
       window.addEventListener("DOMContentLoaded", () => setTimeout(window.__notifyAppReady, 120));
     }
   </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a616ff1b6fe04700',t:'MTc5NTg0Mzk5Mg=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a616ff1b6fe04700',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
