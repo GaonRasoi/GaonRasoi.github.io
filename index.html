@@ -57,12 +57,13 @@
     @media print {
       @page {
         size: auto;
-        margin: 6mm;
+        margin: 8mm;
       }
       html, body {
         background: #ffffff !important;
         margin: 0 !important;
         padding: 0 !important;
+        width: 100% !important;
         height: auto !important;
         min-height: 0 !important;
         overflow: visible !important;
@@ -79,16 +80,18 @@
         padding: 0 !important;
         margin: 0 auto !important;
         width: 100% !important;
-        max-width: 540px !important;
+        max-width: 174mm !important;
       }
       #receiptModalCard {
         box-shadow: none !important;
-        border: 1px solid #cbd5e1 !important;
-        border-radius: 0 !important;
+        border: 1.5px solid #cbd5e1 !important;
+        border-radius: 12px !important;
         max-height: none !important;
         overflow: visible !important;
         display: block !important;
         width: 100% !important;
+        max-width: none !important;
+        margin: 0 auto !important;
         background: #ffffff !important;
       }
       #receiptModalFooter {
@@ -104,20 +107,96 @@
         left: auto !important;
         top: auto !important;
         width: 100% !important;
+        max-width: none !important;
         background: #ffffff !important;
         color: #0f172a !important;
-        padding: 14px 16px !important;
-        font-size: 13px !important;
+        padding: 20px 24px !important;
+        font-size: 14.5px !important;
+        line-height: 1.45 !important;
         overflow: visible !important;
         max-height: none !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
       }
     }
+    @media print and (min-width: 110mm) {
+      #receiptModal {
+        max-width: 176mm !important;
+      }
+      #receiptPrintArea {
+        padding: 24px 30px !important;
+        font-size: 15.5px !important;
+      }
+      #receiptPrintArea .receipt-logo-badge {
+        width: 58px !important;
+        height: 58px !important;
+      }
+      #receiptPrintArea .receipt-shop-title {
+        font-size: 24px !important;
+        line-height: 1.25 !important;
+      }
+      #receiptPrintArea .receipt-site-url {
+        font-size: 13.5px !important;
+      }
+      #receiptPrintArea .receipt-order-line {
+        font-size: 14.5px !important;
+      }
+      #receiptPrintArea .receipt-time-line {
+        font-size: 13px !important;
+      }
+      #receiptPrintArea .receipt-cust-box,
+      #receiptPrintArea .receipt-item-row,
+      #receiptPrintArea .receipt-summary-row {
+        font-size: 15px !important;
+        line-height: 1.5 !important;
+      }
+      #receiptPrintArea .receipt-grand-total {
+        font-size: 19px !important;
+        padding-top: 8px !important;
+        margin-top: 6px !important;
+      }
+      #receiptPrintArea .receipt-kot-item {
+        font-size: 15.5px !important;
+        padding-top: 6px !important;
+        padding-bottom: 6px !important;
+      }
+      #receiptPrintArea .receipt-kot-qty {
+        font-size: 14px !important;
+        padding: 3px 10px !important;
+      }
+      #receiptPrintArea .receipt-watermark-seal {
+        width: 340px !important;
+        height: 340px !important;
+      }
+    }
+    @media print and (max-width: 95mm) {
+      @page {
+        margin: 2mm;
+      }
+      #receiptModal {
+        max-width: 100% !important;
+      }
+      #receiptModalCard {
+        border: none !important;
+        border-radius: 0 !important;
+      }
+      #receiptPrintArea {
+        padding: 4px 6px !important;
+        font-size: 11.5px !important;
+      }
+    }
     html[data-theme="dark"] #receiptPrintArea,
-    html[data-theme="warm"] #receiptPrintArea {
+    html[data-theme="warm"] #receiptPrintArea,
+    html[data-theme="dark"] #receiptPrintArea .bg-white,
+    html[data-theme="warm"] #receiptPrintArea .bg-white {
       background-color: #ffffff !important;
       color: #0f172a !important;
+    }
+    html[data-theme="dark"] #receiptPrintArea .bg-amber-50\/20,
+    html[data-theme="dark"] #receiptPrintArea .bg-amber-100\/80,
+    html[data-theme="dark"] #receiptPrintArea .bg-amber-100\/75 {
+      background-color: #fffbeb !important;
+      color: #451a03 !important;
     }
     html[data-theme="dark"] #receiptPrintArea .text-slate-900,
     html[data-theme="dark"] #receiptPrintArea .text-slate-800 {
@@ -1882,6 +1961,52 @@
           हाँ, हटाएँ
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- CUSTOM ADMIN CUSTOMER PIN RESET MODAL (replaces native browser prompt popup) -->
+  <div id="adminPinResetModal" class="hidden fixed inset-0 z-[80] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="adminPinResetTitle">
+    <div class="bg-white rounded-3xl max-w-sm w-full shadow-2xl border border-slate-200 overflow-hidden animate-slide-up">
+      <form id="adminPinResetForm" class="p-5 sm:p-6 space-y-4">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl shrink-0 shadow-sm">🔑</div>
+            <div>
+              <h3 id="adminPinResetTitle" class="text-base font-extrabold text-slate-900 leading-snug">ग्राहक का नया 4-अंकों का पिन</h3>
+              <p id="adminPinResetDesc" class="text-[11px] font-medium text-slate-500 mt-0.5">खाली छोड़ने पर नया रैंडम पिन अपने आप बन जाएगा</p>
+            </div>
+          </div>
+          <button id="adminPinResetCloseBtn" type="button" aria-label="Close" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm shrink-0">✕</button>
+        </div>
+
+        <div id="adminPinResetCustInfo" class="rounded-2xl bg-slate-50 border border-slate-200 px-3.5 py-2.5 text-xs font-bold text-slate-700 flex items-center justify-between gap-2"></div>
+
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <label id="adminPinResetLabel" for="adminPinResetInput" class="text-xs font-extrabold text-slate-700">नया 4-अंकों का PIN (वैकल्पिक)</label>
+            <button id="adminPinRandomFillBtn" type="button" class="px-2.5 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 text-[11px] font-extrabold transition">🎲 रैंडम पिन</button>
+          </div>
+          <input
+            id="adminPinResetInput"
+            type="tel"
+            inputmode="numeric"
+            maxlength="4"
+            autocomplete="off"
+            placeholder="••••"
+            class="w-full rounded-2xl border-2 border-slate-300 focus:border-orange-500 focus:outline-none px-4 py-3 text-center text-2xl font-mono font-black tracking-[0.45em] text-slate-900 bg-white"
+          />
+          <p id="adminPinResetError" class="hidden text-xs font-bold text-red-600 text-center"></p>
+        </div>
+
+        <div class="flex items-center gap-2.5 pt-1">
+          <button id="adminPinResetCancelBtn" type="button" class="flex-1 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm border border-slate-200 transition active:scale-95">
+            रद्द करें
+          </button>
+          <button id="adminPinResetSubmitBtn" type="submit" class="flex-1 py-2.5 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs sm:text-sm shadow-md transition active:scale-95">
+            ✅ पिन सेव करें
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -7907,14 +8032,19 @@
     }
 
     function openReceiptModal(ord) {
-      const shopName = state.lang === "hi" ? state.settings.shopNameHi : state.settings.shopNameEn;
+      const shopName = String(
+        (state.lang === "hi" ? state.settings?.shopNameHi : state.settings?.shopNameEn) ||
+          state.settings?.shopNameHi ||
+          state.settings?.shopNameEn ||
+          "GaonRasoi"
+      );
       const siteUrl = "gaonrasoi.github.io";
       const safeOrderId = escapeHtml(String(ord._id || ord.orderNumber || "rcpt").replace(/[^a-zA-Z0-9_-]/g, ""));
       const patternId = `grWmPattern_${safeOrderId}`;
       const sealFontSize = shopName.length > 12 ? 12.5 : 15.5;
       const rows = (ord.items || [])
         .map(
-          (it) => `<div class="flex justify-between gap-2 text-xs sm:text-[13px]">
+          (it) => `<div class="receipt-item-row flex justify-between gap-2 text-xs sm:text-[13px]">
             <span class="font-semibold text-slate-800">${escapeHtml(it.nameEn)} <span class="font-mono font-bold">x${it.quantity}</span></span>
             <span class="font-mono font-extrabold text-slate-900 shrink-0">₹${it.sellingPrice * it.quantity}</span>
           </div>`
@@ -7922,9 +8052,9 @@
         .join("");
       const kotRows = (ord.items || [])
         .map(
-          (it) => `<div class="flex items-center justify-between gap-2 py-1">
+          (it) => `<div class="receipt-kot-item flex items-center justify-between gap-2 py-1">
             <span class="font-extrabold text-slate-900 text-[13px] leading-snug">${escapeHtml(it.nameHi)} / ${escapeHtml(it.nameEn)}</span>
-            <span class="px-2 py-0.5 rounded-md bg-orange-100/80 border border-orange-400 text-orange-950 font-mono font-black text-xs shrink-0">× ${it.quantity}</span>
+            <span class="receipt-kot-qty px-2 py-0.5 rounded-md bg-orange-100/80 border border-orange-400 text-orange-950 font-mono font-black text-xs shrink-0">× ${it.quantity}</span>
           </div>`
         )
         .join("");
@@ -7947,7 +8077,7 @@
 
           <!-- Big Center Blended Brand Seal Watermark -->
           <div aria-hidden="true" class="pointer-events-none select-none absolute inset-0 flex items-center justify-center">
-            <svg viewBox="0 0 260 260" class="w-60 h-60 sm:w-64 sm:h-64">
+            <svg viewBox="0 0 260 260" class="receipt-watermark-seal w-60 h-60 sm:w-64 sm:h-64">
               <circle cx="130" cy="130" r="118" fill="none" stroke="#ea580c" stroke-opacity="0.16" stroke-width="4" stroke-dasharray="7 5" />
               <circle cx="130" cy="130" r="106" fill="#fed7aa" fill-opacity="0.14" stroke="#ea580c" stroke-opacity="0.18" stroke-width="2" />
               <g transform="translate(68,48) scale(5.1)" fill="none" stroke="#c2410c" stroke-opacity="0.18" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
@@ -7962,19 +8092,19 @@
           <div class="relative z-10 space-y-2.5">
             <!-- Top Brand Header with Crisp SVG Logo -->
             <div class="text-center border-b border-dashed border-slate-400 pb-2.5 space-y-1">
-              <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-md shadow-orange-200 mx-auto">
+              <div class="receipt-logo-badge inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-md shadow-orange-200 mx-auto">
                 <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M3 11h18M5 11a7 7 0 0 0 14 0M12 4v2M8 5l.5 1.5M16 5l-.5 1.5M7 19h10" />
                 </svg>
               </div>
-              <div class="text-lg font-extrabold tracking-tight text-slate-900">${escapeHtml(shopName)}</div>
-              <div class="font-mono text-[11px] font-bold text-orange-700 tracking-wide">${siteUrl}</div>
-              <div class="font-mono text-xs font-extrabold text-slate-800 pt-0.5">Order: ${escapeHtml(ord.orderNumber)} (${escapeHtml(ord.source || "Website")})</div>
-              <div class="font-mono text-[11px] text-slate-600">${escapeHtml(formatIST(ord.createdAt))}</div>
+              <div class="receipt-shop-title text-lg font-extrabold tracking-tight text-slate-900">${escapeHtml(shopName)}</div>
+              <div class="receipt-site-url font-mono text-[11px] font-bold text-orange-700 tracking-wide">${siteUrl}</div>
+              <div class="receipt-order-line font-mono text-xs font-extrabold text-slate-800 pt-0.5">Order: ${escapeHtml(ord.orderNumber)} (${escapeHtml(ord.source || "Website")})</div>
+              <div class="receipt-time-line font-mono text-[11px] text-slate-600">${escapeHtml(formatIST(ord.createdAt))}</div>
             </div>
 
             <!-- Customer Details -->
-            <div class="border-b border-dashed border-slate-400 pb-2 space-y-0.5 text-slate-800 text-xs sm:text-[13px]">
+            <div class="receipt-cust-box border-b border-dashed border-slate-400 pb-2 space-y-0.5 text-slate-800 text-xs sm:text-[13px]">
               <div><span class="font-bold">Customer:</span> ${escapeHtml(ord.customerName)}</div>
               <div><span class="font-bold">Phone:</span> <span class="font-mono font-semibold">${escapeHtml(ord.phone)}</span></div>
               <div><span class="font-bold">Addr:</span> ${escapeHtml(ord.address)}</div>
@@ -7985,10 +8115,10 @@
 
             <!-- Totals -->
             <div class="space-y-1 text-xs sm:text-[13px]">
-              <div class="flex justify-between text-slate-700"><span>Subtotal</span><span class="font-mono font-bold">₹${ord.subtotal}</span></div>
-              ${ord.discountAmount ? `<div class="flex justify-between text-emerald-700 font-bold"><span>Discount</span><span class="font-mono">-₹${ord.discountAmount}</span></div>` : ""}
-              <div class="flex justify-between text-slate-700"><span>Delivery</span><span class="font-mono font-bold">₹${ord.deliveryCharge}</span></div>
-              <div class="flex justify-between font-extrabold text-sm sm:text-base text-slate-900 border-t border-slate-300 pt-1"><span>TOTAL (COD)</span><span class="font-mono">₹${ord.totalAmount}</span></div>
+              <div class="receipt-summary-row flex justify-between text-slate-700"><span>Subtotal</span><span class="font-mono font-bold">₹${ord.subtotal}</span></div>
+              ${ord.discountAmount ? `<div class="receipt-summary-row flex justify-between text-emerald-700 font-bold"><span>Discount</span><span class="font-mono">-₹${ord.discountAmount}</span></div>` : ""}
+              <div class="receipt-summary-row flex justify-between text-slate-700"><span>Delivery</span><span class="font-mono font-bold">₹${ord.deliveryCharge}</span></div>
+              <div class="receipt-grand-total flex justify-between font-extrabold text-sm sm:text-base text-slate-900 border-t border-slate-300 pt-1"><span>TOTAL (COD)</span><span class="font-mono">₹${ord.totalAmount}</span></div>
             </div>
 
             ${state.settings.upiId ? `<div class="text-center font-mono text-[11px] font-semibold text-slate-700">UPI: ${escapeHtml(state.settings.upiId)}</div>` : ""}
@@ -9488,26 +9618,129 @@
       const resetBtn = e.target.closest("[data-pin-reset]");
       if (resetBtn) {
         const phone = resetBtn.dataset.pinReset;
-        const entered = prompt(t("adminPinPrompt"), "");
-        if (entered === null) return;
-        const trimmed = String(entered || "").replace(/\D/g, "");
-        if (trimmed && !/^\d{4}$/.test(trimmed)) {
-          showToast(t("errInvalidPin"), true);
-          return;
+        const cust = (state.adminCustomers || []).find((c) => c.phone === phone);
+        openAdminPinResetModal(phone, cust, resetBtn);
+      }
+    });
+
+    let _adminPinResetTarget = null;
+    function closeAdminPinResetModal() {
+      const modal = document.getElementById("adminPinResetModal");
+      if (modal) modal.classList.add("hidden");
+      _adminPinResetTarget = null;
+    }
+
+    function openAdminPinResetModal(phone, cust, triggerBtn) {
+      const isHi = state.lang === "hi";
+      const modal = document.getElementById("adminPinResetModal");
+      const titleEl = document.getElementById("adminPinResetTitle");
+      const descEl = document.getElementById("adminPinResetDesc");
+      const custBox = document.getElementById("adminPinResetCustInfo");
+      const labelEl = document.getElementById("adminPinResetLabel");
+      const randomBtn = document.getElementById("adminPinRandomFillBtn");
+      const inputEl = document.getElementById("adminPinResetInput");
+      const errEl = document.getElementById("adminPinResetError");
+      const cancelBtn = document.getElementById("adminPinResetCancelBtn");
+      const submitBtn = document.getElementById("adminPinResetSubmitBtn");
+      if (!modal || !inputEl) return;
+
+      _adminPinResetTarget = { phone, triggerBtn };
+      if (titleEl) titleEl.textContent = isHi ? "ग्राहक का नया 4-अंकों का पिन" : "Reset Customer 4-Digit PIN";
+      if (descEl) descEl.textContent = isHi ? "खाली छोड़ने पर नया रैंडम पिन अपने आप बन जाएगा" : "Leave empty to auto-generate a random 4-digit PIN";
+      if (labelEl) labelEl.textContent = isHi ? "नया 4-अंकों का PIN (वैकल्पिक)" : "New 4-Digit PIN (Optional)";
+      if (randomBtn) randomBtn.textContent = isHi ? "🎲 रैंडम पिन" : "🎲 Random";
+      if (cancelBtn) cancelBtn.textContent = isHi ? "रद्द करें" : "Cancel";
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = isHi ? "✅ पिन सेव करें" : "✅ Save PIN";
+      }
+      if (custBox) {
+        const custName = (cust && cust.name) ? cust.name : (isHi ? "ग्राहक" : "Customer");
+        custBox.innerHTML = `<span class="truncate">👤 ${escapeHtml(custName)}</span><span class="font-mono font-extrabold text-slate-900 shrink-0">📞 ${escapeHtml(phone)}</span>`;
+      }
+      if (errEl) {
+        errEl.textContent = "";
+        errEl.classList.add("hidden");
+      }
+      inputEl.value = "";
+      modal.classList.remove("hidden");
+      setTimeout(() => inputEl.focus(), 60);
+    }
+
+    document.getElementById("adminPinResetInput").addEventListener("input", (e) => {
+      e.target.value = String(e.target.value || "").replace(/\D/g, "").slice(0, 4);
+      const errEl = document.getElementById("adminPinResetError");
+      if (errEl) errEl.classList.add("hidden");
+    });
+
+    document.getElementById("adminPinRandomFillBtn").addEventListener("click", () => {
+      const randPin = String(Math.floor(1000 + Math.random() * 9000));
+      const inp = document.getElementById("adminPinResetInput");
+      const errEl = document.getElementById("adminPinResetError");
+      if (inp) {
+        inp.value = randPin;
+        inp.focus();
+      }
+      if (errEl) errEl.classList.add("hidden");
+    });
+
+    document.getElementById("adminPinResetCloseBtn").addEventListener("click", closeAdminPinResetModal);
+    document.getElementById("adminPinResetCancelBtn").addEventListener("click", closeAdminPinResetModal);
+    document.getElementById("adminPinResetModal").addEventListener("click", (e) => {
+      if (e.target && e.target.id === "adminPinResetModal") closeAdminPinResetModal();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        const pinModal = document.getElementById("adminPinResetModal");
+        if (pinModal && !pinModal.classList.contains("hidden")) {
+          closeAdminPinResetModal();
         }
-        resetBtn.disabled = true;
-        try {
-          const res = await apiFetch(`/api/admin/customers/${encodeURIComponent(phone)}/pin`, {
-            method: "POST",
-            body: JSON.stringify({ pin: trimmed || undefined }),
-          }, true);
-          showToast(t("adminPinUpdated", res.pin));
-          await refreshAdminData(false);
-        } catch (err) {
+      }
+    });
+
+    document.getElementById("adminPinResetForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!_adminPinResetTarget) return;
+      const { phone, triggerBtn } = _adminPinResetTarget;
+      const isHi = state.lang === "hi";
+      const inputEl = document.getElementById("adminPinResetInput");
+      const errEl = document.getElementById("adminPinResetError");
+      const submitBtn = document.getElementById("adminPinResetSubmitBtn");
+      const trimmed = String((inputEl && inputEl.value) || "").replace(/\D/g, "");
+      if (trimmed && !/^\d{4}$/.test(trimmed)) {
+        if (errEl) {
+          errEl.textContent = t("errInvalidPin");
+          errEl.classList.remove("hidden");
+        }
+        return;
+      }
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = isHi ? "सेव हो रहा है..." : "Saving...";
+      }
+      if (triggerBtn) triggerBtn.disabled = true;
+      try {
+        const res = await apiFetch(`/api/admin/customers/${encodeURIComponent(phone)}/pin`, {
+          method: "POST",
+          body: JSON.stringify({ pin: trimmed || undefined }),
+        }, true);
+        closeAdminPinResetModal();
+        showToast(t("adminPinUpdated", res.pin));
+        await refreshAdminData(false);
+      } catch (err) {
+        if (errEl) {
+          errEl.textContent = (err && err.message) || t("serverError");
+          errEl.classList.remove("hidden");
+        } else {
           showToast((err && err.message) || t("serverError"), true);
-        } finally {
-          resetBtn.disabled = false;
         }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = isHi ? "✅ पिन सेव करें" : "✅ Save PIN";
+        }
+        if (triggerBtn) triggerBtn.disabled = false;
       }
     });
 
@@ -11376,5 +11609,5 @@
       window.addEventListener("DOMContentLoaded", () => setTimeout(window.__notifyAppReady, 120));
     }
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a616ff1b6fe04700',t:'MTc5NTg0Mzk5Mg=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a616ff1b6fe04700',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
